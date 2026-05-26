@@ -27,6 +27,39 @@
   font-size: 1rem;
 }
 
+/* --- BUSCADOR --- */
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 12px 18px;
+  border-radius: 15px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-icon {
+  color: #999;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
+  background: transparent;
+  font-family: var(--sans);
+}
+
+.search-input::placeholder {
+  color: #bbb;
+}
+
 .back-btn {
   background: white;
   border: none;

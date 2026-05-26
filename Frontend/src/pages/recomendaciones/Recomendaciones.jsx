@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getMyRecommendations } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -14,6 +14,7 @@ export default function Recomendaciones() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const MOVIES_PER_PAGE = 20;
 
   useEffect(() => {
@@ -31,10 +32,20 @@ export default function Recomendaciones() {
       .finally(() => setLoading(false));
   }, []);
 
-  const totalPages = Math.ceil(movies.length / MOVIES_PER_PAGE);
+  // Filtrar películas según el término de búsqueda
+  const filteredMovies = movies.filter((movie) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      movie.title?.toLowerCase().includes(searchLower) ||
+      movie.director?.toLowerCase().includes(searchLower) ||
+      movie.genre?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const totalPages = Math.ceil(filteredMovies.length / MOVIES_PER_PAGE);
   const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
   const endIndex = startIndex + MOVIES_PER_PAGE;
-  const currentMovies = movies.slice(startIndex, endIndex);
+  const currentMovies = filteredMovies.slice(startIndex, endIndex);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -46,6 +57,11 @@ export default function Recomendaciones() {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Volver a la primera página al buscar
   };
 
   const handleAddToWatchlist = async (movieId) => {
@@ -65,10 +81,24 @@ export default function Recomendaciones() {
         <p>Películas recomendadas basadas en tus favoritos</p>
       </header>
 
+      {/* Buscador */}
+      <div className="search-container">
+        <Search size={20} className="search-icon" />
+        <input
+          type="text"
+          placeholder="Buscar por título, director, género..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
+      </div>
+
       {loading ? (
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>Cargando películas...</p>
       ) : movies.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No hay recomendaciones disponibles</p>
+      ) : filteredMovies.length === 0 ? (
+        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No se encontraron películas que coincidan con tu búsqueda</p>
       ) : (
         <>
           <div className="reco-grid">
