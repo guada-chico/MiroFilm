@@ -24,11 +24,21 @@ namespace Miro.Services
                 .Select(f => f.MovieId)
                 .ToListAsync();
 
+            var results = new List<Movie>();
+
             // 2. Si el usuario no tiene películas favoritas, devolver películas populares
             if (!favoriteMovieIds.Any())
             {
-                var popularMovies = await _tmdbService.GetPopularMoviesAsync(1);
-                return popularMovies.Take(20).ToList();
+                // Obtener 3 páginas de películas populares (20 por página = 60 total)
+                for (int page = 1; page <= 3; page++)
+                {
+                    var popularMovies = await _tmdbService.GetPopularMoviesAsync(page);
+                    results.AddRange(popularMovies);
+                    if (results.Count >= 60) break;
+                }
+                results = results.Take(60).ToList();
+                Console.WriteLine($"[RECOMENDACIONES] Sin favoritos - Devolviendo {results.Count} películas populares");
+                return results;
             }
 
             // 3. Obtener los géneros de las películas favoritas
@@ -46,26 +56,36 @@ namespace Miro.Services
                 }
             }
 
-            var results = new List<Movie>();
-
             // 4. Si no hay géneros, devolver películas populares
             if (!favoriteGenres.Any())
             {
-                var popularMovies = await _tmdbService.GetPopularMoviesAsync(1);
-                return popularMovies.Take(20).ToList();
+                // Obtener 3 páginas de películas populares
+                for (int page = 1; page <= 3; page++)
+                {
+                    var popularMovies = await _tmdbService.GetPopularMoviesAsync(page);
+                    results.AddRange(popularMovies);
+                    if (results.Count >= 60) break;
+                }
+                results = results.Take(60).ToList();
+                Console.WriteLine($"[RECOMENDACIONES] Sin géneros - Devolviendo {results.Count} películas populares");
+                return results;
             }
 
             // 5. Obtener películas top-rated como recomendaciones
             try
             {
-                var topRatedMovies = await _tmdbService.GetTopRatedMoviesAsync(1);
-                foreach (var movie in topRatedMovies)
+                for (int page = 1; page <= 3; page++)
                 {
-                    // Evitar películas que ya están en favoritos
-                    if (favoriteMovieIds.Contains(movie.Id)) continue;
-                    
-                    results.Add(movie);
-                    if (results.Count >= 20) break;
+                    var topRatedMovies = await _tmdbService.GetTopRatedMoviesAsync(page);
+                    foreach (var movie in topRatedMovies)
+                    {
+                        // Evitar películas que ya están en favoritos
+                        if (favoriteMovieIds.Contains(movie.Id)) continue;
+                        
+                        results.Add(movie);
+                        if (results.Count >= 60) break;
+                    }
+                    if (results.Count >= 60) break;
                 }
             }
             catch
@@ -74,18 +94,22 @@ namespace Miro.Services
             }
 
             // 6. Si no tenemos suficientes, completar con películas populares
-            if (results.Count < 20)
+            if (results.Count < 60)
             {
                 try
                 {
-                    var popularMovies = await _tmdbService.GetPopularMoviesAsync(1);
-                    foreach (var movie in popularMovies)
+                    for (int page = 1; page <= 3; page++)
                     {
-                        if (favoriteMovieIds.Contains(movie.Id)) continue;
-                        if (results.Any(r => r.TmdbId == movie.TmdbId)) continue;
+                        var popularMovies = await _tmdbService.GetPopularMoviesAsync(page);
+                        foreach (var movie in popularMovies)
+                        {
+                            if (favoriteMovieIds.Contains(movie.Id)) continue;
+                            if (results.Any(r => r.TmdbId == movie.TmdbId)) continue;
 
-                        results.Add(movie);
-                        if (results.Count >= 20) break;
+                            results.Add(movie);
+                            if (results.Count >= 60) break;
+                        }
+                        if (results.Count >= 60) break;
                     }
                 }
                 catch
@@ -94,7 +118,41 @@ namespace Miro.Services
                 }
             }
 
-            return results.Take(20);
+            // Enriquecer todas las películas con detalles (director, géneros, etc.)
+            var enrichedResults = await EnrichMoviesWithDetailsAsync(results);
+            
+            var finalCount = enrichedResults.Count();
+            Console.WriteLine($"[RECOMENDACIONES] Devolviendo {finalCount} películas en total (enriquecidas)");
+            return enrichedResults;
+        }
+
+        private async Task<IEnumerable<Movie>> EnrichMoviesWithDetailsAsync(List<Movie> movies)
+        {
+            var enrichedMovies = new List<Movie>();
+            
+            // Procesar en paralelo pero con límite de concurrencia para no sobrecargar TMDb
+            var semaphore = new System.Threading.SemaphoreSlim(5); // Máximo 5 llamadas simultáneas
+            
+            var tasks = movies.Select(async movie =>
+            {
+                await semaphore.WaitAsync();
+                try
+                {
+                    var details = await _tmdbService.GetMovieDetailsAsync(movie.TmdbId);
+                    return details ?? movie;
+                }
+                catch
+                {
+                    return movie;
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            var results = await Task.WhenAll(tasks);
+            return results.ToList();
         }
     }
 }

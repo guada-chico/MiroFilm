@@ -20,7 +20,10 @@ export default function Recomendaciones() {
     setLoading(true);
     setMovies([]);
     getMyRecommendations()
-      .then((data) => setMovies(data ?? []))
+      .then((data) => {
+        console.log('Películas recibidas:', data?.length || 0);
+        setMovies(data ?? []);
+      })
       .catch((error) => {
         console.error('Error fetching recommendations:', error);
         setMovies([]);

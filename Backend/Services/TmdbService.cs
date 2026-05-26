@@ -152,7 +152,7 @@ namespace Miro.Services
         {
             try
             {
-                var url = $"{_baseUrl}/movie/{tmdbId}?api_key={_apiKey}&language=es-ES";
+                var url = $"{_baseUrl}/movie/{tmdbId}?api_key={_apiKey}&language=es-ES&append_to_response=credits";
                 var response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
 
@@ -212,6 +212,23 @@ namespace Miro.Services
                 }
             }
 
+            // Obtener director de los créditos
+            var director = "Director desconocido";
+            if (element.TryGetProperty("credits", out var credits) && credits.TryGetProperty("crew", out var crew))
+            {
+                foreach (var crewMember in crew.EnumerateArray())
+                {
+                    if (crewMember.TryGetProperty("job", out var job) && job.GetString() == "Director")
+                    {
+                        if (crewMember.TryGetProperty("name", out var name))
+                        {
+                            director = name.GetString() ?? "Director desconocido";
+                            break;
+                        }
+                    }
+                }
+            }
+
             var movie = new Movie
             {
                 TmdbId = element.GetProperty("id").GetInt32(),
@@ -229,7 +246,8 @@ namespace Miro.Services
                     ? DateTime.TryParse(releaseDate.GetString(), out var date) ? date : null
                     : null,
                 Genre = string.Join(", ", genres),
-                Language = element.TryGetProperty("original_language", out var lang) ? lang.GetString() : null
+                Language = element.TryGetProperty("original_language", out var lang) ? lang.GetString() : null,
+                Director = director
             };
 
             return movie;
