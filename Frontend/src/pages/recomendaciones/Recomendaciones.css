@@ -2,6 +2,7 @@
   animation: fadeIn 0.4s ease;
   font-family: var(--sans);
   position: relative;
+  width: 100%;
 }
 
 .reco-header {
@@ -49,6 +50,9 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 25px;
+  grid-auto-rows: 400px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .reco-card {
@@ -60,6 +64,8 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
   height: 100%;
 }
 
@@ -71,15 +77,18 @@
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  aspect-ratio: 2/3;
+  width: 100%;
+  height: 240px;
   background: #f9f9f9;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .reco-img-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .reco-hover-actions {
@@ -112,11 +121,12 @@
 }
 
 .reco-info {
-  margin-top: 15px;
-  flex: 1;
+  margin-top: 12px;
+  flex: 0 0 140px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .reco-rating {
@@ -130,22 +140,29 @@
 }
 
 .reco-info h4 {
-  font-size: 1.05rem;
-  margin: 0 0 4px 0;
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
   color: #1a1a1a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1.2;
+  height: 24px;
+  flex-shrink: 0;
 }
 
 .reco-info p {
   color: #999;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   margin: 0;
+  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  height: 18px;
+  line-height: 1.2;
+  flex-shrink: 0;
 }
 
 /* --- ESTILOS DEL MODAL --- */
@@ -219,26 +236,26 @@
 .modal-author {
   color: #888;
   font-size: 1rem;
-  margin-bottom: 15px; /* Aumentado */
+  margin-bottom: 15px;
 }
 
 /* ESPACIADO ENTRE SECCIONES */
 .modal-section {
-  margin-bottom: 15px; /* Aumentado */
+  margin-bottom: 15px;
 }
 
 .modal-label {
   font-size: 0.8rem;
   text-transform: uppercase;
   color: #bbb;
-  margin-bottom: 15px; /* Espacio entre el título de la sección y el contenido */
+  margin-bottom: 15px;
   font-weight: 700;
   display: block;
 }
 
 .modal-text {
-    line-height: 1.6;
-    color: #444;
+  line-height: 1.6;
+  color: #444;
 }
 
 .comment-pill {
@@ -265,4 +282,48 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- PAGINACIÓN --- */
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 40px;
+  padding: 20px 0;
+}
+
+.pagination-btn {
+  background: white;
+  border: 1px solid #e0e0e0;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #ff6b35;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+  min-width: 150px;
+  text-align: center;
 }

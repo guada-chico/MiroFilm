@@ -28,7 +28,7 @@ namespace Miro.Services
             if (!favoriteMovieIds.Any())
             {
                 var popularMovies = await _tmdbService.GetPopularMoviesAsync(1);
-                return popularMovies.Take(10).ToList();
+                return popularMovies.Take(20).ToList();
             }
 
             // 3. Obtener los géneros de las películas favoritas
@@ -52,7 +52,7 @@ namespace Miro.Services
             if (!favoriteGenres.Any())
             {
                 var popularMovies = await _tmdbService.GetPopularMoviesAsync(1);
-                return popularMovies.Take(10).ToList();
+                return popularMovies.Take(20).ToList();
             }
 
             // 5. Obtener películas top-rated como recomendaciones
@@ -65,7 +65,7 @@ namespace Miro.Services
                     if (favoriteMovieIds.Contains(movie.Id)) continue;
                     
                     results.Add(movie);
-                    if (results.Count >= 10) break;
+                    if (results.Count >= 20) break;
                 }
             }
             catch
@@ -74,7 +74,7 @@ namespace Miro.Services
             }
 
             // 6. Si no tenemos suficientes, completar con películas populares
-            if (results.Count < 10)
+            if (results.Count < 20)
             {
                 try
                 {
@@ -85,7 +85,7 @@ namespace Miro.Services
                         if (results.Any(r => r.TmdbId == movie.TmdbId)) continue;
 
                         results.Add(movie);
-                        if (results.Count >= 10) break;
+                        if (results.Count >= 20) break;
                     }
                 }
                 catch
@@ -94,7 +94,7 @@ namespace Miro.Services
                 }
             }
 
-            return results.Take(10);
+            return results.Take(20);
         }
     }
 }

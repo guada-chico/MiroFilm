@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Heart, BookmarkPlus, ArrowLeft, X } from 'lucide-react';
+import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getMyRecommendations } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -13,6 +13,8 @@ export default function Recomendaciones() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const MOVIES_PER_PAGE = 20;
 
   useEffect(() => {
     setLoading(true);
@@ -25,6 +27,23 @@ export default function Recomendaciones() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const totalPages = Math.ceil(movies.length / MOVIES_PER_PAGE);
+  const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
+  const endIndex = startIndex + MOVIES_PER_PAGE;
+  const currentMovies = movies.slice(startIndex, endIndex);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const handleAddToWatchlist = async (movieId) => {
     // TODO: Implementar agregar a lista de visualización
@@ -48,32 +67,57 @@ export default function Recomendaciones() {
       ) : movies.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No hay recomendaciones disponibles</p>
       ) : (
-        <div className="reco-grid">
-          {movies.map((movie, i) => (
-            <div key={movie.tmdbId || movie.id || i} className="reco-card" onClick={() => setSelectedMovie(movie)}>
-              <div className="reco-img-wrapper">
-                <img
-                  src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
-                  alt={movie.title}
-                />
-                <div className="reco-hover-actions">
-                  <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); }}>
-                    <Heart size={18} />
-                  </button>
-                  <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(movie.id); }}>
-                    <BookmarkPlus size={18} />
-                  </button>
+        <>
+          <div className="reco-grid">
+            {currentMovies.map((movie, i) => (
+              <div key={movie.tmdbId || movie.id || i} className="reco-card" onClick={() => setSelectedMovie(movie)}>
+                <div className="reco-img-wrapper">
+                  <img
+                    src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                    alt={movie.title}
+                  />
+                  <div className="reco-hover-actions">
+                    <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); }}>
+                      <Heart size={18} />
+                    </button>
+                    <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(movie.id); }}>
+                      <BookmarkPlus size={18} />
+                    </button>
+                  </div>
+                </div>
+                <div className="reco-info">
+                  <h4>{movie.title}</h4>
+                  <p>{movie.director || 'Director desconocido'}</p>
+                  {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
+                  {movie.rating && <p style={{ fontSize: '0.7rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
                 </div>
               </div>
-              <div className="reco-info">
-                <h4>{movie.title}</h4>
-                <p>{movie.director || 'Director desconocido'}</p>
-                {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
-                {movie.rating && <p style={{ fontSize: '0.7rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
-              </div>
+            ))}
+          </div>
+
+          {/* Paginación */}
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <button 
+                className="pagination-btn" 
+                onClick={handlePrevPage} 
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="pagination-info">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button 
+                className="pagination-btn" 
+                onClick={handleNextPage} 
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={20} />
+              </button>
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {/* Modal de detalle */}
