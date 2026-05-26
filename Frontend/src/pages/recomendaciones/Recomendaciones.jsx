@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { getMyRecommendations } from '../../services/recommendations-service';
+import { getPopularMovies, searchMovies, getMovieDetails } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Recomendaciones.css';
@@ -15,42 +15,43 @@ export default function Recomendaciones() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const MOVIES_PER_PAGE = 20;
+  const [isSearching, setIsSearching] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
+  // Cargar películas populares
   useEffect(() => {
     setLoading(true);
     setMovies([]);
-    getMyRecommendations()
-      .then((data) => {
-        console.log('Películas recibidas:', data?.length || 0);
-        setMovies(data ?? []);
-      })
-      .catch((error) => {
-        console.error('Error fetching recommendations:', error);
-        setMovies([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Filtrar películas según el término de búsqueda
-  const filteredMovies = movies.filter((movie) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      movie.title?.toLowerCase().includes(searchLower) ||
-      movie.director?.toLowerCase().includes(searchLower) ||
-      movie.genre?.toLowerCase().includes(searchLower)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredMovies.length / MOVIES_PER_PAGE);
-  const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
-  const endIndex = startIndex + MOVIES_PER_PAGE;
-  const currentMovies = filteredMovies.slice(startIndex, endIndex);
+    
+    if (isSearching && searchTerm) {
+      // Si estamos buscando, usar el endpoint de búsqueda
+      searchMovies(searchTerm)
+        .then((data) => {
+          console.log('Películas encontradas:', data?.length || 0);
+          setMovies(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error searching movies:', error);
+          setMovies([]);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // Si no, cargar películas populares
+      getPopularMovies(currentPage)
+        .then((data) => {
+          console.log('Películas recibidas:', data?.length || 0);
+          setMovies(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error fetching movies:', error);
+          setMovies([]);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [currentPage, isSearching, searchTerm]);
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage(currentPage + 1);
   };
 
   const handlePrevPage = () => {
@@ -60,8 +61,24 @@ export default function Recomendaciones() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Volver a la primera página al buscar
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCurrentPage(1);
+    setIsSearching(value.length > 0);
+  };
+
+  const handleMovieClick = async (movie) => {
+    // Obtener detalles completos de la película
+    setLoadingDetails(true);
+    try {
+      const details = await getMovieDetails(movie.tmdbId);
+      setSelectedMovie(details);
+    } catch (error) {
+      console.error('Error fetching movie details:', error);
+      setSelectedMovie(movie);
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   const handleAddToWatchlist = async (movieId) => {
@@ -76,9 +93,9 @@ export default function Recomendaciones() {
           <button className="back-btn" onClick={() => navigate('/inicio')}>
             <ArrowLeft size={20} />
           </button>
-          <h1>Recomendaciones de Películas</h1>
+          <h1>Películas</h1>
         </div>
-        <p>Películas recomendadas basadas en tus favoritos</p>
+        <p>Descubre y sigue tus peliculas favoritas</p>
       </header>
 
       {/* Buscador */}
@@ -96,14 +113,12 @@ export default function Recomendaciones() {
       {loading ? (
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>Cargando películas...</p>
       ) : movies.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No hay recomendaciones disponibles</p>
-      ) : filteredMovies.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No se encontraron películas que coincidan con tu búsqueda</p>
+        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No hay películas disponibles</p>
       ) : (
         <>
           <div className="reco-grid">
-            {currentMovies.map((movie, i) => (
-              <div key={movie.tmdbId || movie.id || i} className="reco-card" onClick={() => setSelectedMovie(movie)}>
+            {movies.map((movie, i) => (
+              <div key={movie.tmdbId || movie.id || i} className="reco-card" onClick={() => handleMovieClick(movie)}>
                 <div className="reco-img-wrapper">
                   <img
                     src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
@@ -128,8 +143,8 @@ export default function Recomendaciones() {
             ))}
           </div>
 
-          {/* Paginación */}
-          {totalPages > 1 && (
+          {/* Paginación - solo mostrar si no estamos buscando */}
+          {!isSearching && movies.length > 0 && (
             <div className="pagination-container">
               <button 
                 className="pagination-btn" 
@@ -139,12 +154,11 @@ export default function Recomendaciones() {
                 <ChevronLeft size={20} />
               </button>
               <span className="pagination-info">
-                Página {currentPage} de {totalPages}
+                Página {currentPage}
               </span>
               <button 
                 className="pagination-btn" 
-                onClick={handleNextPage} 
-                disabled={currentPage === totalPages}
+                onClick={handleNextPage}
               >
                 <ChevronRight size={20} />
               </button>
@@ -160,39 +174,48 @@ export default function Recomendaciones() {
             <button className="close-modal" onClick={() => setSelectedMovie(null)}>
               <X size={24} />
             </button>
-            <div className="modal-body">
-              <img
-                src={selectedMovie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
-                alt={selectedMovie.title}
-                className="modal-img"
-              />
-              <div className="modal-details">
-                <h2>{selectedMovie.title}</h2>
-                <p className="modal-author">Dirigida por {selectedMovie.director || 'Director desconocido'}</p>
-                {selectedMovie.genre && (
-                  <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
-                    {selectedMovie.genre}
-                  </p>
-                )}
-                {selectedMovie.rating && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    ⭐ Calificación: {selectedMovie.rating.toFixed(1)}/10
-                  </p>
-                )}
-                {selectedMovie.releaseDate && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    Estreno: {new Date(selectedMovie.releaseDate).toLocaleDateString('es-ES')}
-                  </p>
-                )}
-                <div className="modal-section">
-                  <h3 className="modal-label">Sinopsis</h3>
-                  <p className="modal-text">{selectedMovie.plot || 'Sin sinopsis disponible'}</p>
+            {loadingDetails ? (
+              <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>Cargando detalles...</p>
+            ) : (
+              <div className="modal-body">
+                <img
+                  src={selectedMovie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                  alt={selectedMovie.title}
+                  className="modal-img"
+                />
+                <div className="modal-details">
+                  <h2>{selectedMovie.title}</h2>
+                  <p className="modal-author">Dirigida por {selectedMovie.director || 'Director desconocido'}</p>
+                  {selectedMovie.genre && (
+                    <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
+                      {selectedMovie.genre}
+                    </p>
+                  )}
+                  {selectedMovie.rating && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      ⭐ Calificación: {selectedMovie.rating.toFixed(1)}/10
+                    </p>
+                  )}
+                  {selectedMovie.duration && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Duración: {selectedMovie.duration} minutos
+                    </p>
+                  )}
+                  {selectedMovie.releaseDate && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Estreno: {new Date(selectedMovie.releaseDate).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
+                  <div className="modal-section">
+                    <h3 className="modal-label">Sinopsis</h3>
+                    <p className="modal-text">{selectedMovie.plot || 'Sin sinopsis disponible'}</p>
+                  </div>
+                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie.id)}>
+                    Añadir a mi lista
+                  </button>
                 </div>
-                <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie.id)}>
-                  Añadir a mi lista
-                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

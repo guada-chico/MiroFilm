@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Miro.Data;
 using Miro.Models;
+using Miro.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Miro.Controllers
@@ -10,10 +11,12 @@ namespace Miro.Controllers
     public class MoviesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ITmdbService _tmdbService;
 
-        public MoviesController(AppDbContext context)
+        public MoviesController(AppDbContext context, ITmdbService tmdbService)
         {
             _context = context;
+            _tmdbService = tmdbService;
         }
 
         /// <summary>
@@ -49,6 +52,111 @@ namespace Miro.Controllers
                 .Where(m => m.Title.Contains(q) || (m.Plot != null && m.Plot.Contains(q)))
                 .ToListAsync();
             return Ok(movies);
+        }
+
+        /// <summary>
+        /// Obtiene películas populares de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/popular")]
+        public async Task<IActionResult> GetPopularMoviesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbMovies = await _tmdbService.GetPopularMoviesAsync(page);
+                return Ok(tmdbMovies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene películas mejor calificadas de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/top-rated")]
+        public async Task<IActionResult> GetTopRatedMoviesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbMovies = await _tmdbService.GetTopRatedMoviesAsync(page);
+                return Ok(tmdbMovies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene películas próximas a estrenarse de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/upcoming")]
+        public async Task<IActionResult> GetUpcomingMoviesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbMovies = await _tmdbService.GetUpcomingMoviesAsync(page);
+                return Ok(tmdbMovies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene películas en cines actualmente de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/now-playing")]
+        public async Task<IActionResult> GetNowPlayingMoviesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbMovies = await _tmdbService.GetNowPlayingMoviesAsync(page);
+                return Ok(tmdbMovies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Busca películas en TMDB.
+        /// </summary>
+        [HttpGet("tmdb/search")]
+        public async Task<IActionResult> SearchMoviesInTmdb([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return BadRequest("La consulta no puede estar vacía.");
+
+            try
+            {
+                var tmdbMovies = await _tmdbService.SearchMoviesAsync(q);
+                return Ok(tmdbMovies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalles de una película de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/{tmdbId}")]
+        public async Task<IActionResult> GetMovieDetailsFromTmdb(int tmdbId)
+        {
+            try
+            {
+                var movie = await _tmdbService.GetMovieDetailsAsync(tmdbId);
+                return movie != null ? Ok(movie) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         /// <summary>
