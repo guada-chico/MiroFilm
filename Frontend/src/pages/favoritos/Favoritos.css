@@ -1,0 +1,102 @@
+.favoritos-container {
+  animation: fadeIn 0.4s ease;
+  font-family: var(--sans);
+}
+
+/* Reutilizamos los estilos de cabecera y grid de Recomendaciones */
+.reco-header {
+  margin-bottom: 30px;
+}
+
+.reco-title-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.reco-header h1 {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.reco-header p {
+  color: #888;
+  font-size: 1rem;
+}
+
+.back-btn {
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Estilo específico para el icono de favorito activo */
+.reco-icon-btn.active {
+  background: #fff5f2;
+  color: #ff6b35;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 100px 0;
+  color: #bbb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Estilos del Modal (Mismos que Recomendaciones para consistencia) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  width: 850px;
+  max-width: 90%;
+  max-height: 85vh;
+  border-radius: 35px;
+  padding: 40px;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-body { display: flex; gap: 40px; }
+.modal-img { width: 280px; height: 420px; border-radius: 20px; object-fit: cover; }
+.modal-author { color: #888; font-size: 1.1rem; margin-bottom: 45px; }
+.modal-section { margin-bottom: 40px; }
+.modal-label { font-size: 0.8rem; text-transform: uppercase; color: #bbb; margin-bottom: 15px; font-weight: 700; display: block; }
+
+.comment-pill {
+  background: #f9f9f9;
+  padding: 12px 18px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  border-left: 4px solid #ff6b35;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

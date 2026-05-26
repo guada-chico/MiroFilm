@@ -1,0 +1,82 @@
+# ─────────────────────────────────────────────
+#  .NET / ASP.NET Core
+# ─────────────────────────────────────────────
+
+# Carpetas de compilación
+Backend/bin/
+Backend/obj/
+
+# Archivos de usuario de Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Archivos de publicación
+Backend/publish/
+Backend/*.nupkg
+
+# Secretos y configuración local (¡IMPORTANTE!)
+Backend/appsettings.Development.json
+# Nota: appsettings.json se incluye pero NO debe contener secretos reales.
+# Usa "dotnet user-secrets" o variables de entorno para datos sensibles.
+
+# ─────────────────────────────────────────────
+#  Node.js / React (Vite)
+# ─────────────────────────────────────────────
+
+# Dependencias
+Frontend/node_modules/
+
+# Build de producción
+Frontend/dist/
+Frontend/.vite/
+
+# Variables de entorno del frontend
+Frontend/.env
+Frontend/.env.local
+Frontend/.env.development.local
+Frontend/.env.test.local
+Frontend/.env.production.local
+
+# Logs de npm/yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─────────────────────────────────────────────
+#  Sistema operativo
+# ─────────────────────────────────────────────
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# ─────────────────────────────────────────────
+#  Editores e IDEs
+# ─────────────────────────────────────────────
+
+# VS Code (se puede incluir si el equipo comparte configuración)
+# .vscode/
+
+# JetBrains (Rider)
+.idea/
+*.iml
+
+# ─────────────────────────────────────────────
+#  Archivos sensibles — NUNCA subir al repo
+# ─────────────────────────────────────────────
+
+*.pfx
+*.p12
+*.key
+*.pem
+secrets.json

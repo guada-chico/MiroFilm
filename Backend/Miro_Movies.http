@@ -1,0 +1,155 @@
+### Variables
+@baseUrl = https://localhost:5001/api
+@userId = 1
+@movieId = 1
+
+### ============================================
+### TMDB API - Búsqueda y Descubrimiento
+### ============================================
+
+### Buscar películas por título
+GET {{baseUrl}}/tmdb/search?q=Inception
+
+### Películas más populares
+GET {{baseUrl}}/tmdb/popular?page=1
+
+### Películas mejor calificadas
+GET {{baseUrl}}/tmdb/top-rated?page=1
+
+### Próximos estrenos
+GET {{baseUrl}}/tmdb/upcoming?page=1
+
+### Películas en cines actualmente
+GET {{baseUrl}}/tmdb/now-playing?page=1
+
+### Películas por género (28 = Acción)
+GET {{baseUrl}}/tmdb/genre/28?page=1
+
+### Detalles de una película específica (TMDb ID: 278 = Shawshank Redemption)
+GET {{baseUrl}}/tmdb/278
+
+### ============================================
+### MOVIES - Gestión de Películas Locales
+### ============================================
+
+### Obtener todas las películas locales
+GET {{baseUrl}}/movies
+
+### Obtener película por ID
+GET {{baseUrl}}/movies/1
+
+### Buscar películas locales
+GET {{baseUrl}}/movies/search?q=Godfather
+
+### Crear nueva película
+POST {{baseUrl}}/movies
+Content-Type: application/json
+
+{
+  "tmdbId": 550,
+  "title": "Fight Club",
+  "director": "David Fincher",
+  "plot": "An insomniac office worker and a devil-may-care soapmaker form an underground fight club that evolves into much more.",
+  "posterUrl": "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",
+  "duration": 139,
+  "genre": "Drama, Thriller",
+  "rating": 8.8,
+  "releaseDate": "1999-10-15",
+  "language": "en"
+}
+
+### Actualizar película
+PUT {{baseUrl}}/movies/1
+Content-Type: application/json
+
+{
+  "tmdbId": 278,
+  "title": "The Shawshank Redemption (Updated)",
+  "director": "Frank Darabont",
+  "plot": "Two imprisoned men bond over a number of years...",
+  "duration": 142,
+  "genre": "Drama",
+  "rating": 9.3,
+  "releaseDate": "1994-10-14"
+}
+
+### Eliminar película
+DELETE {{baseUrl}}/movies/1
+
+### ============================================
+### WATCHING STATUS - Seguimiento de Visualización
+### ============================================
+
+### Obtener estado de visualización de una película
+GET {{baseUrl}}/watchingstatus/user/{{userId}}/movie/{{movieId}}
+
+### Obtener todas las películas que un usuario está viendo
+GET {{baseUrl}}/watchingstatus/user/{{userId}}
+
+### Crear o actualizar estado de visualización
+POST {{baseUrl}}/watchingstatus
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "movieId": 1,
+  "status": "Viendo",
+  "currentMinute": 45
+}
+
+### Actualizar progreso de visualización
+PUT {{baseUrl}}/watchingstatus/1/progress
+Content-Type: application/json
+
+{
+  "currentMinute": 90,
+  "status": "Viendo"
+}
+
+### Eliminar estado de visualización
+DELETE {{baseUrl}}/watchingstatus/1
+
+### ============================================
+### MOVIE FAVORITES - Películas Favoritas
+### ============================================
+
+### Obtener películas favoritas de un usuario
+GET {{baseUrl}}/moviefavorites/user/{{userId}}
+
+### Verificar si una película es favorita
+GET {{baseUrl}}/moviefavorites/user/{{userId}}/movie/{{movieId}}
+
+### Añadir película a favoritos
+POST {{baseUrl}}/moviefavorites
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "movieId": 1
+}
+
+### Eliminar película de favoritos
+DELETE {{baseUrl}}/moviefavorites/user/{{userId}}/movie/{{movieId}}
+
+### ============================================
+### GÉNEROS DE TMDB (IDs comunes)
+### ============================================
+### 28 - Acción
+### 12 - Aventura
+### 16 - Animación
+### 35 - Comedia
+### 80 - Crimen
+### 99 - Documental
+### 18 - Drama
+### 10751 - Familia
+### 14 - Fantasía
+### 36 - Historia
+### 27 - Terror
+### 10402 - Música
+### 9648 - Misterio
+### 10749 - Romance
+### 878 - Ciencia Ficción
+### 10770 - Película de TV
+### 53 - Thriller
+### 10752 - Guerra
+### 37 - Western

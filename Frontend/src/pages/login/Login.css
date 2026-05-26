@@ -1,0 +1,144 @@
+.login-page {
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-family: var(--sans);
+}
+
+.login-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 420px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+
+.logo-img {
+  max-height: 80px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-box .icon {
+  position: absolute;
+  left: 12px;
+  color: #9ca3af;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 12px 12px 12px 42px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.input-box input:focus {
+  outline: none;
+  border-color: #603b33;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.main-btn {
+  background: #603b33;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.1s;
+  margin-top: 0.5rem;
+}
+
+.main-btn:hover {
+  background: #cb9489;
+}
+
+.main-btn:active {
+  transform: scale(0.98);
+}
+
+.login-switch {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.login-switch p {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.login-switch button {
+  background: none;
+  border: none;
+  color: #603b33;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 0.9rem;
+}
+
+.login-switch button:hover {
+  text-decoration: underline;
+}
+
+/* Cambia la tipografía de todo el pop-up */
+.swal2-popup {
+  font-family: 'Montserrat', sans-serif !important; /* Usa tu variable var(--sans) si la tienes */
+}
+
+/* Específico para el título (Bienvenida/Denegado) */
+.swal2-title {
+  font-weight: 700 !important;
+  color: #2d433d !important;
+}
+
+/* Específico para el texto del mensaje */
+.swal2-html-container {
+  font-size: 1rem !important;
+  color: #666 !important;
+}
+
+/* Estilo del botón de confirmación */
+.swal2-confirm {
+  background-color: #ff6b35 !important; /* Tu naranja característico */
+  border-radius: 12px !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

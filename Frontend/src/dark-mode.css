@@ -1,0 +1,70 @@
+/* ESTILOS GLOBALES PARA MODO OSCURO */
+
+/* Textos */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] span,
+:root[data-theme="dark"] label {
+  color: #b0b0b0;
+}
+
+/* Tarjetas y contenedores blancos */
+:root[data-theme="dark"] .reco-header {
+  background: transparent;
+}
+
+/* Inputs y selects */
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="dark"] input[type="email"],
+:root[data-theme="dark"] input[type="password"],
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
+  background: #333;
+  border: 1px solid #444;
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+  color: #888;
+}
+
+/* Botones */
+:root[data-theme="dark"] button {
+  transition: background-color 0.3s ease;
+}
+
+/* Bordes */
+:root[data-theme="dark"] hr,
+:root[data-theme="dark"] .divider {
+  border-color: #444;
+}
+
+/* Sombras */
+:root[data-theme="dark"] .box-shadow {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* Mensajes de error/éxito */
+:root[data-theme="dark"] .perfil-msg {
+  background: #333;
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .perfil-msg.error {
+  background: #3a1f1f;
+  color: #ff6b6b;
+}
+
+:root[data-theme="dark"] .perfil-msg.ok {
+  background: #1f3a2a;
+  color: #6bff9b;
+}

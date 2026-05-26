@@ -1,0 +1,220 @@
+.inicio-content {
+  animation: fadeIn 0.4s ease;
+  font-family: var(--sans)
+}
+
+.reading-now-section h1 { 
+  font-size: 2.5rem; 
+  font-weight: 500; 
+  margin-bottom: 25px; 
+}
+
+.search-capsule {
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 20px;
+  max-width: 800px;
+  gap: 15px;
+  transition: background-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .search-capsule {
+  background: #2a2a2a;
+}
+
+.search-cat { 
+  padding: 0 20px; 
+  border-right: 1px solid #eee; 
+  font-weight: 600; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  transition: border-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .search-cat {
+  border-right: 1px solid #444;
+  color: #f0f0f0;
+}
+
+.search-input { 
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
+}
+
+.search-input input { 
+  border: none; 
+  outline: none; 
+  width: 100%;
+  background: transparent;
+  color: inherit;
+  transition: color 0.3s ease;
+}
+
+:root[data-theme="dark"] .search-input input {
+  color: #f0f0f0;
+}
+
+.search-btn { 
+  background: #2d433d; 
+  color: white; 
+  border: none; 
+  padding: 12px 30px; 
+  border-radius: 12px; 
+  font-weight: 600; 
+  cursor: pointer; 
+}
+
+.books-section { 
+  margin-top: 50px; 
+}
+
+.section-head { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 20px; 
+}
+
+.orange-link { 
+  color: #ff6b35; 
+  font-weight: 700; 
+  cursor: pointer; 
+}
+
+.books-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 25px; 
+}
+
+.book-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.book-card img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* --- ESTILOS PARA "LIBRO LEYENDO" --- */
+.reading-now-section {
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.reading-card {
+  display: flex;
+  background: white;
+  padding: 20px;
+  border-radius: 25px;
+  gap: 25px;
+  max-width: 600px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  align-items: center;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+:root[data-theme="dark"] .reading-card {
+  background: #2a2a2a;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.reading-cover {
+  width: 110px;
+  height: 160px;
+  border-radius: 15px;
+  object-fit: cover;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.reading-info {
+  flex: 1;
+}
+
+.reading-info h4 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  color: #1a1a1a;
+  transition: color 0.3s ease;
+}
+
+:root[data-theme="dark"] .reading-info h4 {
+  color: #f0f0f0;
+}
+
+.author {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.progress-container {
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  background: #eee;
+  height: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: background-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .progress-bar {
+  background: #444;
+}
+
+.progress-fill {
+  background: #ff6b35; /* Naranja Miro */
+  height: 100%;
+  border-radius: 10px;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.continue-btn {
+  background: #2d433d;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.continue-btn:hover {
+  background: #1e2d29;
+  transform: scale(1.02);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

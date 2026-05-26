@@ -1,0 +1,29 @@
+:root {
+  --miro-color: #ff4d4d;
+  --bg: #f8f9fa;
+  --border: #e0e0e0;
+  --text-main: #333333;
+  --text-light: #666666;
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --bg: #1a1a1a;
+  --border: #333333;
+  --text-main: #f0f0f0;
+  --text-light: #b0b0b0;
+  --shadow: rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
