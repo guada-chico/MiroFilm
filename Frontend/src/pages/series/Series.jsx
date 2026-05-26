@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { getPopularSeries, searchSeries } from '../../services/series-service';
+import { getPopularSeries, searchSeries, getSeriesDetails } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Series.css';
@@ -16,6 +16,7 @@ export default function Series() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   // Cargar series populares
   useEffect(() => {
@@ -66,6 +67,20 @@ export default function Series() {
     setIsSearching(value.length > 0);
   };
 
+  const handleSeriesClick = async (show) => {
+    // Obtener detalles completos de la serie
+    setLoadingDetails(true);
+    try {
+      const details = await getSeriesDetails(show.tmdbId);
+      setSelectedSeries(details);
+    } catch (error) {
+      console.error('Error fetching series details:', error);
+      setSelectedSeries(show);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
   const handleAddToWatchlist = async (seriesId) => {
     // TODO: Implementar agregar a lista de visualización
     setSelectedSeries(null);
@@ -103,7 +118,7 @@ export default function Series() {
         <>
           <div className="series-grid">
             {series.map((show, i) => (
-              <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => setSelectedSeries(show)}>
+              <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => handleSeriesClick(show)}>
                 <div className="series-img-wrapper">
                   <img
                     src={show.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
@@ -159,54 +174,58 @@ export default function Series() {
             <button className="close-modal" onClick={() => setSelectedSeries(null)}>
               <X size={24} />
             </button>
-            <div className="modal-body">
-              <img
-                src={selectedSeries.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
-                alt={selectedSeries.title}
-                className="modal-img"
-              />
-              <div className="modal-details">
-                <h2>{selectedSeries.title}</h2>
-                <p className="modal-author">Creada por {selectedSeries.creator || 'Creador desconocido'}</p>
-                {selectedSeries.genre && (
-                  <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
-                    {selectedSeries.genre}
-                  </p>
-                )}
-                {selectedSeries.rating && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    ⭐ Calificación: {selectedSeries.rating.toFixed(1)}/10
-                  </p>
-                )}
-                {selectedSeries.numberOfSeasons && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    Temporadas: {selectedSeries.numberOfSeasons}
-                  </p>
-                )}
-                {selectedSeries.numberOfEpisodes && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    Episodios: {selectedSeries.numberOfEpisodes}
-                  </p>
-                )}
-                {selectedSeries.firstAirDate && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    Estreno: {new Date(selectedSeries.firstAirDate).toLocaleDateString('es-ES')}
-                  </p>
-                )}
-                {selectedSeries.status && (
-                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                    Estado: {selectedSeries.status}
-                  </p>
-                )}
-                <div className="modal-section">
-                  <h3 className="modal-label">Sinopsis</h3>
-                  <p className="modal-text">{selectedSeries.plot || 'Sin sinopsis disponible'}</p>
+            {loadingDetails ? (
+              <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>Cargando detalles...</p>
+            ) : (
+              <div className="modal-body">
+                <img
+                  src={selectedSeries.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                  alt={selectedSeries.title}
+                  className="modal-img"
+                />
+                <div className="modal-details">
+                  <h2>{selectedSeries.title}</h2>
+                  <p className="modal-author">Creada por {selectedSeries.creator || 'Creador desconocido'}</p>
+                  {selectedSeries.genre && (
+                    <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
+                      {selectedSeries.genre}
+                    </p>
+                  )}
+                  {selectedSeries.rating && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      ⭐ Calificación: {selectedSeries.rating.toFixed(1)}/10
+                    </p>
+                  )}
+                  {selectedSeries.numberOfSeasons && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Temporadas: {selectedSeries.numberOfSeasons}
+                    </p>
+                  )}
+                  {selectedSeries.numberOfEpisodes && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Episodios: {selectedSeries.numberOfEpisodes}
+                    </p>
+                  )}
+                  {selectedSeries.firstAirDate && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Estreno: {new Date(selectedSeries.firstAirDate).toLocaleDateString('es-ES')}
+                    </p>
+                  )}
+                  {selectedSeries.status && (
+                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                      Estado: {selectedSeries.status}
+                    </p>
+                  )}
+                  <div className="modal-section">
+                    <h3 className="modal-label">Sinopsis</h3>
+                    <p className="modal-text">{selectedSeries.plot || 'Sin sinopsis disponible'}</p>
+                  </div>
+                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries.id)}>
+                    Añadir a mi lista
+                  </button>
                 </div>
-                <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries.id)}>
-                  Añadir a mi lista
-                </button>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

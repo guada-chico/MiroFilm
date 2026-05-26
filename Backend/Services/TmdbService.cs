@@ -289,7 +289,25 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Obtener detalles adicionales (creador) para cada serie
+                var seriesWithDetails = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    var details = await GetSeriesDetailsAsync(series.TmdbId);
+                    if (details != null)
+                    {
+                        series.Creator = details.Creator;
+                        series.Genre = details.Genre;
+                        series.NumberOfSeasons = details.NumberOfSeasons;
+                        series.NumberOfEpisodes = details.NumberOfEpisodes;
+                        series.Status = details.Status;
+                    }
+                    seriesWithDetails.Add(series);
+                }
+                
+                return seriesWithDetails;
             }
             catch (Exception ex)
             {
@@ -310,7 +328,25 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Obtener detalles adicionales (creador) para cada serie
+                var seriesWithDetails = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    var details = await GetSeriesDetailsAsync(series.TmdbId);
+                    if (details != null)
+                    {
+                        series.Creator = details.Creator;
+                        series.Genre = details.Genre;
+                        series.NumberOfSeasons = details.NumberOfSeasons;
+                        series.NumberOfEpisodes = details.NumberOfEpisodes;
+                        series.Status = details.Status;
+                    }
+                    seriesWithDetails.Add(series);
+                }
+                
+                return seriesWithDetails;
             }
             catch (Exception ex)
             {
@@ -345,6 +381,20 @@ namespace Miro.Services
 
             foreach (var item in results.EnumerateArray())
             {
+                // Intentar obtener el creador si está disponible
+                var creator = "Creador desconocido";
+                if (item.TryGetProperty("created_by", out var createdByArray))
+                {
+                    foreach (var createdBy in createdByArray.EnumerateArray())
+                    {
+                        if (createdBy.TryGetProperty("name", out var name))
+                        {
+                            creator = name.GetString() ?? "Creador desconocido";
+                            break;
+                        }
+                    }
+                }
+
                 var series = new Series
                 {
                     TmdbId = item.GetProperty("id").GetInt32(),
@@ -360,7 +410,8 @@ namespace Miro.Services
                     FirstAirDate = item.TryGetProperty("first_air_date", out var firstAirDate) && firstAirDate.ValueKind != JsonValueKind.Null
                         ? DateTime.TryParse(firstAirDate.GetString(), out var date) ? date : null
                         : null,
-                    Language = item.TryGetProperty("original_language", out var lang) ? lang.GetString() : null
+                    Language = item.TryGetProperty("original_language", out var lang) ? lang.GetString() : null,
+                    Creator = creator
                 };
 
                 seriesList.Add(series);
