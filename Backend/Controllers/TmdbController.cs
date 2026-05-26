@@ -86,5 +86,48 @@ namespace Miro.Controllers
             var movie = await _tmdbService.GetMovieDetailsAsync(tmdbId);
             return movie != null ? Ok(movie) : NotFound();
         }
+
+        /// <summary>
+        /// Busca series por título.
+        /// </summary>
+        [HttpGet("series/search")]
+        public async Task<IActionResult> SearchSeries([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return BadRequest("La consulta no puede estar vacía.");
+
+            var series = await _tmdbService.SearchSeriesAsync(q);
+            return Ok(series.ToList());
+        }
+
+        /// <summary>
+        /// Obtiene las series más populares.
+        /// </summary>
+        [HttpGet("series/popular")]
+        public async Task<IActionResult> GetPopularSeries([FromQuery] int page = 1)
+        {
+            var series = await _tmdbService.GetPopularSeriesAsync(page);
+            return Ok(series.ToList());
+        }
+
+        /// <summary>
+        /// Obtiene las series mejor calificadas.
+        /// </summary>
+        [HttpGet("series/top-rated")]
+        public async Task<IActionResult> GetTopRatedSeries([FromQuery] int page = 1)
+        {
+            var series = await _tmdbService.GetTopRatedSeriesAsync(page);
+            return Ok(series.ToList());
+        }
+
+        /// <summary>
+        /// Obtiene detalles de una serie específica.
+        /// </summary>
+        [HttpGet("series/{tmdbId}")]
+        public async Task<IActionResult> GetSeriesDetails(int tmdbId)
+        {
+            var series = await _tmdbService.GetSeriesDetailsAsync(tmdbId);
+            return series != null ? Ok(series) : NotFound();
+        }
     }
 }

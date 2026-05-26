@@ -63,6 +63,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Configurar JSON para usar camelCase
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
+
 // --- 5. CONFIGURACIÓN DE SWAGGER ---
 builder.Services.AddSwaggerGen(c =>
 {

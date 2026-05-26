@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Miro.Models;
 using Miro.Services;
+using Miro.Services.Interfaces;
 
 namespace Miro.Controllers
 {
@@ -10,10 +11,12 @@ namespace Miro.Controllers
     public class SeriesController : ControllerBase
     {
         private readonly ISeriesService _seriesService;
+        private readonly ITmdbService _tmdbService;
 
-        public SeriesController(ISeriesService seriesService)
+        public SeriesController(ISeriesService seriesService, ITmdbService tmdbService)
         {
             _seriesService = seriesService;
+            _tmdbService = tmdbService;
         }
 
         [HttpGet]
@@ -64,6 +67,77 @@ namespace Miro.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Obtiene series populares de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/popular")]
+        public async Task<IActionResult> GetPopularSeriesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbSeries = await _tmdbService.GetPopularSeriesAsync(page);
+                return Ok(tmdbSeries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene series mejor calificadas de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/top-rated")]
+        public async Task<IActionResult> GetTopRatedSeriesFromTmdb([FromQuery] int page = 1)
+        {
+            try
+            {
+                var tmdbSeries = await _tmdbService.GetTopRatedSeriesAsync(page);
+                return Ok(tmdbSeries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Busca series en TMDB.
+        /// </summary>
+        [HttpGet("tmdb/search")]
+        public async Task<IActionResult> SearchSeriesInTmdb([FromQuery] string q)
+        {
+            if (string.IsNullOrWhiteSpace(q))
+                return BadRequest("La consulta no puede estar vacía.");
+
+            try
+            {
+                var tmdbSeries = await _tmdbService.SearchSeriesAsync(q);
+                return Ok(tmdbSeries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtiene detalles de una serie de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/{tmdbId}")]
+        public async Task<IActionResult> GetSeriesDetailsFromTmdb(int tmdbId)
+        {
+            try
+            {
+                var series = await _tmdbService.GetSeriesDetailsAsync(tmdbId);
+                return series != null ? Ok(series) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

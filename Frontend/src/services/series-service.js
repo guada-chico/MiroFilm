@@ -1,10 +1,42 @@
 import api from './api-config';
 
 /**
- * Obtiene todas las series disponibles.
+ * Obtiene todas las series disponibles de la base de datos.
  */
 export const getAllSeries = async () => {
   const response = await api.get('/series');
+  return response.data;
+};
+
+/**
+ * Obtiene series populares de TMDB.
+ */
+export const getPopularSeries = async (page = 1) => {
+  const response = await api.get('/series/tmdb/popular', { params: { page } });
+  return response.data;
+};
+
+/**
+ * Obtiene series mejor calificadas de TMDB.
+ */
+export const getTopRatedSeries = async (page = 1) => {
+  const response = await api.get('/series/tmdb/top-rated', { params: { page } });
+  return response.data;
+};
+
+/**
+ * Busca series en TMDB.
+ */
+export const searchSeries = async (query) => {
+  const response = await api.get('/series/tmdb/search', { params: { q: query } });
+  return response.data;
+};
+
+/**
+ * Obtiene detalles de una serie de TMDB.
+ */
+export const getSeriesDetails = async (tmdbId) => {
+  const response = await api.get(`/series/tmdb/${tmdbId}`);
   return response.data;
 };
 

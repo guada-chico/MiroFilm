@@ -38,5 +38,25 @@ namespace Miro.Services.Interfaces
         /// Obtiene detalles de una película específica.
         /// </summary>
         Task<Movie?> GetMovieDetailsAsync(int tmdbId);
+
+        /// <summary>
+        /// Busca series por título.
+        /// </summary>
+        Task<IEnumerable<Series>> SearchSeriesAsync(string query);
+
+        /// <summary>
+        /// Obtiene las series más populares.
+        /// </summary>
+        Task<IEnumerable<Series>> GetPopularSeriesAsync(int page = 1);
+
+        /// <summary>
+        /// Obtiene las series mejor calificadas.
+        /// </summary>
+        Task<IEnumerable<Series>> GetTopRatedSeriesAsync(int page = 1);
+
+        /// <summary>
+        /// Obtiene detalles de una serie específica.
+        /// </summary>
+        Task<Series?> GetSeriesDetailsAsync(int tmdbId);
     }
 }

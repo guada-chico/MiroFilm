@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { getAllSeries } from '../../services/series-service';
+import { getPopularSeries, searchSeries } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Series.css';
@@ -15,42 +15,42 @@ export default function Series() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const SERIES_PER_PAGE = 20;
+  const [isSearching, setIsSearching] = useState(false);
 
+  // Cargar series populares
   useEffect(() => {
     setLoading(true);
     setSeries([]);
-    getAllSeries()
-      .then((data) => {
-        console.log('Series recibidas:', data?.length || 0);
-        setSeries(data ?? []);
-      })
-      .catch((error) => {
-        console.error('Error fetching series:', error);
-        setSeries([]);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  // Filtrar series según el término de búsqueda
-  const filteredSeries = series.filter((show) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      show.title?.toLowerCase().includes(searchLower) ||
-      show.creator?.toLowerCase().includes(searchLower) ||
-      show.genre?.toLowerCase().includes(searchLower)
-    );
-  });
-
-  const totalPages = Math.ceil(filteredSeries.length / SERIES_PER_PAGE);
-  const startIndex = (currentPage - 1) * SERIES_PER_PAGE;
-  const endIndex = startIndex + SERIES_PER_PAGE;
-  const currentSeries = filteredSeries.slice(startIndex, endIndex);
+    
+    if (isSearching && searchTerm) {
+      // Si estamos buscando, usar el endpoint de búsqueda
+      searchSeries(searchTerm)
+        .then((data) => {
+          console.log('Series encontradas:', data?.length || 0);
+          setSeries(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error searching series:', error);
+          setSeries([]);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // Si no, cargar series populares
+      getPopularSeries(currentPage)
+        .then((data) => {
+          console.log('Series recibidas:', data?.length || 0);
+          setSeries(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error fetching series:', error);
+          setSeries([]);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [currentPage, isSearching, searchTerm]);
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage(currentPage + 1);
   };
 
   const handlePrevPage = () => {
@@ -60,8 +60,10 @@ export default function Series() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Volver a la primera página al buscar
+    const value = e.target.value;
+    setSearchTerm(value);
+    setCurrentPage(1);
+    setIsSearching(value.length > 0);
   };
 
   const handleAddToWatchlist = async (seriesId) => {
@@ -97,12 +99,10 @@ export default function Series() {
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>{t.common?.loading || 'Cargando series...'}</p>
       ) : series.length === 0 ? (
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>{t.series?.noSeries || 'No hay series disponibles'}</p>
-      ) : filteredSeries.length === 0 ? (
-        <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No se encontraron series que coincidan con tu búsqueda</p>
       ) : (
         <>
           <div className="series-grid">
-            {currentSeries.map((show, i) => (
+            {series.map((show, i) => (
               <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => setSelectedSeries(show)}>
                 <div className="series-img-wrapper">
                   <img
@@ -128,8 +128,8 @@ export default function Series() {
             ))}
           </div>
 
-          {/* Paginación */}
-          {totalPages > 1 && (
+          {/* Paginación - solo mostrar si no estamos buscando */}
+          {!isSearching && series.length > 0 && (
             <div className="pagination-container">
               <button 
                 className="pagination-btn" 
@@ -139,12 +139,11 @@ export default function Series() {
                 <ChevronLeft size={20} />
               </button>
               <span className="pagination-info">
-                Página {currentPage} de {totalPages}
+                Página {currentPage}
               </span>
               <button 
                 className="pagination-btn" 
-                onClick={handleNextPage} 
-                disabled={currentPage === totalPages}
+                onClick={handleNextPage}
               >
                 <ChevronRight size={20} />
               </button>
