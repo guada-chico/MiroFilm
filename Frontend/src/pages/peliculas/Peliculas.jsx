@@ -4,9 +4,9 @@ import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Sea
 import { getPopularMovies, searchMovies, getMovieDetails } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
-import './Recomendaciones.css';
+import './Peliculas.css';
 
-export default function Recomendaciones() {
+export default function Peliculas() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const t = getT(settings.language);
@@ -95,7 +95,7 @@ export default function Recomendaciones() {
           </button>
           <h1>Películas</h1>
         </div>
-        <p>Descubre y sigue tus peliculas favoritas</p>
+        <p>Películas populares de todo el mundo</p>
       </header>
 
       {/* Buscador */}

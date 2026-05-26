@@ -86,7 +86,7 @@ export default function Inicio() {
           <h3>{t.recommendedInSpanish}</h3>
           <span
             className="orange-link"
-            onClick={() => navigate('/recomendaciones')}
+            onClick={() => navigate('/peliculas')}
             style={{ cursor: 'pointer' }}
           >
             {t.viewAll} &gt;

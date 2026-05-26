@@ -5,7 +5,7 @@ import Sidebar from './components/sidebar/Sidebar';
 import Navbar from './components/navbar/Navbar';
 import Inicio from './pages/inicio/Inicio';
 import Login from './pages/login/Login';
-import Recomendaciones from './pages/recomendaciones/Recomendaciones';
+import Peliculas from './pages/peliculas/Peliculas';
 import MisLibros from './pages/biblioteca/Biblioteca';
 import Perfil from './pages/perfil/Perfil';
 import Ajustes from './pages/ajustes/Ajustes';
@@ -34,7 +34,7 @@ function AppContent() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/inicio" element={<Inicio />} />
-            <Route path="/recomendaciones" element={<Recomendaciones />} />
+            <Route path="/peliculas" element={<Peliculas />} />
             <Route path="/mis-libros" element={<MisLibros />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/amigos" element={<Amigos/>} />
