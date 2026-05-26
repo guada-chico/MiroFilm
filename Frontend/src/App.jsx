@@ -12,6 +12,7 @@ import Ajustes from './pages/ajustes/Ajustes';
 import Ayuda from './pages/ayuda/Ayuda';
 import Favoritos from './pages/favoritos/Favoritos'; 
 import Amigos from './pages/amigos/Amigos';
+import Series from './pages/series/Series';
 import './App.css';
 
 function AppContent() {
@@ -37,6 +38,7 @@ function AppContent() {
             <Route path="/mis-libros" element={<MisLibros />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/amigos" element={<Amigos/>} />
+            <Route path="/series" element={<Series />} />
 
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/ajustes" element={<Ajustes />} />

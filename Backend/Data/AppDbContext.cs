@@ -10,6 +10,7 @@ namespace Miro.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<Book> Books => Set<Book>();
         public DbSet<Movie> Movies => Set<Movie>();
+        public DbSet<Series> Series => Set<Series>();
         public DbSet<Favorite> Favorites => Set<Favorite>();
         public DbSet<ReadingStatus> ReadingStatuses { get; set; }
         public DbSet<WatchingStatus> WatchingStatuses { get; set; }

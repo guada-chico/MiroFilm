@@ -5,6 +5,7 @@ const translations = {
       menu: 'MENU',
       home: 'Inicio',
       movies: 'Películas',
+      series: 'Series',
       myBooks: 'Mis libros',
       favorites: 'Favoritos',
       friends: 'Amigos',
@@ -116,6 +117,12 @@ const translations = {
       wantToRead: 'Quiero leer',
       completed: 'Completados',
     },
+    series: {
+      title: 'Series',
+      subtitle: 'Descubre y sigue tus series favoritas',
+      loadingSeries: 'Cargando series...',
+      noSeries: 'No hay series disponibles',
+    },
     favoritos: {
       title: 'Mis Favoritos',
       subtitle: 'Tus libros favoritos en un solo lugar',
@@ -135,6 +142,7 @@ const translations = {
       menu: 'MENU',
       home: 'Home',
       movies: 'Movies',
+      series: 'Series',
       myBooks: 'My Books',
       favorites: 'Favorites',
       friends: 'Friends',
@@ -255,6 +263,12 @@ const translations = {
       wantToRead: 'Want to Read',
       completed: 'Completed',
     },
+    series: {
+      title: 'Series',
+      subtitle: 'Discover and follow your favorite series',
+      loadingSeries: 'Loading series...',
+      noSeries: 'No series available',
+    },
     favoritos: {
       title: 'My Favorites',
       subtitle: 'Your favorite books in one place',
@@ -274,6 +288,7 @@ const translations = {
       menu: 'MENU',
       home: 'Accueil',
       movies: 'Films',
+      series: 'Séries',
       myBooks: 'Mes Livres',
       favorites: 'Favoris',
       friends: 'Amis',
@@ -393,6 +408,12 @@ const translations = {
       currentlyReading: 'En Cours de Lecture',
       wantToRead: 'Je Veux Lire',
       completed: 'Complétés',
+    },
+    series: {
+      title: 'Séries',
+      subtitle: 'Découvrez et suivez vos séries préférées',
+      loadingSeries: 'Chargement des séries...',
+      noSeries: 'Aucune série disponible',
     },
     favoritos: {
       title: 'Mes Favoris',

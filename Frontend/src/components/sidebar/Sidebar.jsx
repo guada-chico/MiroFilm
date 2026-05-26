@@ -12,6 +12,7 @@ export default function Sidebar() {
   const menuItems = [
     { path: '/inicio', icon: Home, label: t.sidebar?.home || 'Inicio' },
     { path: '/recomendaciones', icon: Sparkles, label: t.sidebar?.movies || 'Películas' },
+    { path: '/series', icon: Sparkles, label: t.sidebar?.series || 'Series' },
     { path: '/mis-libros', icon: Library, label: t.sidebar?.myBooks || 'Mis libros' },
     { path: '/favoritos', icon: Heart, label: t.sidebar?.favorites || 'Favoritos' },
     { path: '/amigos', icon: Users, label: t.sidebar?.friends || 'Amigos' },
