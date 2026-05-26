@@ -18,6 +18,13 @@ export function UserProvider({ children }) {
 
   const loadUserProfile = async () => {
     try {
+      // Solo cargar perfil si hay token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+      
       const data = await getProfile();
       setUser({
         name: data.name || 'Usuario',

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ExternalLink, Loader } from 'lucide-react';
+import { ExternalLink, Loader, Film } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentReading } from '../../services/reading-service';
-import { getPrhNewReleases, getTopClassics } from '../../services/external-books-service';
+import { getPrhNewReleases } from '../../services/external-books-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Inicio.css';
@@ -13,11 +13,9 @@ export default function Inicio() {
   const t = getT(settings.language).common;
   const [currentReading, setCurrentReading] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
-  const [classics, setClassics] = useState([]);
   const [loadingReco, setLoadingReco] = useState(true);
-  const [loadingClassics, setLoadingClassics] = useState(true);
 
-  // Lectura actual, recomendaciones PRH y clásicos Gutendex al montar
+  // Lectura actual y recomendaciones PRH al montar
   useEffect(() => {
     getCurrentReading()
       .then(setCurrentReading)
@@ -33,18 +31,6 @@ export default function Inicio() {
         console.error('Error cargando recomendaciones PRH:', err);
         setRecommendations([]);
         setLoadingReco(false);
-      });
-
-    setLoadingClassics(true);
-    getTopClassics(8)
-      .then((data) => {
-        setClassics(data ?? []);
-        setLoadingClassics(false);
-      })
-      .catch((err) => {
-        console.error('Error cargando clásicos:', err);
-        setClassics([]);
-        setLoadingClassics(false);
       });
   }, []);
 
@@ -132,69 +118,6 @@ export default function Inicio() {
           </div>
         ) : (
           <p style={{ color: '#aaa', fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>No se encontraron libros recomendados</p>
-        )}
-      </section>
-
-      {/* SECCIÓN: CLÁSICOS GRATUITOS (GUTENBERG) */}
-      <section className="books-section">
-        <div className="section-head">
-          <h3>{t.freeClassics}</h3>
-          <span
-            className="orange-link"
-            onClick={() => navigate('/clasicos')}
-            style={{ cursor: 'pointer' }}
-          >
-            {t.viewAll} &gt;
-          </span>
-        </div>
-        <p style={{ fontSize: '0.85rem', color: '#999', marginBottom: '1rem' }}>
-          {t.gutenbergCredit}
-        </p>
-        {loadingClassics ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', gap: '0.5rem' }}>
-            <Loader size={20} style={{ animation: 'spin 1s linear infinite' }} />
-            <p style={{ color: '#aaa', fontSize: '0.9rem' }}>{t.loading}</p>
-          </div>
-        ) : classics.length > 0 ? (
-          <div className="books-grid">
-            {classics.map((book) => (
-              <div
-                key={book.id}
-                className="book-card"
-                style={{ position: 'relative', cursor: 'pointer' }}
-                onClick={() => book.readUrl && window.open(book.readUrl, '_blank')}
-                title={`${book.title} — ${book.authors.join(', ')}`}
-              >
-                {book.coverUrl ? (
-                  <img src={book.coverUrl} alt={book.title} />
-                ) : (
-                  <div style={{ width: '100%', aspectRatio: '2/3', padding: '0.5rem', fontSize: '0.75rem', textAlign: 'center', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: '20px' }}>
-                    {book.title}
-                  </div>
-                )}
-                {book.readUrl && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '8px',
-                      right: '8px',
-                      background: '#ff6b35',
-                      color: 'white',
-                      borderRadius: '50%',
-                      padding: '6px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <ExternalLink size={14} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ color: '#aaa', fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>No se encontraron clásicos en español</p>
         )}
       </section>
     </div>

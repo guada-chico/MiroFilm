@@ -73,22 +73,3 @@ export const getOpenLibraryCover = (isbn, size = 'M') => {
   if (!isbn) return null;
   return `https://covers.openlibrary.org/b/isbn/${isbn}-${size}.jpg`;
 };
-
-// ─────────────────────────────────────────────
-//  GUTENDEX (clásicos gratuitos para leer)
-// ─────────────────────────────────────────────
-
-export const searchGutendexBooks = async (query) => {
-  const response = await api.get('/gutendex/search', { params: { q: query } });
-  return response.data;
-};
-
-export const getTopClassics = async (count = 20) => {
-  const response = await api.get('/gutendex/top', { params: { count } });
-  return response.data;
-};
-
-export const getClassicsByPage = async (page = 1) => {
-  const response = await api.get('/gutendex/page', { params: { page } });
-  return response.data;
-};

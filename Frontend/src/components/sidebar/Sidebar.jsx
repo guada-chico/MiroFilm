@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Sparkles, Library, Heart, Users, BookMarked, Settings, HelpCircle, LogOut } from "lucide-react";
+import { Home, Sparkles, Library, Heart, Users, Settings, HelpCircle, LogOut } from "lucide-react";
 import logoMiro from "../../assets/logo_miro_sf.png";
 import { useTranslation } from "../../hooks/useTranslation";
 import "./Sidebar.css";
@@ -15,7 +15,6 @@ export default function Sidebar() {
     { path: '/mis-libros', icon: Library, label: t.sidebar?.myBooks || 'Mis libros' },
     { path: '/favoritos', icon: Heart, label: t.sidebar?.favorites || 'Favoritos' },
     { path: '/amigos', icon: Users, label: t.sidebar?.friends || 'Amigos' },
-    { path: '/clasicos', icon: BookMarked, label: t.sidebar?.classics || 'Clásicos gratis' },
   ];
 
   const otherItems = [

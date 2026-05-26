@@ -27,7 +27,6 @@ builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 // Registro especial para APIS externas que usan HttpClient
 builder.Services.AddHttpClient<IGoogleBookService, GoogleBookService>();
 builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();
-builder.Services.AddHttpClient<IGutendexService, GutendexService>();
 builder.Services.AddHttpClient<INytBooksService, NytBooksService>();
 builder.Services.AddHttpClient<IPrhBooksService, PrhBooksService>();
 builder.Services.AddHttpClient<ITmdbService, TmdbService>();
