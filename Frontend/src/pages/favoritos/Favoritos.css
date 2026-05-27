@@ -611,3 +611,146 @@
 :root[data-theme="dark"] .modal-card p {
   color: #b0b0b0;
 }
+
+/* --- SCROLLBAR PERSONALIZADA --- */
+
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ff6b35 #f5f5f5;
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35 0%, #ff8c5a 100%);
+  border-radius: 10px;
+  border: 2px solid #f5f5f5;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff5a1f 0%, #ff7a45 100%);
+  box-shadow: 0 0 6px rgba(255, 107, 53, 0.4);
+}
+
+/* --- SCROLLBAR PARA TEMA OSCURO --- */
+
+:root[data-theme="dark"] .modal-content {
+  scrollbar-color: #ff6b35 #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35 0%, #ff8c5a 100%);
+  border-color: #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff5a1f 0%, #ff7a45 100%);
+}
+
+/* --- CONTENIDO SCROLLEABLE DEL MODAL --- */
+
+.modal-scrollable-content {
+  max-height: calc(85vh - 200px);
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.modal-scrollable-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ff6b35 #f5f5f5;
+}
+
+.modal-scrollable-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35 0%, #ff8c5a 100%);
+  border-radius: 10px;
+  border: 2px solid #f5f5f5;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff5a1f 0%, #ff7a45 100%);
+  box-shadow: 0 0 6px rgba(255, 107, 53, 0.4);
+}
+
+/* --- SCROLLABLE CONTENT PARA TEMA OSCURO --- */
+
+:root[data-theme="dark"] .modal-scrollable-content {
+  scrollbar-color: #ff6b35 #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-scrollable-content::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-scrollable-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff6b35 0%, #ff8c5a 100%);
+  border-color: #2a2a2a;
+}
+
+:root[data-theme="dark"] .modal-scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff5a1f 0%, #ff7a45 100%);
+}
+
+/* --- BOTÓN DE ELIMINAR EN CARDS DEL MODAL --- */
+
+.modal-card-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 107, 53, 0.9);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: all 0.2s ease;
+  opacity: 0;
+  z-index: 5;
+}
+
+.modal-card:hover .modal-card-delete-btn {
+  opacity: 1;
+}
+
+.modal-card-delete-btn:hover {
+  background: rgba(255, 107, 53, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.modal-card-delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* --- BOTÓN DE ELIMINAR PARA TEMA OSCURO --- */
+
+:root[data-theme="dark"] .modal-card-delete-btn {
+  background: rgba(255, 107, 53, 0.85);
+}
+
+:root[data-theme="dark"] .modal-card-delete-btn:hover {
+  background: rgba(255, 107, 53, 1);
+}
