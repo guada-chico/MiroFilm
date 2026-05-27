@@ -154,9 +154,13 @@ export default function Peliculas() {
     // TODO: Llamar a API para marcar como visto/no visto
   };
 
-  const handleAddToWatchlist = async (movieId) => {
-    // TODO: Implementar agregar a lista de visualización
-    setSelectedMovie(null);
+  const handleAddToWatchlist = async (movie) => {
+    try {
+      await toggleMovieFavorite(movie);
+      setSelectedMovie(null);
+    } catch (error) {
+      console.error('Error adding to watchlist:', error);
+    }
   };
 
   return (
@@ -302,31 +306,33 @@ export default function Peliculas() {
                 <div className="modal-details">
                   <h2>{selectedMovie.title}</h2>
                   <p className="modal-author">Dirigida por {selectedMovie.director || 'Director desconocido'}</p>
-                  {selectedMovie.genre && (
-                    <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
-                      {selectedMovie.genre}
-                    </p>
-                  )}
-                  {selectedMovie.rating && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      ⭐ Calificación: {selectedMovie.rating.toFixed(1)}/10
-                    </p>
-                  )}
-                  {selectedMovie.duration && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Duración: {selectedMovie.duration} minutos
-                    </p>
-                  )}
-                  {selectedMovie.releaseDate && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Estreno: {new Date(selectedMovie.releaseDate).toLocaleDateString('es-ES')}
-                    </p>
-                  )}
-                  <div className="modal-section">
-                    <h3 className="modal-label">Sinopsis</h3>
-                    <p className="modal-text">{selectedMovie.plot || 'Sin sinopsis disponible'}</p>
+                  <div className="modal-scrollable">
+                    {selectedMovie.genre && (
+                      <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
+                        {selectedMovie.genre}
+                      </p>
+                    )}
+                    {selectedMovie.rating && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        ⭐ Calificación: {selectedMovie.rating.toFixed(1)}/10
+                      </p>
+                    )}
+                    {selectedMovie.duration && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Duración: {selectedMovie.duration} minutos
+                      </p>
+                    )}
+                    {selectedMovie.releaseDate && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Estreno: {new Date(selectedMovie.releaseDate).toLocaleDateString('es-ES')}
+                      </p>
+                    )}
+                    <div className="modal-section">
+                      <h3 className="modal-label">Sinopsis</h3>
+                      <p className="modal-text">{selectedMovie.plot || 'Sin sinopsis disponible'}</p>
+                    </div>
                   </div>
-                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie.id)}>
+                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie)}>
                     Añadir a mi lista
                   </button>
                 </div>

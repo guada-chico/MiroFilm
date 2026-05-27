@@ -265,8 +265,8 @@
   max-height: 85vh;
   border-radius: 35px;
   position: relative;
-  padding: 40px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
 
@@ -284,11 +284,14 @@
   justify-content: center;
   align-items: center;
   transition: 0.2s;
+  z-index: 10;
 }
 
 .modal-body {
   display: flex;
   gap: 40px;
+  height: 100%;
+  overflow: hidden;
 }
 
 .modal-img {
@@ -297,16 +300,22 @@
   height: 420px;
   border-radius: 20px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .modal-details {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 40px 40px 40px 0;
 }
 
 .modal-details h2 {
   font-size: 2rem;
   margin: 10px 0;
   font-weight: 400;
+  flex-shrink: 0;
 }
 
 /* ESPACIADO ENTRE AUTOR Y SINOPSIS */
@@ -314,6 +323,32 @@
   color: #888;
   font-size: 1rem;
   margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+/* CONTENEDOR SCROLLEABLE */
+.modal-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+.modal-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollable::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb {
+  background: #ff6b35;
+  border-radius: 10px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #ff5a1f;
 }
 
 /* ESPACIADO ENTRE SECCIONES */
@@ -335,15 +370,6 @@
   color: #444;
 }
 
-.comment-pill {
-  background: #f9f9f9;
-  padding: 12px 18px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  font-size: 0.9rem;
-  border-left: 4px solid #ff6b35;
-}
-
 .add-to-library-btn {
   width: 100%;
   background: #2d433d;
@@ -354,6 +380,7 @@
   font-weight: 600;
   cursor: pointer;
   margin-top: 20px;
+  flex-shrink: 0;
 }
 
 @keyframes fadeIn {
@@ -477,6 +504,22 @@
   color: #f0f0f0;
 }
 
+:root[data-theme="dark"] .modal-author {
+  color: #b0b0b0;
+}
+
 :root[data-theme="dark"] .modal-text {
   color: #b0b0b0;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-track {
+  background: #333;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb {
+  background: #ff6b35;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #ff5a1f;
 }

@@ -151,9 +151,13 @@ export default function Series() {
     // TODO: Llamar a API para marcar como visto/no visto
   };
 
-  const handleAddToWatchlist = async (seriesId) => {
-    // TODO: Implementar agregar a lista de visualización
-    setSelectedSeries(null);
+  const handleAddToWatchlist = async (series) => {
+    try {
+      await toggleSeriesFavorite(series);
+      setSelectedSeries(null);
+    } catch (error) {
+      console.error('Error adding to watchlist:', error);
+    }
   };
 
   return (
@@ -299,41 +303,43 @@ export default function Series() {
                 <div className="modal-details">
                   <h2>{selectedSeries.title}</h2>
                   <p className="modal-author">Creada por {selectedSeries.creator || 'Creador desconocido'}</p>
-                  {selectedSeries.genre && (
-                    <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
-                      {selectedSeries.genre}
-                    </p>
-                  )}
-                  {selectedSeries.rating && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      ⭐ Calificación: {selectedSeries.rating.toFixed(1)}/10
-                    </p>
-                  )}
-                  {selectedSeries.numberOfSeasons && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Temporadas: {selectedSeries.numberOfSeasons}
-                    </p>
-                  )}
-                  {selectedSeries.numberOfEpisodes && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Episodios: {selectedSeries.numberOfEpisodes}
-                    </p>
-                  )}
-                  {selectedSeries.firstAirDate && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Estreno: {new Date(selectedSeries.firstAirDate).toLocaleDateString('es-ES')}
-                    </p>
-                  )}
-                  {selectedSeries.status && (
-                    <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
-                      Estado: {selectedSeries.status}
-                    </p>
-                  )}
-                  <div className="modal-section">
-                    <h3 className="modal-label">Sinopsis</h3>
-                    <p className="modal-text">{selectedSeries.plot || 'Sin sinopsis disponible'}</p>
+                  <div className="modal-scrollable">
+                    {selectedSeries.genre && (
+                      <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
+                        {selectedSeries.genre}
+                      </p>
+                    )}
+                    {selectedSeries.rating && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        ⭐ Calificación: {selectedSeries.rating.toFixed(1)}/10
+                      </p>
+                    )}
+                    {selectedSeries.numberOfSeasons && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Temporadas: {selectedSeries.numberOfSeasons}
+                      </p>
+                    )}
+                    {selectedSeries.numberOfEpisodes && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Episodios: {selectedSeries.numberOfEpisodes}
+                      </p>
+                    )}
+                    {selectedSeries.firstAirDate && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Estreno: {new Date(selectedSeries.firstAirDate).toLocaleDateString('es-ES')}
+                      </p>
+                    )}
+                    {selectedSeries.status && (
+                      <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                        Estado: {selectedSeries.status}
+                      </p>
+                    )}
+                    <div className="modal-section">
+                      <h3 className="modal-label">Sinopsis</h3>
+                      <p className="modal-text">{selectedSeries.plot || 'Sin sinopsis disponible'}</p>
+                    </div>
                   </div>
-                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries.id)}>
+                  <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries)}>
                     Añadir a mi lista
                   </button>
                 </div>
