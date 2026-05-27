@@ -128,27 +128,6 @@
   gap: 20px;
 }
 
-.movie-card {
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.movie-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
-
-.movie-card img {
-  width: 100%;
-  aspect-ratio: 2/3;
-  object-fit: cover;
-  border-radius: 20px;
-}
-
 /* --- SECCIÓN DE SERIES RECOMENDADAS --- */
 .series-section {
   margin-top: 50px;
@@ -184,12 +163,14 @@
   aspect-ratio: 2/3;
   border-radius: 20px;
   overflow: hidden;
+  position: relative;
 }
 
 .series-img-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 20px;
 }
 
 .series-hover-actions {

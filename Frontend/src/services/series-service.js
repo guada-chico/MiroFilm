@@ -5,7 +5,7 @@ import api from './api-config';
  */
 export const getMySeriesRecommendations = async () => {
   // Agregar timestamp para evitar caché
-  const response = await api.get('/series/recommendations', { params: { t: Date.now() } });
+  const response = await api.get('/recommendations/series', { params: { t: Date.now() } });
   return response.data;
 };
 

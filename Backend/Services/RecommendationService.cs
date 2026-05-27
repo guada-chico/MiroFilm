@@ -104,5 +104,93 @@ namespace Miro.Services
             return results;
         }
 
+        public async Task<IEnumerable<Series>> GetSeriesRecommendationsAsync(int userId)
+        {
+            var results = new List<Series>();
+
+            try
+            {
+                // 1. Obtener las series favoritas del usuario (usando TmdbSeriesId)
+                var favoriteTmdbIds = await _context.Favorites
+                    .Where(f => f.UserId == userId && f.TmdbSeriesId.HasValue)
+                    .Select(f => f.TmdbSeriesId.Value)
+                    .ToListAsync();
+
+                Console.WriteLine($"[RECOMENDACIONES SERIES] Usuario {userId} tiene {favoriteTmdbIds.Count} series favoritas");
+
+                // 2. Si el usuario no tiene series favoritas, devolver series populares
+                if (!favoriteTmdbIds.Any())
+                {
+                    Console.WriteLine($"[RECOMENDACIONES SERIES] Sin favoritos, devolviendo series populares");
+                    for (int page = 1; page <= 2; page++)
+                    {
+                        var popularSeries = await _tmdbService.GetPopularSeriesAsync(page);
+                        results.AddRange(popularSeries);
+                        if (results.Count >= 20) break;
+                    }
+                    results = results.Take(20).ToList();
+                    return results;
+                }
+
+                // 3. Obtener series top-rated como recomendaciones
+                try
+                {
+                    for (int page = 1; page <= 2; page++)
+                    {
+                        var topRatedSeries = await _tmdbService.GetTopRatedSeriesAsync(page);
+                        foreach (var series in topRatedSeries)
+                        {
+                            // Evitar series que ya están en favoritos
+                            if (favoriteTmdbIds.Contains(series.TmdbId)) continue;
+                            
+                            results.Add(series);
+                            if (results.Count >= 20) break;
+                        }
+                        if (results.Count >= 20) break;
+                    }
+                    Console.WriteLine($"[RECOMENDACIONES SERIES] Series top-rated: {results.Count}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[RECOMENDACIONES SERIES] Error obteniendo top-rated: {ex.Message}");
+                }
+
+                // 4. Si no tenemos suficientes, completar con series populares
+                if (results.Count < 20)
+                {
+                    try
+                    {
+                        for (int page = 1; page <= 2; page++)
+                        {
+                            var popularSeries = await _tmdbService.GetPopularSeriesAsync(page);
+                            foreach (var series in popularSeries)
+                            {
+                                if (favoriteTmdbIds.Contains(series.TmdbId)) continue;
+                                if (results.Any(r => r.TmdbId == series.TmdbId)) continue;
+
+                                results.Add(series);
+                                if (results.Count >= 20) break;
+                            }
+                            if (results.Count >= 20) break;
+                        }
+                        Console.WriteLine($"[RECOMENDACIONES SERIES] Series populares añadidas: {results.Count}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[RECOMENDACIONES SERIES] Error obteniendo populares: {ex.Message}");
+                    }
+                }
+
+                results = results.Take(20).ToList();
+                Console.WriteLine($"[RECOMENDACIONES SERIES] Devolviendo {results.Count} series en total");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[RECOMENDACIONES SERIES] Error general: {ex.Message}");
+            }
+
+            return results;
+        }
+
     }
 }

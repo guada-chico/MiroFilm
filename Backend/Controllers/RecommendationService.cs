@@ -5,7 +5,6 @@ using System.Security.Claims;
 
 namespace Miro.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class RecommendationsController : ControllerBase
@@ -18,15 +17,37 @@ namespace Miro.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetMyRecommendations()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null) return Unauthorized();
+            
+            // Si el usuario está autenticado, devolver recomendaciones personalizadas
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                var recommendations = await _recService.GetRecommendationsAsync(userId);
+                return Ok(recommendations);
+            }
 
-            int userId = int.Parse(userIdClaim.Value);
-            var recommendations = await _recService.GetRecommendationsAsync(userId);
+            // Si no está autenticado, devolver películas populares
+            return Ok(new List<object>());
+        }
 
-            return Ok(recommendations);
+        [HttpGet("series")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetMySeriesRecommendations()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            
+            // Si el usuario está autenticado, devolver recomendaciones personalizadas
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                var recommendations = await _recService.GetSeriesRecommendationsAsync(userId);
+                return Ok(recommendations);
+            }
+
+            // Si no está autenticado, devolver series populares
+            return Ok(new List<object>());
         }
     }
 }

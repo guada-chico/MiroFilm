@@ -37,14 +37,28 @@ export default function Inicio() {
         
         // Si no hay recomendaciones, cargar películas populares
         if (moviesArray.length === 0) {
-          const popularData = await getPopularMovies(1);
-          moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          console.log('No hay recomendaciones, cargando películas populares...');
+          try {
+            const popularData = await getPopularMovies(1);
+            moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('Películas populares cargadas:', moviesArray.length);
+          } catch (popErr) {
+            console.error('Error cargando películas populares:', popErr);
+          }
         }
         
         setMovieRecommendations(moviesArray);
       } catch (err) {
         console.error('Error cargando películas recomendadas:', err);
-        setMovieRecommendations([]);
+        // Intentar cargar películas populares como fallback
+        try {
+          const popularData = await getPopularMovies(1);
+          const moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          setMovieRecommendations(moviesArray);
+        } catch (popErr) {
+          console.error('Error cargando películas populares como fallback:', popErr);
+          setMovieRecommendations([]);
+        }
       } finally {
         setLoadingMovies(false);
       }
@@ -53,20 +67,38 @@ export default function Inicio() {
     const loadSeries = async () => {
       try {
         const data = await getMySeriesRecommendations();
+        console.log('Datos de series recomendadas recibidos:', data);
         
         // Asegurar que es un array
         let seriesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
+        console.log('Series array después de procesar:', seriesArray);
         
         // Si no hay recomendaciones, cargar series populares
         if (seriesArray.length === 0) {
-          const popularData = await getPopularSeries(1);
-          seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          console.log('No hay recomendaciones, cargando series populares...');
+          try {
+            const popularData = await getPopularSeries(1);
+            console.log('Series populares recibidas:', popularData);
+            seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('Series populares cargadas:', seriesArray.length);
+          } catch (popErr) {
+            console.error('Error cargando series populares:', popErr);
+          }
         }
         
+        console.log('Series finales a mostrar:', seriesArray);
         setSeriesRecommendations(seriesArray);
       } catch (err) {
         console.error('Error cargando series recomendadas:', err);
-        setSeriesRecommendations([]);
+        // Intentar cargar series populares como fallback
+        try {
+          const popularData = await getPopularSeries(1);
+          const seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          setSeriesRecommendations(seriesArray);
+        } catch (popErr) {
+          console.error('Error cargando series populares como fallback:', popErr);
+          setSeriesRecommendations([]);
+        }
       } finally {
         setLoadingSeries(false);
       }
@@ -102,15 +134,29 @@ export default function Inicio() {
           
           // Si no hay recomendaciones, cargar películas populares
           if (moviesArray.length === 0) {
-            const popularData = await getPopularMovies(1);
-            moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('No hay recomendaciones, cargando películas populares...');
+            try {
+              const popularData = await getPopularMovies(1);
+              moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+              console.log('Películas populares cargadas:', moviesArray.length);
+            } catch (popErr) {
+              console.error('Error cargando películas populares:', popErr);
+            }
           }
           
           console.log('Películas a mostrar:', moviesArray.length);
           setMovieRecommendations(moviesArray);
         } catch (err) {
           console.error('Error cargando películas recomendadas:', err);
-          setMovieRecommendations([]);
+          // Intentar cargar películas populares como fallback
+          try {
+            const popularData = await getPopularMovies(1);
+            const moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            setMovieRecommendations(moviesArray);
+          } catch (popErr) {
+            console.error('Error cargando películas populares como fallback:', popErr);
+            setMovieRecommendations([]);
+          }
         } finally {
           setLoadingMovies(false);
         }
@@ -120,22 +166,37 @@ export default function Inicio() {
         setLoadingSeries(true);
         try {
           const data = await getMySeriesRecommendations();
-          console.log('Nuevas recomendaciones de series recibidas:', data?.length || 0);
+          console.log('Nuevas recomendaciones de series recibidas:', data);
           
           // Asegurar que es un array
           let seriesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
           
           // Si no hay recomendaciones, cargar series populares
           if (seriesArray.length === 0) {
-            const popularData = await getPopularSeries(1);
-            seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('No hay recomendaciones, cargando series populares...');
+            try {
+              const popularData = await getPopularSeries(1);
+              console.log('Series populares recibidas:', popularData);
+              seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+              console.log('Series populares cargadas:', seriesArray.length);
+            } catch (popErr) {
+              console.error('Error cargando series populares:', popErr);
+            }
           }
           
           console.log('Series a mostrar:', seriesArray.length);
           setSeriesRecommendations(seriesArray);
         } catch (err) {
           console.error('Error cargando series recomendadas:', err);
-          setSeriesRecommendations([]);
+          // Intentar cargar series populares como fallback
+          try {
+            const popularData = await getPopularSeries(1);
+            const seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            setSeriesRecommendations(seriesArray);
+          } catch (popErr) {
+            console.error('Error cargando series populares como fallback:', popErr);
+            setSeriesRecommendations([]);
+          }
         } finally {
           setLoadingSeries(false);
         }
@@ -187,25 +248,48 @@ export default function Inicio() {
             {movieRecommendations.slice(0, 5).map((movie, i) => (
               <div
                 key={movie.id || movie.tmdbId || i}
-                className="movie-card"
+                className="series-card-wrapper"
                 onClick={() => setSelectedMovie(movie)}
                 title={`${movie.title} — ${movie.releaseDate}`}
-                style={{ cursor: 'pointer' }}
               >
-                {movie.posterUrl || movie.posterPath || movie.imageUrl ? (
-                  <img 
-                    src={movie.posterUrl || (movie.posterPath ? `https://image.tmdb.org/t/p/w500${movie.posterPath}` : movie.imageUrl)} 
-                    alt={movie.title}
-                    onError={(e) => {
-                      console.error('Error cargando imagen:', movie.posterUrl);
-                      e.target.src = 'https://via.placeholder.com/150x220?text=Sin+portada';
-                    }}
-                  />
-                ) : (
-                  <div style={{ width: '100%', aspectRatio: '2/3', padding: '0.5rem', fontSize: '0.75rem', textAlign: 'center', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: '20px' }}>
-                    {movie.title}
+                <div className="series-img-wrapper">
+                  {movie.posterUrl || movie.posterPath || movie.imageUrl ? (
+                    <img 
+                      src={movie.posterUrl || (movie.posterPath ? `https://image.tmdb.org/t/p/w500${movie.posterPath}` : movie.imageUrl)} 
+                      alt={movie.title}
+                      onError={(e) => {
+                        console.error('Error cargando imagen:', movie.posterUrl);
+                        e.target.src = 'https://via.placeholder.com/150x220?text=Sin+portada';
+                      }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', aspectRatio: '2/3', padding: '0.5rem', fontSize: '0.75rem', textAlign: 'center', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: '20px' }}>
+                      {movie.title}
+                    </div>
+                  )}
+                  <div className="series-hover-actions">
+                    <button 
+                      className="series-icon-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMovieFavorite(movie);
+                      }}
+                      title="Agregar a favoritos"
+                    >
+                      <Heart size={18} fill={isMovieFavorite(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
+                    </button>
+                    <button 
+                      className="series-icon-btn" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMovieWatched(movie);
+                      }}
+                      title="Marcar como visto"
+                    >
+                      <Eye size={18} fill={isMovieWatched(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
@@ -240,9 +324,8 @@ export default function Inicio() {
                 className="series-card-wrapper"
                 onClick={() => setSelectedSeries(show)}
                 title={`${show.title} — ${show.firstAirDate}`}
-                style={{ cursor: 'pointer', position: 'relative' }}
               >
-                <div className="series-img-wrapper" style={{ position: 'relative', width: '100%', height: '100%' }}>
+                <div className="series-img-wrapper">
                   {show.posterUrl || show.posterPath || show.imageUrl ? (
                     <img 
                       src={show.posterUrl || (show.posterPath ? `https://image.tmdb.org/t/p/w500${show.posterPath}` : show.imageUrl)} 
@@ -257,7 +340,7 @@ export default function Inicio() {
                       {show.title}
                     </div>
                   )}
-                  <div className="series-hover-actions" style={{ position: 'absolute', bottom: '0.5rem', left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: '0.5rem', opacity: 0, transition: 'opacity 0.3s ease' }}>
+                  <div className="series-hover-actions">
                     <button 
                       className="series-icon-btn" 
                       onClick={(e) => {
@@ -265,7 +348,6 @@ export default function Inicio() {
                         toggleSeriesFavorite(show);
                       }}
                       title="Agregar a favoritos"
-                      style={{ background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <Heart size={18} fill={isSeriesFavorite(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
@@ -276,7 +358,6 @@ export default function Inicio() {
                         toggleSeriesWatched(show);
                       }}
                       title="Marcar como visto"
-                      style={{ background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%', padding: '0.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                       <Eye size={18} fill={isSeriesWatched(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>

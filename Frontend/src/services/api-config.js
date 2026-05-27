@@ -24,13 +24,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Redirige al login si el backend devuelve 401
+// Redirige al login si el backend devuelve 401 (solo para endpoints que requieren autenticación)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Solo redirigir a login si es un 401 en un endpoint que requiere autenticación
+    // Los endpoints públicos devuelven 200 incluso sin token
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Verificar si el error es de un endpoint que requiere autenticación
+      const url = error.config?.url || '';
+      const publicEndpoints = ['/recommendations', '/recommendations/series', '/movies/tmdb', '/series/tmdb'];
+      const isPublicEndpoint = publicEndpoints.some(endpoint => url.includes(endpoint));
+      
+      // Solo redirigir si NO es un endpoint público
+      if (!isPublicEndpoint) {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
