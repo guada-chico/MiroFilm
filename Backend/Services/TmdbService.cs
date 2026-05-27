@@ -34,7 +34,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -55,7 +79,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -76,7 +124,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -97,7 +169,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -118,7 +214,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -139,7 +259,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var movies = ParseMovies(results);
+                
+                // Enriquecer con detalles (director) de forma asincrónica
+                var enrichedMovies = new List<Movie>();
+                foreach (var movie in movies)
+                {
+                    try
+                    {
+                        var details = await GetMovieDetailsAsync(movie.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedMovies.Add(details);
+                        }
+                        else
+                        {
+                            enrichedMovies.Add(movie);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedMovies.Add(movie);
+                    }
+                }
+                
+                return enrichedMovies;
             }
             catch (Exception ex)
             {
@@ -189,7 +333,8 @@ namespace Miro.Services
                     ReleaseDate = item.TryGetProperty("release_date", out var releaseDate) && releaseDate.ValueKind != JsonValueKind.Null
                         ? DateTime.TryParse(releaseDate.GetString(), out var date) ? date : null
                         : null,
-                    Language = item.TryGetProperty("original_language", out var lang) ? lang.GetString() : null
+                    Language = item.TryGetProperty("original_language", out var lang) ? lang.GetString() : null,
+                    Director = "Director desconocido"
                 };
 
                 movies.Add(movie);
@@ -268,7 +413,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Enriquecer con detalles (creador) de forma asincrónica
+                var enrichedSeries = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    try
+                    {
+                        var details = await GetSeriesDetailsAsync(series.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedSeries.Add(details);
+                        }
+                        else
+                        {
+                            enrichedSeries.Add(series);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedSeries.Add(series);
+                    }
+                }
+                
+                return enrichedSeries;
             }
             catch (Exception ex)
             {
@@ -289,7 +458,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Enriquecer con detalles (creador) de forma asincrónica
+                var enrichedSeries = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    try
+                    {
+                        var details = await GetSeriesDetailsAsync(series.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedSeries.Add(details);
+                        }
+                        else
+                        {
+                            enrichedSeries.Add(series);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedSeries.Add(series);
+                    }
+                }
+                
+                return enrichedSeries;
             }
             catch (Exception ex)
             {
@@ -310,7 +503,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Enriquecer con detalles (creador) de forma asincrónica
+                var enrichedSeries = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    try
+                    {
+                        var details = await GetSeriesDetailsAsync(series.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedSeries.Add(details);
+                        }
+                        else
+                        {
+                            enrichedSeries.Add(series);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedSeries.Add(series);
+                    }
+                }
+                
+                return enrichedSeries;
             }
             catch (Exception ex)
             {
@@ -331,7 +548,31 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseSeries(results);
+                var seriesList = ParseSeries(results);
+                
+                // Enriquecer con detalles (creador) de forma asincrónica
+                var enrichedSeries = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    try
+                    {
+                        var details = await GetSeriesDetailsAsync(series.TmdbId);
+                        if (details != null)
+                        {
+                            enrichedSeries.Add(details);
+                        }
+                        else
+                        {
+                            enrichedSeries.Add(series);
+                        }
+                    }
+                    catch
+                    {
+                        enrichedSeries.Add(series);
+                    }
+                }
+                
+                return enrichedSeries;
             }
             catch (Exception ex)
             {
