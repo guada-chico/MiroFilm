@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getPopularMovies, searchMovies, getMovieDetails, getMoviesByGenre } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -41,6 +41,7 @@ export default function Peliculas() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
+  const [movieStates, setMovieStates] = useState({});
 
   // Cargar películas populares, por búsqueda o por género
   useEffect(() => {
@@ -128,6 +129,30 @@ export default function Peliculas() {
     }
   };
 
+  const handleToggleFavorite = (e, movieId) => {
+    e.stopPropagation();
+    setMovieStates(prev => ({
+      ...prev,
+      [movieId]: {
+        ...prev[movieId],
+        isFavorite: !prev[movieId]?.isFavorite
+      }
+    }));
+    // TODO: Llamar a API para guardar/eliminar de favoritos
+  };
+
+  const handleToggleWatched = (e, movieId) => {
+    e.stopPropagation();
+    setMovieStates(prev => ({
+      ...prev,
+      [movieId]: {
+        ...prev[movieId],
+        isWatched: !prev[movieId]?.isWatched
+      }
+    }));
+    // TODO: Llamar a API para marcar como visto/no visto
+  };
+
   const handleAddToWatchlist = async (movieId) => {
     // TODO: Implementar agregar a lista de visualización
     setSelectedMovie(null);
@@ -185,11 +210,19 @@ export default function Peliculas() {
                     alt={movie.title}
                   />
                   <div className="reco-hover-actions">
-                    <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); }}>
-                      <Heart size={18} />
+                    <button 
+                      className="reco-icon-btn" 
+                      onClick={(e) => handleToggleFavorite(e, movie.tmdbId)}
+                      title="Agregar a favoritos"
+                    >
+                      <Heart size={18} fill={movieStates[movie.tmdbId]?.isFavorite ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
-                    <button className="reco-icon-btn" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(movie.id); }}>
-                      <BookmarkPlus size={18} />
+                    <button 
+                      className="reco-icon-btn" 
+                      onClick={(e) => handleToggleWatched(e, movie.tmdbId)}
+                      title="Marcar como visto"
+                    >
+                      <Eye size={18} fill={movieStates[movie.tmdbId]?.isWatched ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
                   </div>
                 </div>

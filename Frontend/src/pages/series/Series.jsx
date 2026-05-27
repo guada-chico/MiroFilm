@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getPopularSeries, searchSeries, getSeriesDetails, getSeriesByGenre } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -38,6 +38,7 @@ export default function Series() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
+  const [seriesStates, setSeriesStates] = useState({});
 
   // Cargar series populares, por búsqueda o por género
   useEffect(() => {
@@ -125,6 +126,30 @@ export default function Series() {
     }
   };
 
+  const handleToggleFavorite = (e, seriesId) => {
+    e.stopPropagation();
+    setSeriesStates(prev => ({
+      ...prev,
+      [seriesId]: {
+        ...prev[seriesId],
+        isFavorite: !prev[seriesId]?.isFavorite
+      }
+    }));
+    // TODO: Llamar a API para guardar/eliminar de favoritos
+  };
+
+  const handleToggleWatched = (e, seriesId) => {
+    e.stopPropagation();
+    setSeriesStates(prev => ({
+      ...prev,
+      [seriesId]: {
+        ...prev[seriesId],
+        isWatched: !prev[seriesId]?.isWatched
+      }
+    }));
+    // TODO: Llamar a API para marcar como visto/no visto
+  };
+
   const handleAddToWatchlist = async (seriesId) => {
     // TODO: Implementar agregar a lista de visualización
     setSelectedSeries(null);
@@ -182,11 +207,19 @@ export default function Series() {
                     alt={show.title}
                   />
                   <div className="series-hover-actions">
-                    <button className="series-icon-btn" onClick={(e) => { e.stopPropagation(); }}>
-                      <Heart size={18} />
+                    <button 
+                      className="series-icon-btn" 
+                      onClick={(e) => handleToggleFavorite(e, show.tmdbId)}
+                      title="Agregar a favoritos"
+                    >
+                      <Heart size={18} fill={seriesStates[show.tmdbId]?.isFavorite ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
-                    <button className="series-icon-btn" onClick={(e) => { e.stopPropagation(); handleAddToWatchlist(show.id); }}>
-                      <BookmarkPlus size={18} />
+                    <button 
+                      className="series-icon-btn" 
+                      onClick={(e) => handleToggleWatched(e, show.tmdbId)}
+                      title="Marcar como visto"
+                    >
+                      <Eye size={18} fill={seriesStates[show.tmdbId]?.isWatched ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
                   </div>
                 </div>
