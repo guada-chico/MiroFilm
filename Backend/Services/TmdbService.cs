@@ -203,7 +203,23 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                return ParseMovies(results);
+                var moviesList = ParseMovies(results);
+                
+                // Obtener detalles adicionales (director) para cada película
+                var moviesWithDetails = new List<Movie>();
+                foreach (var movie in moviesList)
+                {
+                    var details = await GetMovieDetailsAsync(movie.TmdbId);
+                    if (details != null)
+                    {
+                        movie.Director = details.Director;
+                        movie.Genre = details.Genre;
+                        movie.Duration = details.Duration;
+                    }
+                    moviesWithDetails.Add(movie);
+                }
+                
+                return moviesWithDetails;
             }
             catch (Exception ex)
             {

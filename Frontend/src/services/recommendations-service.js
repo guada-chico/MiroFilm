@@ -55,3 +55,13 @@ export const getMovieDetails = async (tmdbId) => {
   const response = await api.get(`/movies/tmdb/${tmdbId}`);
   return response.data;
 };
+
+/**
+ * Obtiene películas por género de TMDB.
+ */
+export const getMoviesByGenre = async (genreId, page = 1) => {
+  console.log(`Llamando a getMoviesByGenre con genreId=${genreId}, page=${page}`);
+  const response = await api.get('/movies/tmdb/genre', { params: { genreId, page } });
+  console.log('Respuesta de getMoviesByGenre:', response.data);
+  return response.data;
+};

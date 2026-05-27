@@ -1,10 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { getPopularMovies, searchMovies, getMovieDetails } from '../../services/recommendations-service';
+import { getPopularMovies, searchMovies, getMovieDetails, getMoviesByGenre } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Peliculas.css';
+
+// Géneros de películas de TMDB
+const MOVIE_GENRES = [
+  { id: 28, name: 'Acción' },
+  { id: 12, name: 'Aventura' },
+  { id: 16, name: 'Animación' },
+  { id: 35, name: 'Comedia' },
+  { id: 80, name: 'Crimen' },
+  { id: 99, name: 'Documental' },
+  { id: 18, name: 'Drama' },
+  { id: 10751, name: 'Familia' },
+  { id: 14, name: 'Fantasía' },
+  { id: 36, name: 'Historia' },
+  { id: 27, name: 'Terror' },
+  { id: 10402, name: 'Música' },
+  { id: 9648, name: 'Misterio' },
+  { id: 10749, name: 'Romance' },
+  { id: 878, name: 'Ciencia Ficción' },
+  { id: 10770, name: 'Película de TV' },
+  { id: 53, name: 'Thriller' },
+  { id: 10752, name: 'Guerra' },
+  { id: 37, name: 'Western' }
+];
 
 export default function Peliculas() {
   const navigate = useNavigate();
@@ -17,8 +40,9 @@ export default function Peliculas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState(null);
 
-  // Cargar películas populares
+  // Cargar películas populares, por búsqueda o por género
   useEffect(() => {
     setLoading(true);
     setMovies([]);
@@ -35,6 +59,20 @@ export default function Peliculas() {
           setMovies([]);
         })
         .finally(() => setLoading(false));
+    } else if (selectedGenre) {
+      // Si hay un género seleccionado, cargar películas por género
+      getMoviesByGenre(selectedGenre, currentPage)
+        .then((data) => {
+          console.log('Películas por género:', data?.length || 0);
+          console.log('Datos recibidos:', data);
+          setMovies(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error fetching movies by genre:', error);
+          console.error('Error details:', error.response?.data);
+          setMovies([]);
+        })
+        .finally(() => setLoading(false));
     } else {
       // Si no, cargar películas populares
       getPopularMovies(currentPage)
@@ -48,7 +86,7 @@ export default function Peliculas() {
         })
         .finally(() => setLoading(false));
     }
-  }, [currentPage, isSearching, searchTerm]);
+  }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -65,6 +103,19 @@ export default function Peliculas() {
     setSearchTerm(value);
     setCurrentPage(1);
     setIsSearching(value.length > 0);
+  };
+
+  const handleGenreFilter = (genreId) => {
+    if (selectedGenre === genreId) {
+      // Si hace clic en el mismo género, deseleccionar
+      setSelectedGenre(null);
+    } else {
+      // Seleccionar nuevo género
+      setSelectedGenre(genreId);
+    }
+    setCurrentPage(1);
+    setSearchTerm('');
+    setIsSearching(false);
   };
 
   const handleMovieClick = async (movie) => {
@@ -103,11 +154,24 @@ export default function Peliculas() {
         <Search size={20} className="search-icon" />
         <input
           type="text"
-          placeholder="Buscar por título, director, género..."
+          placeholder="Buscar por título o director"
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
         />
+      </div>
+
+      {/* Filtros por género */}
+      <div className="genre-filters">
+        {MOVIE_GENRES.map((genre) => (
+          <button
+            key={genre.id}
+            className={`genre-btn ${selectedGenre === genre.id ? 'active' : ''}`}
+            onClick={() => handleGenreFilter(genre.id)}
+          >
+            {genre.name}
+          </button>
+        ))}
       </div>
 
       {loading ? (
@@ -143,8 +207,30 @@ export default function Peliculas() {
             ))}
           </div>
 
-          {/* Paginación - solo mostrar si no estamos buscando */}
-          {!isSearching && movies.length > 0 && (
+          {/* Paginación - solo mostrar si no estamos buscando ni filtrando por género */}
+          {!isSearching && !selectedGenre && movies.length > 0 && (
+            <div className="pagination-container">
+              <button 
+                className="pagination-btn" 
+                onClick={handlePrevPage} 
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="pagination-info">
+                Página {currentPage}
+              </span>
+              <button 
+                className="pagination-btn" 
+                onClick={handleNextPage}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+
+          {/* Paginación - mostrar si hay filtro de género */}
+          {selectedGenre && movies.length > 0 && (
             <div className="pagination-container">
               <button 
                 className="pagination-btn" 
