@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getPopularMovies, searchMovies, getMovieDetails, getMoviesByGenre } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -44,48 +44,44 @@ export default function Peliculas() {
 
   // Cargar películas populares, por búsqueda o por género
   useEffect(() => {
-    setLoading(true);
-    setMovies([]);
+    let isMounted = true;
     
-    if (isSearching && searchTerm) {
-      // Si estamos buscando, usar el endpoint de búsqueda
-      searchMovies(searchTerm)
-        .then((data) => {
-          console.log('Películas encontradas:', data?.length || 0);
-          setMovies(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error searching movies:', error);
-          setMovies([]);
-        })
-        .finally(() => setLoading(false));
-    } else if (selectedGenre) {
-      // Si hay un género seleccionado, cargar películas por género
-      getMoviesByGenre(selectedGenre, currentPage)
-        .then((data) => {
-          console.log('Películas por género:', data?.length || 0);
-          console.log('Datos recibidos:', data);
-          setMovies(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error fetching movies by genre:', error);
-          console.error('Error details:', error.response?.data);
-          setMovies([]);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      // Si no, cargar películas populares
-      getPopularMovies(currentPage)
-        .then((data) => {
-          console.log('Películas recibidas:', data?.length || 0);
-          setMovies(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error fetching movies:', error);
-          setMovies([]);
-        })
-        .finally(() => setLoading(false));
-    }
+    const loadMovies = async () => {
+      try {
+        if (isMounted) setLoading(true);
+        
+        let data;
+        if (isSearching && searchTerm) {
+          // Si estamos buscando, usar el endpoint de búsqueda
+          console.log('Buscando películas:', searchTerm);
+          data = await searchMovies(searchTerm);
+        } else if (selectedGenre) {
+          // Si hay un género seleccionado, cargar películas por género
+          console.log('Cargando películas por género:', selectedGenre);
+          data = await getMoviesByGenre(selectedGenre, currentPage);
+        } else {
+          // Si no, cargar películas populares
+          console.log('Cargando películas populares, página:', currentPage);
+          data = await getPopularMovies(currentPage);
+        }
+        
+        if (isMounted) {
+          console.log('Películas recibidas:', data?.length || 0, data);
+          setMovies(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error('Error cargando películas:', error);
+        if (isMounted) setMovies([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    
+    loadMovies();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
   const handleNextPage = () => {

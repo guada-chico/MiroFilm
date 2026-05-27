@@ -55,23 +55,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var moviesList = ParseMovies(results);
-                
-                // Obtener detalles adicionales (director) para cada película
-                var moviesWithDetails = new List<Movie>();
-                foreach (var movie in moviesList)
-                {
-                    var details = await GetMovieDetailsAsync(movie.TmdbId);
-                    if (details != null)
-                    {
-                        movie.Director = details.Director;
-                        movie.Genre = details.Genre;
-                        movie.Duration = details.Duration;
-                    }
-                    moviesWithDetails.Add(movie);
-                }
-                
-                return moviesWithDetails;
+                return ParseMovies(results);
             }
             catch (Exception ex)
             {
@@ -92,23 +76,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var moviesList = ParseMovies(results);
-                
-                // Obtener detalles adicionales (director) para cada película
-                var moviesWithDetails = new List<Movie>();
-                foreach (var movie in moviesList)
-                {
-                    var details = await GetMovieDetailsAsync(movie.TmdbId);
-                    if (details != null)
-                    {
-                        movie.Director = details.Director;
-                        movie.Genre = details.Genre;
-                        movie.Duration = details.Duration;
-                    }
-                    moviesWithDetails.Add(movie);
-                }
-                
-                return moviesWithDetails;
+                return ParseMovies(results);
             }
             catch (Exception ex)
             {
@@ -129,23 +97,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var moviesList = ParseMovies(results);
-                
-                // Obtener detalles adicionales (director) para cada película
-                var moviesWithDetails = new List<Movie>();
-                foreach (var movie in moviesList)
-                {
-                    var details = await GetMovieDetailsAsync(movie.TmdbId);
-                    if (details != null)
-                    {
-                        movie.Director = details.Director;
-                        movie.Genre = details.Genre;
-                        movie.Duration = details.Duration;
-                    }
-                    moviesWithDetails.Add(movie);
-                }
-                
-                return moviesWithDetails;
+                return ParseMovies(results);
             }
             catch (Exception ex)
             {
@@ -166,23 +118,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var moviesList = ParseMovies(results);
-                
-                // Obtener detalles adicionales (director) para cada película
-                var moviesWithDetails = new List<Movie>();
-                foreach (var movie in moviesList)
-                {
-                    var details = await GetMovieDetailsAsync(movie.TmdbId);
-                    if (details != null)
-                    {
-                        movie.Director = details.Director;
-                        movie.Genre = details.Genre;
-                        movie.Duration = details.Duration;
-                    }
-                    moviesWithDetails.Add(movie);
-                }
-                
-                return moviesWithDetails;
+                return ParseMovies(results);
             }
             catch (Exception ex)
             {
@@ -203,23 +139,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var moviesList = ParseMovies(results);
-                
-                // Obtener detalles adicionales (director) para cada película
-                var moviesWithDetails = new List<Movie>();
-                foreach (var movie in moviesList)
-                {
-                    var details = await GetMovieDetailsAsync(movie.TmdbId);
-                    if (details != null)
-                    {
-                        movie.Director = details.Director;
-                        movie.Genre = details.Genre;
-                        movie.Duration = details.Duration;
-                    }
-                    moviesWithDetails.Add(movie);
-                }
-                
-                return moviesWithDetails;
+                return ParseMovies(results);
             }
             catch (Exception ex)
             {
@@ -369,25 +289,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var seriesList = ParseSeries(results);
-                
-                // Obtener detalles adicionales (creador) para cada serie
-                var seriesWithDetails = new List<Series>();
-                foreach (var series in seriesList)
-                {
-                    var details = await GetSeriesDetailsAsync(series.TmdbId);
-                    if (details != null)
-                    {
-                        series.Creator = details.Creator;
-                        series.Genre = details.Genre;
-                        series.NumberOfSeasons = details.NumberOfSeasons;
-                        series.NumberOfEpisodes = details.NumberOfEpisodes;
-                        series.Status = details.Status;
-                    }
-                    seriesWithDetails.Add(series);
-                }
-                
-                return seriesWithDetails;
+                return ParseSeries(results);
             }
             catch (Exception ex)
             {
@@ -408,25 +310,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var seriesList = ParseSeries(results);
-                
-                // Obtener detalles adicionales (creador) para cada serie
-                var seriesWithDetails = new List<Series>();
-                foreach (var series in seriesList)
-                {
-                    var details = await GetSeriesDetailsAsync(series.TmdbId);
-                    if (details != null)
-                    {
-                        series.Creator = details.Creator;
-                        series.Genre = details.Genre;
-                        series.NumberOfSeasons = details.NumberOfSeasons;
-                        series.NumberOfEpisodes = details.NumberOfEpisodes;
-                        series.Status = details.Status;
-                    }
-                    seriesWithDetails.Add(series);
-                }
-                
-                return seriesWithDetails;
+                return ParseSeries(results);
             }
             catch (Exception ex)
             {
@@ -447,25 +331,7 @@ namespace Miro.Services
                 var jsonDoc = JsonDocument.Parse(content);
                 var results = jsonDoc.RootElement.GetProperty("results");
 
-                var seriesList = ParseSeries(results);
-                
-                // Obtener detalles adicionales (creador) para cada serie
-                var seriesWithDetails = new List<Series>();
-                foreach (var series in seriesList)
-                {
-                    var details = await GetSeriesDetailsAsync(series.TmdbId);
-                    if (details != null)
-                    {
-                        series.Creator = details.Creator;
-                        series.Genre = details.Genre;
-                        series.NumberOfSeasons = details.NumberOfSeasons;
-                        series.NumberOfEpisodes = details.NumberOfEpisodes;
-                        series.Status = details.Status;
-                    }
-                    seriesWithDetails.Add(series);
-                }
-                
-                return seriesWithDetails;
+                return ParseSeries(results);
             }
             catch (Exception ex)
             {

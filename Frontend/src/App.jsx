@@ -6,11 +6,10 @@ import Navbar from './components/navbar/Navbar';
 import Inicio from './pages/inicio/Inicio';
 import Login from './pages/login/Login';
 import Peliculas from './pages/peliculas/Peliculas';
-import MisLibros from './pages/biblioteca/Biblioteca';
+import Favoritos from './pages/favoritos/Favoritos';
 import Perfil from './pages/perfil/Perfil';
 import Ajustes from './pages/ajustes/Ajustes';
 import Ayuda from './pages/ayuda/Ayuda';
-import Favoritos from './pages/favoritos/Favoritos'; 
 import Amigos from './pages/amigos/Amigos';
 import Series from './pages/series/Series';
 import './App.css';
@@ -35,7 +34,7 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/inicio" element={<Inicio />} />
             <Route path="/peliculas" element={<Peliculas />} />
-            <Route path="/mis-libros" element={<MisLibros />} />
+            <Route path="/mis-libros" element={<Favoritos />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/amigos" element={<Amigos/>} />
             <Route path="/series" element={<Series />} />

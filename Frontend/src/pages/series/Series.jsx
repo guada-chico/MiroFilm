@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getPopularSeries, searchSeries, getSeriesDetails, getSeriesByGenre } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
@@ -41,48 +41,44 @@ export default function Series() {
 
   // Cargar series populares, por búsqueda o por género
   useEffect(() => {
-    setLoading(true);
-    setSeries([]);
+    let isMounted = true;
     
-    if (isSearching && searchTerm) {
-      // Si estamos buscando, usar el endpoint de búsqueda
-      searchSeries(searchTerm)
-        .then((data) => {
-          console.log('Series encontradas:', data?.length || 0);
-          setSeries(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error searching series:', error);
-          setSeries([]);
-        })
-        .finally(() => setLoading(false));
-    } else if (selectedGenre) {
-      // Si hay un género seleccionado, cargar series por género
-      getSeriesByGenre(selectedGenre, currentPage)
-        .then((data) => {
-          console.log('Series por género:', data?.length || 0);
-          console.log('Datos recibidos:', data);
-          setSeries(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error fetching series by genre:', error);
-          console.error('Error details:', error.response?.data);
-          setSeries([]);
-        })
-        .finally(() => setLoading(false));
-    } else {
-      // Si no, cargar series populares
-      getPopularSeries(currentPage)
-        .then((data) => {
-          console.log('Series recibidas:', data?.length || 0);
-          setSeries(data ?? []);
-        })
-        .catch((error) => {
-          console.error('Error fetching series:', error);
-          setSeries([]);
-        })
-        .finally(() => setLoading(false));
-    }
+    const loadSeries = async () => {
+      try {
+        if (isMounted) setLoading(true);
+        
+        let data;
+        if (isSearching && searchTerm) {
+          // Si estamos buscando, usar el endpoint de búsqueda
+          console.log('Buscando series:', searchTerm);
+          data = await searchSeries(searchTerm);
+        } else if (selectedGenre) {
+          // Si hay un género seleccionado, cargar series por género
+          console.log('Cargando series por género:', selectedGenre);
+          data = await getSeriesByGenre(selectedGenre, currentPage);
+        } else {
+          // Si no, cargar series populares
+          console.log('Cargando series populares, página:', currentPage);
+          data = await getPopularSeries(currentPage);
+        }
+        
+        if (isMounted) {
+          console.log('Series recibidas:', data?.length || 0, data);
+          setSeries(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error('Error cargando series:', error);
+        if (isMounted) setSeries([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    
+    loadSeries();
+    
+    return () => {
+      isMounted = false;
+    };
   }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
   const handleNextPage = () => {
