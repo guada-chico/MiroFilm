@@ -1,17 +1,43 @@
+using System.Text.Json.Serialization;
+
 namespace Miro.Dto
 {
     public class FavoriteDto
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
-        public int? TmdbMovieId { get; set; }
-        public int? TmdbSeriesId { get; set; }
+
+        [JsonPropertyName("tmdbId")]
+        public int? tmdbId { get; set; }
+
+        [JsonPropertyName("title")]
         public string Title { get; set; }
-        public string? PosterUrl { get; set; }
-        public string? Director { get; set; }
-        public string? Creator { get; set; }
-        public string? Genre { get; set; }
-        public double? Rating { get; set; }
-        public string? Plot { get; set; }
-        public string Type { get; set; } // "movie" o "series"
+
+        [JsonPropertyName("posterUrl")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? posterUrl { get; set; }
+
+        [JsonPropertyName("director")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? director { get; set; }
+
+        [JsonPropertyName("creator")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? creator { get; set; }
+
+        [JsonPropertyName("genre")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? genre { get; set; }
+
+        [JsonPropertyName("rating")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public double? rating { get; set; }
+
+        [JsonPropertyName("plot")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? plot { get; set; }
+
+        [JsonPropertyName("type")]
+        public string type { get; set; } // "movie" o "series"
     }
 }

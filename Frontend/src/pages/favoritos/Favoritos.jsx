@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Film, Tv, Eye, X, Trash2 } from 'lucide-react';
+import { Heart, ArrowLeft, Film, Tv, X, Trash2 } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
@@ -10,7 +10,7 @@ export default function Favoritos() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const t = getT(settings.language);
-  const { favoriteMovies, favoriteSeries, watchedMovies, watchedSeries, toggleMovieWatched, toggleSeriesWatched } = useMedia();
+  const { favoriteMovies, favoriteSeries, watchedMovies, watchedSeries, toggleMovieWatched, toggleSeriesWatched, toggleMovieFavorite, toggleSeriesFavorite } = useMedia();
 
   const [stats, setStats] = useState({
     moviesWatchedThisYear: 0,
@@ -23,10 +23,12 @@ export default function Favoritos() {
 
   useEffect(() => {
     // Actualizar estadísticas basadas en películas/series vistas
-    setStats({
-      moviesWatchedThisYear: watchedMovies.length,
-      seriesWatchedThisYear: watchedSeries.length
-    });
+    if (watchedMovies.length > 0 || watchedSeries.length > 0) {
+      setStats({
+        moviesWatchedThisYear: watchedMovies.length,
+        seriesWatchedThisYear: watchedSeries.length
+      });
+    }
   }, [watchedMovies, watchedSeries]);
 
   const renderMovieSection = (title, movies, icon) => {
@@ -57,6 +59,16 @@ export default function Favoritos() {
                 <h4>{movie.title}</h4>
                 <p>{movie.director || 'Director desconocido'}</p>
               </div>
+              <button
+                className="favorito-delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMovieFavorite(movie);
+                }}
+                title="Eliminar de favoritos"
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           ))}
         </div>
@@ -92,6 +104,16 @@ export default function Favoritos() {
                 <h4>{show.title}</h4>
                 <p>{show.creator || 'Creador desconocido'}</p>
               </div>
+              <button
+                className="favorito-delete-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSeriesFavorite(show);
+                }}
+                title="Eliminar de favoritos"
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
           ))}
         </div>

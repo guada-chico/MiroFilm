@@ -36,20 +36,47 @@ namespace Miro.Controllers
                 .Where(f => f.UserId == userId && (f.TmdbMovieId.HasValue || f.TmdbSeriesId.HasValue))
                 .ToListAsync();
 
-            var result = favorites.Select(f => new FavoriteDto
+            var result = new List<FavoriteDto>();
+
+            foreach (var f in favorites)
             {
-                Id = f.Id,
-                TmdbMovieId = f.TmdbMovieId,
-                TmdbSeriesId = f.TmdbSeriesId,
-                Title = f.Movie?.Title ?? f.Series?.Title ?? "Desconocido",
-                PosterUrl = f.Movie?.PosterUrl ?? f.Series?.PosterUrl,
-                Director = f.Movie?.Director,
-                Creator = f.Series?.Creator,
-                Genre = f.Movie?.Genre ?? f.Series?.Genre,
-                Rating = f.Movie?.Rating ?? f.Series?.Rating,
-                Plot = f.Movie?.Plot ?? f.Series?.Plot,
-                Type = f.TmdbMovieId.HasValue ? "movie" : "series"
-            }).ToList();
+                if (f.TmdbMovieId.HasValue)
+                {
+                    var movie = await _context.Movies
+                        .FirstOrDefaultAsync(m => m.TmdbId == f.TmdbMovieId.Value);
+                    
+                    result.Add(new FavoriteDto
+                    {
+                        Id = f.Id,
+                        tmdbId = f.TmdbMovieId,
+                        Title = movie?.Title ?? "Desconocido",
+                        posterUrl = movie?.PosterUrl,
+                        director = movie?.Director,
+                        genre = movie?.Genre,
+                        rating = movie?.Rating,
+                        plot = movie?.Plot,
+                        type = "movie"
+                    });
+                }
+                else if (f.TmdbSeriesId.HasValue)
+                {
+                    var series = await _context.Series
+                        .FirstOrDefaultAsync(s => s.TmdbId == f.TmdbSeriesId.Value);
+                    
+                    result.Add(new FavoriteDto
+                    {
+                        Id = f.Id,
+                        tmdbId = f.TmdbSeriesId,
+                        Title = series?.Title ?? "Desconocido",
+                        posterUrl = series?.PosterUrl,
+                        creator = series?.Creator,
+                        genre = series?.Genre,
+                        rating = series?.Rating,
+                        plot = series?.Plot,
+                        type = "series"
+                    });
+                }
+            }
 
             return Ok(result);
         }

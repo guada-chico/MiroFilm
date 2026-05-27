@@ -16,10 +16,14 @@ export function MediaProvider({ children }) {
       try {
         setLoading(true);
         const favorites = await getMyFavorites();
+        console.log('Favorites loaded:', favorites);
         
         // Separar películas y series
         const movies = favorites.filter(f => f.type === 'movie');
         const series = favorites.filter(f => f.type === 'series');
+        
+        console.log('Movies:', movies);
+        console.log('Series:', series);
         
         setFavoriteMovies(movies);
         setFavoriteSeries(series);
@@ -35,6 +39,7 @@ export function MediaProvider({ children }) {
 
   const toggleMovieFavoriteLocal = async (movie) => {
     try {
+      console.log('Toggling movie favorite:', movie.tmdbId, movie);
       await toggleMovieFavorite(movie.tmdbId);
       
       setFavoriteMovies(prev => {
@@ -61,6 +66,7 @@ export function MediaProvider({ children }) {
 
   const toggleSeriesFavoriteLocal = async (series) => {
     try {
+      console.log('Toggling series favorite:', series.tmdbId, series);
       await toggleSeriesFavorite(series.tmdbId);
       
       setFavoriteSeries(prev => {
