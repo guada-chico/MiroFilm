@@ -105,6 +105,27 @@
   font-weight: 600;
 }
 
+/* --- LAYOUT DE 2 COLUMNAS PARA FAVORITOS --- */
+
+.favoritos-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 50px;
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.column .favoritos-section {
+  margin-bottom: 0;
+  width: 100%;
+}
+
 /* --- SECCIONES DE FAVORITOS --- */
 
 .favoritos-section {
@@ -130,7 +151,73 @@
   color: #1a1a1a;
 }
 
-/* --- GRID DE FAVORITOS --- */
+/* --- LISTA DE FAVORITOS (PARA PELÍCULAS Y SERIES FAVORITAS) --- */
+
+.favoritos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.favorito-item {
+  display: flex;
+  gap: 15px;
+  background: white;
+  padding: 12px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.favorito-item:hover {
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.favorito-poster {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.favorito-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.favorito-details h4 {
+  font-size: 0.95rem;
+  margin: 0 0 4px 0;
+  color: #1a1a1a;
+  font-weight: 600;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favorito-details p {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- GRID DE FAVORITOS (PARA VISTAS Y GUARDADAS) --- */
 
 .favoritos-grid {
   display: grid;
@@ -229,18 +316,6 @@
   color: #f0f0f0;
 }
 
-:root[data-theme="dark"] .favorito-card {
-  background: #2a2a2a;
-}
-
-:root[data-theme="dark"] .favorito-info h4 {
-  color: #f0f0f0;
-}
-
-:root[data-theme="dark"] .favorito-info p {
-  color: #999;
-}
-
 :root[data-theme="dark"] .stat-card {
   background: #2a2a2a;
 }
@@ -262,9 +337,38 @@
   color: #b0b0b0;
 }
 
+:root[data-theme="dark"] .favorito-item {
+  background: #2a2a2a;
+}
+
+:root[data-theme="dark"] .favorito-details h4 {
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .favorito-details p {
+  color: #999;
+}
+
+:root[data-theme="dark"] .favorito-card {
+  background: #2a2a2a;
+}
+
+:root[data-theme="dark"] .favorito-info h4 {
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .favorito-info p {
+  color: #999;
+}
+
 /* --- RESPONSIVE --- */
 
 @media (max-width: 1200px) {
+  .favoritos-two-columns {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+
   .favoritos-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -275,6 +379,10 @@
 }
 
 @media (max-width: 768px) {
+  .favoritos-two-columns {
+    grid-template-columns: 1fr;
+  }
+
   .favoritos-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

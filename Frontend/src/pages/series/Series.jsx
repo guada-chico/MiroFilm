@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getPopularSeries, searchSeries, getSeriesDetails, getSeriesByGenre } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
+import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
 import './Series.css';
 
@@ -29,6 +30,7 @@ const TV_GENRES = [
 export default function Series() {
   const navigate = useNavigate();
   const { settings } = useSettings();
+  const { isSeriesFavorite, toggleSeriesFavorite, isSeriesWatched, toggleSeriesWatched } = useMedia();
   const t = getT(settings.language);
   const [selectedSeries, setSelectedSeries] = useState(null);
   const [series, setSeries] = useState([]);
@@ -38,7 +40,6 @@ export default function Series() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
-  const [seriesStates, setSeriesStates] = useState({});
 
   // Cargar series populares, por búsqueda o por género
   useEffect(() => {
@@ -126,27 +127,15 @@ export default function Series() {
     }
   };
 
-  const handleToggleFavorite = (e, seriesId) => {
+  const handleToggleFavorite = (e, series) => {
     e.stopPropagation();
-    setSeriesStates(prev => ({
-      ...prev,
-      [seriesId]: {
-        ...prev[seriesId],
-        isFavorite: !prev[seriesId]?.isFavorite
-      }
-    }));
+    toggleSeriesFavorite(series);
     // TODO: Llamar a API para guardar/eliminar de favoritos
   };
 
-  const handleToggleWatched = (e, seriesId) => {
+  const handleToggleWatched = (e, series) => {
     e.stopPropagation();
-    setSeriesStates(prev => ({
-      ...prev,
-      [seriesId]: {
-        ...prev[seriesId],
-        isWatched: !prev[seriesId]?.isWatched
-      }
-    }));
+    toggleSeriesWatched(series);
     // TODO: Llamar a API para marcar como visto/no visto
   };
 
@@ -209,17 +198,17 @@ export default function Series() {
                   <div className="series-hover-actions">
                     <button 
                       className="series-icon-btn" 
-                      onClick={(e) => handleToggleFavorite(e, show.tmdbId)}
+                      onClick={(e) => handleToggleFavorite(e, show)}
                       title="Agregar a favoritos"
                     >
-                      <Heart size={18} fill={seriesStates[show.tmdbId]?.isFavorite ? '#ff6b35' : 'none'} color="#ff6b35" />
+                      <Heart size={18} fill={isSeriesFavorite(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
                     <button 
                       className="series-icon-btn" 
-                      onClick={(e) => handleToggleWatched(e, show.tmdbId)}
+                      onClick={(e) => handleToggleWatched(e, show)}
                       title="Marcar como visto"
                     >
-                      <Eye size={18} fill={seriesStates[show.tmdbId]?.isWatched ? '#ff6b35' : 'none'} color="#ff6b35" />
+                      <Eye size={18} fill={isSeriesWatched(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
                   </div>
                 </div>

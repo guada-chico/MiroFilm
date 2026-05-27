@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { SettingsProvider } from './context/SettingsContext';
 import { UserProvider } from './context/UserContext';
+import { MediaProvider } from './context/MediaContext';
 import Sidebar from './components/sidebar/Sidebar';
 import Navbar from './components/navbar/Navbar';
 import Inicio from './pages/inicio/Inicio';
@@ -57,7 +58,9 @@ export default function App() {
     <BrowserRouter>
       <SettingsProvider>
         <UserProvider>
-          <AppContent />
+          <MediaProvider>
+            <AppContent />
+          </MediaProvider>
         </UserProvider>
       </SettingsProvider>
     </BrowserRouter>
