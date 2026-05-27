@@ -4,7 +4,8 @@ import api from './api-config';
  * Obtiene las recomendaciones personalizadas del usuario actual.
  */
 export const getMyRecommendations = async () => {
-  const response = await api.get('/recommendations');
+  // Agregar timestamp para evitar caché
+  const response = await api.get('/recommendations', { params: { t: Date.now() } });
   return response.data;
 };
 

@@ -23,22 +23,20 @@ export default function Favoritos() {
 
   useEffect(() => {
     // Actualizar estadísticas basadas en películas/series vistas
-    if (watchedMovies.length > 0 || watchedSeries.length > 0) {
-      setStats({
-        moviesWatchedThisYear: watchedMovies.length,
-        seriesWatchedThisYear: watchedSeries.length
-      });
-    }
+    setStats({
+      moviesWatchedThisYear: watchedMovies.length,
+      seriesWatchedThisYear: watchedSeries.length
+    });
   }, [watchedMovies, watchedSeries]);
 
-  const renderMovieSection = (title, movies, icon) => {
+  const renderMovieSection = (title, movies, IconComponent) => {
     if (movies.length === 0) return null;
 
     return (
       <section className="favoritos-section">
         <div className="section-head">
           <h3>
-            {icon && <icon size={20} style={{ marginRight: '0.5rem' }} />}
+            {IconComponent && <IconComponent size={20} style={{ marginRight: '0.5rem', display: 'inline' }} />}
             {title}
           </h3>
           <span className="section-count">{movies.length}</span>
@@ -76,14 +74,14 @@ export default function Favoritos() {
     );
   };
 
-  const renderSeriesSection = (title, series, icon) => {
+  const renderSeriesSection = (title, series, IconComponent) => {
     if (series.length === 0) return null;
 
     return (
       <section className="favoritos-section">
         <div className="section-head">
           <h3>
-            {icon && <icon size={20} style={{ marginRight: '0.5rem' }} />}
+            {IconComponent && <IconComponent size={20} style={{ marginRight: '0.5rem', display: 'inline' }} />}
             {title}
           </h3>
           <span className="section-count">{series.length}</span>

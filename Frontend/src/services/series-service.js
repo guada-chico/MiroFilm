@@ -1,6 +1,15 @@
 import api from './api-config';
 
 /**
+ * Obtiene las recomendaciones personalizadas de series del usuario actual.
+ */
+export const getMySeriesRecommendations = async () => {
+  // Agregar timestamp para evitar caché
+  const response = await api.get('/series/recommendations', { params: { t: Date.now() } });
+  return response.data;
+};
+
+/**
  * Obtiene todas las series disponibles de la base de datos.
  */
 export const getAllSeries = async () => {

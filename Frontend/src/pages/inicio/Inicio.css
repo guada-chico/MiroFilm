@@ -3,10 +3,53 @@
   font-family: var(--sans)
 }
 
-.reading-now-section h1 { 
+.inicio-content h1 { 
   font-size: 2.5rem; 
   font-weight: 500; 
-  margin-bottom: 25px; 
+  margin-bottom: 35px; 
+}
+
+/* --- BOTONES DE NAVEGACIÓN --- */
+.nav-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  background: white;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--sans);
+}
+
+.nav-btn:hover {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
+}
+
+.nav-btn:active {
+  transform: scale(0.98);
+}
+
+:root[data-theme="dark"] .nav-btn {
+  background: #2a2a2a;
+  color: #b0b0b0;
+  border-color: #444;
+}
+
+:root[data-theme="dark"] .nav-btn:hover {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
 }
 
 .search-capsule {
@@ -71,6 +114,109 @@
 
 .books-section { 
   margin-top: 50px; 
+}
+
+/* --- SECCIÓN DE PELÍCULAS RECOMENDADAS --- */
+.movies-section {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.movie-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.movie-card img {
+  width: 100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+/* --- SECCIÓN DE SERIES RECOMENDADAS --- */
+.series-section {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.series-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.series-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.series-card-wrapper:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.series-card-wrapper:hover .series-hover-actions {
+  opacity: 1 !important;
+}
+
+.series-img-wrapper {
+  width: 100%;
+  aspect-ratio: 2/3;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.series-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.series-hover-actions {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.series-icon-btn {
+  background: rgba(0,0,0,0.7);
+  border: none;
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.series-icon-btn:hover {
+  background: rgba(0,0,0,0.9);
 }
 
 .section-head { 
@@ -217,4 +363,185 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* --- MODAL DE PELÍCULA --- */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  width: 850px;
+  max-width: 90%;
+  max-height: 85vh;
+  border-radius: 35px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.close-modal {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background: #f5f5f5;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+  z-index: 10;
+}
+
+.modal-body {
+  display: flex;
+  gap: 40px;
+  height: 100%;
+  overflow: hidden;
+  padding: 40px;
+}
+
+.modal-img {
+  width: 280px;
+  min-width: 280px;
+  height: 420px;
+  border-radius: 20px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.modal-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-details h2 {
+  font-size: 2rem;
+  margin: 10px 0;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.modal-author {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+.modal-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+.modal-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollable::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb {
+  background: #ff6b35;
+  border-radius: 10px;
+}
+
+.modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #ff5a1f;
+}
+
+.modal-section {
+  margin-bottom: 15px;
+}
+
+.modal-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #bbb;
+  margin-bottom: 15px;
+  font-weight: 700;
+  display: block;
+}
+
+.modal-text {
+  line-height: 1.6;
+  color: #444;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-shrink: 0;
+}
+
+.modal-action-btn {
+  background: white;
+  border: 1px solid #e0e0e0;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #ff6b35;
+}
+
+.modal-action-btn:hover {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
+}
+
+:root[data-theme="dark"] .modal-content {
+  background: #2a2a2a;
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .modal-details h2 {
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .modal-author {
+  color: #b0b0b0;
+}
+
+:root[data-theme="dark"] .modal-text {
+  color: #b0b0b0;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-track {
+  background: #333;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb {
+  background: #ff6b35;
+}
+
+:root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #ff5a1f;
 }
