@@ -8,36 +8,36 @@ namespace Miro.Dto
         public int Id { get; set; }
 
         [JsonPropertyName("tmdbId")]
-        public int? tmdbId { get; set; }
+        public int? TmdbId { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; }
 
         [JsonPropertyName("posterUrl")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? posterUrl { get; set; }
+        public string? PosterUrl { get; set; }
 
         [JsonPropertyName("director")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? director { get; set; }
+        public string? Director { get; set; }
 
         [JsonPropertyName("creator")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? creator { get; set; }
+        public string? Creator { get; set; }
 
         [JsonPropertyName("genre")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? genre { get; set; }
+        public string? Genre { get; set; }
 
         [JsonPropertyName("rating")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public double? rating { get; set; }
+        public double? Rating { get; set; }
 
         [JsonPropertyName("plot")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? plot { get; set; }
+        public string? Plot { get; set; }
 
         [JsonPropertyName("type")]
-        public string type { get; set; } // "movie" o "series"
+        public string Type { get; set; } // "movie" o "series"
     }
 }

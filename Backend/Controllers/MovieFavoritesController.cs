@@ -48,14 +48,14 @@ namespace Miro.Controllers
                     result.Add(new FavoriteDto
                     {
                         Id = f.Id,
-                        tmdbId = f.TmdbMovieId,
+                        TmdbId = f.TmdbMovieId,
                         Title = movie?.Title ?? "Desconocido",
-                        posterUrl = movie?.PosterUrl,
-                        director = movie?.Director,
-                        genre = movie?.Genre,
-                        rating = movie?.Rating,
-                        plot = movie?.Plot,
-                        type = "movie"
+                        PosterUrl = movie?.PosterUrl,
+                        Director = movie?.Director,
+                        Genre = movie?.Genre,
+                        Rating = movie?.Rating,
+                        Plot = movie?.Plot,
+                        Type = "movie"
                     });
                 }
                 else if (f.TmdbSeriesId.HasValue)
@@ -66,14 +66,14 @@ namespace Miro.Controllers
                     result.Add(new FavoriteDto
                     {
                         Id = f.Id,
-                        tmdbId = f.TmdbSeriesId,
+                        TmdbId = f.TmdbSeriesId,
                         Title = series?.Title ?? "Desconocido",
-                        posterUrl = series?.PosterUrl,
-                        creator = series?.Creator,
-                        genre = series?.Genre,
-                        rating = series?.Rating,
-                        plot = series?.Plot,
-                        type = "series"
+                        PosterUrl = series?.PosterUrl,
+                        Creator = series?.Creator,
+                        Genre = series?.Genre,
+                        Rating = series?.Rating,
+                        Plot = series?.Plot,
+                        Type = "series"
                     });
                 }
             }
