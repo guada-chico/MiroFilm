@@ -201,7 +201,7 @@ export default function Peliculas() {
                   <h4>{movie.title}</h4>
                   <p>{movie.director || 'Director desconocido'}</p>
                   {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
-                  {movie.rating && <p style={{ fontSize: '0.7rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
+                  {movie.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
                 </div>
               </div>
             ))}

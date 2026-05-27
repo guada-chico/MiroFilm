@@ -198,7 +198,7 @@ export default function Series() {
                   <h4>{show.title}</h4>
                   <p>{show.creator || 'Creador desconocido'}</p>
                   {show.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{show.genre}</p>}
-                  {show.rating && <p style={{ fontSize: '0.7rem', color: '#ff6b35' }}>⭐ {show.rating.toFixed(1)}</p>}
+                  {show.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {show.rating.toFixed(1)}</p>}
                 </div>
               </div>
             ))}
