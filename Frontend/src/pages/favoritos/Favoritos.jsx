@@ -227,7 +227,7 @@ export default function Favoritos() {
             <button className="close-modal" onClick={() => setShowWatchedMoviesModal(false)}>
               <X size={24} />
             </button>
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem', position: 'sticky', top: 0, backgroundColor: 'white', paddingTop: '20px', zIndex: 10 }}>Películas Vistas en 2026</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '2rem', padding: '20px 40px 0 40px', flexShrink: 0 }}>Películas Vistas en 2026</h2>
             <div className="modal-scrollable-content">
               {watchedMovies.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#aaa' }}>No has visto películas aún</p>
@@ -279,7 +279,7 @@ export default function Favoritos() {
             <button className="close-modal" onClick={() => setShowWatchedSeriesModal(false)}>
               <X size={24} />
             </button>
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem', position: 'sticky', top: 0, backgroundColor: 'white', paddingTop: '20px', zIndex: 10 }}>Series Vistas en 2026</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '2rem', padding: '20px 40px 0 40px', flexShrink: 0 }}>Series Vistas en 2026</h2>
             <div className="modal-scrollable-content">
               {watchedSeries.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#aaa' }}>No has visto series aún</p>
