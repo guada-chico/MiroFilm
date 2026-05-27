@@ -130,15 +130,29 @@ export default function Peliculas() {
     }
   };
 
-  const handleToggleFavorite = (e, movie) => {
+  const handleToggleFavorite = async (e, movie) => {
     e.stopPropagation();
-    toggleMovieFavorite(movie);
+    // Obtener detalles completos antes de agregar a favoritos
+    try {
+      const details = await getMovieDetails(movie.tmdbId);
+      toggleMovieFavorite(details || movie);
+    } catch (error) {
+      console.error('Error getting movie details:', error);
+      toggleMovieFavorite(movie);
+    }
     // TODO: Llamar a API para guardar/eliminar de favoritos
   };
 
-  const handleToggleWatched = (e, movie) => {
+  const handleToggleWatched = async (e, movie) => {
     e.stopPropagation();
-    toggleMovieWatched(movie);
+    // Obtener detalles completos antes de marcar como visto
+    try {
+      const details = await getMovieDetails(movie.tmdbId);
+      toggleMovieWatched(details || movie);
+    } catch (error) {
+      console.error('Error getting movie details:', error);
+      toggleMovieWatched(movie);
+    }
     // TODO: Llamar a API para marcar como visto/no visto
   };
 

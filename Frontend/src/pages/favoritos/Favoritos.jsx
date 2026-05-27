@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, ArrowLeft, Film, Tv, Eye } from 'lucide-react';
+import { Heart, ArrowLeft, Film, Tv, Eye, X } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
@@ -16,6 +16,8 @@ export default function Favoritos() {
     moviesWatchedThisYear: 0,
     seriesWatchedThisYear: 0
   });
+
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     // Actualizar estadísticas basadas en películas/series vistas
@@ -39,7 +41,11 @@ export default function Favoritos() {
         </div>
         <div className="favoritos-list">
           {movies.map((movie) => (
-            <div key={movie.tmdbId} className="favorito-item">
+            <div 
+              key={movie.tmdbId} 
+              className="favorito-item"
+              onClick={() => setSelectedItem({ ...movie, type: 'movie' })}
+            >
               <img
                 src={movie.posterUrl || 'https://via.placeholder.com/80x120?text=Sin+portada'}
                 alt={movie.title}
@@ -70,7 +76,11 @@ export default function Favoritos() {
         </div>
         <div className="favoritos-list">
           {series.map((show) => (
-            <div key={show.tmdbId} className="favorito-item">
+            <div 
+              key={show.tmdbId} 
+              className="favorito-item"
+              onClick={() => setSelectedItem({ ...show, type: 'series' })}
+            >
               <img
                 src={show.posterUrl || 'https://via.placeholder.com/80x120?text=Sin+portada'}
                 alt={show.title}
@@ -148,6 +158,47 @@ export default function Favoritos() {
           <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
             Agrega películas o series a tus favoritos para verlos aquí
           </p>
+        </div>
+      )}
+
+      {/* MODAL DE DETALLES */}
+      {selectedItem && (
+        <div className="modal-overlay" onClick={() => setSelectedItem(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal" onClick={() => setSelectedItem(null)}>
+              <X size={24} />
+            </button>
+            <div className="modal-body">
+              <img
+                src={selectedItem.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                alt={selectedItem.title}
+                className="modal-img"
+              />
+              <div className="modal-details">
+                <h2>{selectedItem.title}</h2>
+                <p className="modal-author">
+                  {selectedItem.type === 'movie' 
+                    ? `Dirigida por ${selectedItem.director || 'Director desconocido'}`
+                    : `Creada por ${selectedItem.creator || 'Creador desconocido'}`
+                  }
+                </p>
+                {selectedItem.genre && (
+                  <p style={{ fontSize: '0.8rem', color: '#ff6b35', marginBottom: '0.5rem' }}>
+                    {selectedItem.genre}
+                  </p>
+                )}
+                {selectedItem.rating && (
+                  <p style={{ fontSize: '0.75rem', color: '#999', marginBottom: '0.5rem' }}>
+                    ⭐ Calificación: {selectedItem.rating.toFixed(1)}/10
+                  </p>
+                )}
+                <div className="modal-section">
+                  <h3 className="modal-label">Sinopsis</h3>
+                  <p className="modal-text">{selectedItem.plot || 'Sin sinopsis disponible'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -127,15 +127,29 @@ export default function Series() {
     }
   };
 
-  const handleToggleFavorite = (e, series) => {
+  const handleToggleFavorite = async (e, series) => {
     e.stopPropagation();
-    toggleSeriesFavorite(series);
+    // Obtener detalles completos antes de agregar a favoritos
+    try {
+      const details = await getSeriesDetails(series.tmdbId);
+      toggleSeriesFavorite(details || series);
+    } catch (error) {
+      console.error('Error getting series details:', error);
+      toggleSeriesFavorite(series);
+    }
     // TODO: Llamar a API para guardar/eliminar de favoritos
   };
 
-  const handleToggleWatched = (e, series) => {
+  const handleToggleWatched = async (e, series) => {
     e.stopPropagation();
-    toggleSeriesWatched(series);
+    // Obtener detalles completos antes de marcar como visto
+    try {
+      const details = await getSeriesDetails(series.tmdbId);
+      toggleSeriesWatched(details || series);
+    } catch (error) {
+      console.error('Error getting series details:', error);
+      toggleSeriesWatched(series);
+    }
     // TODO: Llamar a API para marcar como visto/no visto
   };
 

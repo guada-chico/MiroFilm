@@ -14,7 +14,16 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(m => m.tmdbId !== movie.tmdbId);
       } else {
-        return [...prev, movie];
+        // Asegurar que se guarden todos los datos necesarios
+        return [...prev, {
+          tmdbId: movie.tmdbId,
+          title: movie.title,
+          posterUrl: movie.posterUrl,
+          director: movie.director || 'Director desconocido',
+          genre: movie.genre,
+          rating: movie.rating,
+          plot: movie.plot
+        }];
       }
     });
   };
@@ -25,7 +34,16 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(s => s.tmdbId !== series.tmdbId);
       } else {
-        return [...prev, series];
+        // Asegurar que se guarden todos los datos necesarios
+        return [...prev, {
+          tmdbId: series.tmdbId,
+          title: series.title,
+          posterUrl: series.posterUrl,
+          creator: series.creator || 'Creador desconocido',
+          genre: series.genre,
+          rating: series.rating,
+          plot: series.plot
+        }];
       }
     });
   };
@@ -36,7 +54,16 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(m => m.tmdbId !== movie.tmdbId);
       } else {
-        return [...prev, movie];
+        // Asegurar que se guarden todos los datos necesarios
+        return [...prev, {
+          tmdbId: movie.tmdbId,
+          title: movie.title,
+          posterUrl: movie.posterUrl,
+          director: movie.director || 'Director desconocido',
+          genre: movie.genre,
+          rating: movie.rating,
+          plot: movie.plot
+        }];
       }
     });
   };
@@ -47,7 +74,16 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(s => s.tmdbId !== series.tmdbId);
       } else {
-        return [...prev, series];
+        // Asegurar que se guarden todos los datos necesarios
+        return [...prev, {
+          tmdbId: series.tmdbId,
+          title: series.title,
+          posterUrl: series.posterUrl,
+          creator: series.creator || 'Creador desconocido',
+          genre: series.genre,
+          rating: series.rating,
+          plot: series.plot
+        }];
       }
     });
   };

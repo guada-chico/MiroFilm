@@ -294,6 +294,101 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- MODAL --- */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background: white;
+  width: 850px;
+  max-width: 90%;
+  max-height: 85vh;
+  border-radius: 35px;
+  position: relative;
+  padding: 40px;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.close-modal {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  background: #f5f5f5;
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.close-modal:hover {
+  background: #e0e0e0;
+}
+
+.modal-body {
+  display: flex;
+  gap: 40px;
+}
+
+.modal-img {
+  width: 280px;
+  min-width: 280px;
+  height: 420px;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.modal-details {
+  flex: 1;
+}
+
+.modal-details h2 {
+  font-size: 2rem;
+  margin: 10px 0;
+  font-weight: 400;
+}
+
+.modal-author {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.modal-section {
+  margin-bottom: 15px;
+}
+
+.modal-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #bbb;
+  margin-bottom: 15px;
+  font-weight: 700;
+  display: block;
+}
+
+.modal-text {
+  line-height: 1.6;
+  color: #444;
+}
+
 /* --- TEMA OSCURO --- */
 
 :root[data-theme="dark"] .favoritos-container {
@@ -359,6 +454,31 @@
 
 :root[data-theme="dark"] .favorito-info p {
   color: #999;
+}
+
+:root[data-theme="dark"] .modal-content {
+  background: #2a2a2a;
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .modal-details h2 {
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .modal-author {
+  color: #b0b0b0;
+}
+
+:root[data-theme="dark"] .modal-text {
+  color: #b0b0b0;
+}
+
+:root[data-theme="dark"] .close-modal {
+  background: #333;
+}
+
+:root[data-theme="dark"] .close-modal:hover {
+  background: #444;
 }
 
 /* --- RESPONSIVE --- */
