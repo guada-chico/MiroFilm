@@ -1,10 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Heart, BookmarkPlus, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { getPopularSeries, searchSeries, getSeriesDetails } from '../../services/series-service';
+import { getPopularSeries, searchSeries, getSeriesDetails, getSeriesByGenre } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Series.css';
+
+// Géneros de series de TMDB
+const TV_GENRES = [
+  { id: 10759, name: 'Acción & Aventura' },
+  { id: 16, name: 'Animación' },
+  { id: 35, name: 'Comedia' },
+  { id: 80, name: 'Crimen' },
+  { id: 99, name: 'Documental' },
+  { id: 18, name: 'Drama' },
+  { id: 10751, name: 'Familia' },
+  { id: 10762, name: 'Infantil' },
+  { id: 9648, name: 'Misterio' },
+  { id: 10763, name: 'Noticias' },
+  { id: 10764, name: 'Reality' },
+  { id: 10765, name: 'Ciencia Ficción & Fantasía' },
+  { id: 10766, name: 'Telenovela' },
+  { id: 10767, name: 'Talk' },
+  { id: 10768, name: 'Guerra & Política' },
+  { id: 37, name: 'Western' }
+];
 
 export default function Series() {
   const navigate = useNavigate();
@@ -17,8 +37,9 @@ export default function Series() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState(null);
 
-  // Cargar series populares
+  // Cargar series populares, por búsqueda o por género
   useEffect(() => {
     setLoading(true);
     setSeries([]);
@@ -35,6 +56,20 @@ export default function Series() {
           setSeries([]);
         })
         .finally(() => setLoading(false));
+    } else if (selectedGenre) {
+      // Si hay un género seleccionado, cargar series por género
+      getSeriesByGenre(selectedGenre, currentPage)
+        .then((data) => {
+          console.log('Series por género:', data?.length || 0);
+          console.log('Datos recibidos:', data);
+          setSeries(data ?? []);
+        })
+        .catch((error) => {
+          console.error('Error fetching series by genre:', error);
+          console.error('Error details:', error.response?.data);
+          setSeries([]);
+        })
+        .finally(() => setLoading(false));
     } else {
       // Si no, cargar series populares
       getPopularSeries(currentPage)
@@ -48,7 +83,7 @@ export default function Series() {
         })
         .finally(() => setLoading(false));
     }
-  }, [currentPage, isSearching, searchTerm]);
+  }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -65,6 +100,19 @@ export default function Series() {
     setSearchTerm(value);
     setCurrentPage(1);
     setIsSearching(value.length > 0);
+  };
+
+  const handleGenreFilter = (genreId) => {
+    if (selectedGenre === genreId) {
+      // Si hace clic en el mismo género, deseleccionar
+      setSelectedGenre(null);
+    } else {
+      // Seleccionar nuevo género
+      setSelectedGenre(genreId);
+    }
+    setCurrentPage(1);
+    setSearchTerm('');
+    setIsSearching(false);
   };
 
   const handleSeriesClick = async (show) => {
@@ -87,7 +135,7 @@ export default function Series() {
   };
 
   return (
-    <div className="series-container">
+    <div className="reco-container">
       <header className="reco-header">
         <div className="reco-title-row">
           <button className="back-btn" onClick={() => navigate('/inicio')}>
@@ -95,7 +143,7 @@ export default function Series() {
           </button>
           <h1>{t.series?.title || 'Series'}</h1>
         </div>
-        <p>{t.series?.subtitle || 'Series recomendadas basadas en tus favoritos'}</p>
+        <p>{t.series?.subtitle || 'Descubre y sigue tus series favoritas'}</p>
       </header>
 
       {/* Buscador */}
@@ -103,11 +151,24 @@ export default function Series() {
         <Search size={20} className="search-icon" />
         <input
           type="text"
-          placeholder="Buscar por título, director, género..."
+          placeholder="Buscar por título o director"
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
         />
+      </div>
+
+      {/* Filtros por género */}
+      <div className="genre-filters">
+        {TV_GENRES.map((genre) => (
+          <button
+            key={genre.id}
+            className={`genre-btn ${selectedGenre === genre.id ? 'active' : ''}`}
+            onClick={() => handleGenreFilter(genre.id)}
+          >
+            {genre.name}
+          </button>
+        ))}
       </div>
 
       {loading ? (
@@ -143,8 +204,30 @@ export default function Series() {
             ))}
           </div>
 
-          {/* Paginación - solo mostrar si no estamos buscando */}
-          {!isSearching && series.length > 0 && (
+          {/* Paginación - solo mostrar si no estamos buscando ni filtrando por género */}
+          {!isSearching && !selectedGenre && series.length > 0 && (
+            <div className="pagination-container">
+              <button 
+                className="pagination-btn" 
+                onClick={handlePrevPage} 
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="pagination-info">
+                Página {currentPage}
+              </span>
+              <button 
+                className="pagination-btn" 
+                onClick={handleNextPage}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          )}
+
+          {/* Paginación - mostrar si hay filtro de género */}
+          {selectedGenre && series.length > 0 && (
             <div className="pagination-container">
               <button 
                 className="pagination-btn" 

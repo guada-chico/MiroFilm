@@ -435,6 +435,45 @@ namespace Miro.Services
             }
         }
 
+        public async Task<IEnumerable<Series>> GetSeriesByGenreAsync(int genreId, int page = 1)
+        {
+            try
+            {
+                var url = $"{_baseUrl}/discover/tv?api_key={_apiKey}&language=es-ES&with_genres={genreId}&page={page}";
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var jsonDoc = JsonDocument.Parse(content);
+                var results = jsonDoc.RootElement.GetProperty("results");
+
+                var seriesList = ParseSeries(results);
+                
+                // Obtener detalles adicionales (creador) para cada serie
+                var seriesWithDetails = new List<Series>();
+                foreach (var series in seriesList)
+                {
+                    var details = await GetSeriesDetailsAsync(series.TmdbId);
+                    if (details != null)
+                    {
+                        series.Creator = details.Creator;
+                        series.Genre = details.Genre;
+                        series.NumberOfSeasons = details.NumberOfSeasons;
+                        series.NumberOfEpisodes = details.NumberOfEpisodes;
+                        series.Status = details.Status;
+                    }
+                    seriesWithDetails.Add(series);
+                }
+                
+                return seriesWithDetails;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting series by genre: {ex.Message}");
+                return Enumerable.Empty<Series>();
+            }
+        }
+
         public async Task<Series?> GetSeriesDetailsAsync(int tmdbId)
         {
             try

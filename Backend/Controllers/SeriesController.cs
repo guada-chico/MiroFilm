@@ -124,6 +124,28 @@ namespace Miro.Controllers
         }
 
         /// <summary>
+        /// Obtiene series por género de TMDB.
+        /// </summary>
+        [HttpGet("tmdb/genre")]
+        public async Task<IActionResult> GetSeriesByGenreFromTmdb(int? genreId, int page = 1)
+        {
+            try
+            {
+                if (!genreId.HasValue || genreId <= 0)
+                {
+                    return BadRequest(new { error = "genreId es requerido y debe ser mayor a 0" });
+                }
+
+                var tmdbSeries = await _tmdbService.GetSeriesByGenreAsync(genreId.Value, page);
+                return Ok(tmdbSeries);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Obtiene detalles de una serie de TMDB.
         /// </summary>
         [HttpGet("tmdb/{tmdbId}")]

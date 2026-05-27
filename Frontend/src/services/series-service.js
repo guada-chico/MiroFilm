@@ -41,6 +41,16 @@ export const getSeriesDetails = async (tmdbId) => {
 };
 
 /**
+ * Obtiene series por género de TMDB.
+ */
+export const getSeriesByGenre = async (genreId, page = 1) => {
+  console.log(`Llamando a getSeriesByGenre con genreId=${genreId}, page=${page}`);
+  const response = await api.get('/series/tmdb/genre', { params: { genreId, page } });
+  console.log('Respuesta de getSeriesByGenre:', response.data);
+  return response.data;
+};
+
+/**
  * Obtiene una serie por ID.
  */
 export const getSeriesById = async (id) => {

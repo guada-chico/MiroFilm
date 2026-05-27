@@ -55,6 +55,11 @@ namespace Miro.Services.Interfaces
         Task<IEnumerable<Series>> GetTopRatedSeriesAsync(int page = 1);
 
         /// <summary>
+        /// Obtiene series por género.
+        /// </summary>
+        Task<IEnumerable<Series>> GetSeriesByGenreAsync(int genreId, int page = 1);
+
+        /// <summary>
         /// Obtiene detalles de una serie específica.
         /// </summary>
         Task<Series?> GetSeriesDetailsAsync(int tmdbId);
