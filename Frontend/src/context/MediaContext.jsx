@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { getMyFavorites, toggleMovieFavorite, toggleSeriesFavorite } from '../services/favorites-service';
 
 const MediaContext = createContext();
 
@@ -7,45 +8,81 @@ export function MediaProvider({ children }) {
   const [favoriteSeries, setFavoriteSeries] = useState([]);
   const [watchedMovies, setWatchedMovies] = useState([]);
   const [watchedSeries, setWatchedSeries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const toggleMovieFavorite = (movie) => {
-    setFavoriteMovies(prev => {
-      const exists = prev.find(m => m.tmdbId === movie.tmdbId);
-      if (exists) {
-        return prev.filter(m => m.tmdbId !== movie.tmdbId);
-      } else {
-        // Asegurar que se guarden todos los datos necesarios
-        return [...prev, {
-          tmdbId: movie.tmdbId,
-          title: movie.title,
-          posterUrl: movie.posterUrl,
-          director: movie.director || 'Director desconocido',
-          genre: movie.genre,
-          rating: movie.rating,
-          plot: movie.plot
-        }];
+  // Cargar favoritos desde la API al montar el componente
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        setLoading(true);
+        const favorites = await getMyFavorites();
+        
+        // Separar películas y series
+        const movies = favorites.filter(f => f.type === 'movie');
+        const series = favorites.filter(f => f.type === 'series');
+        
+        setFavoriteMovies(movies);
+        setFavoriteSeries(series);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      } finally {
+        setLoading(false);
       }
-    });
+    };
+
+    loadFavorites();
+  }, []);
+
+  const toggleMovieFavoriteLocal = async (movie) => {
+    try {
+      await toggleMovieFavorite(movie.tmdbId);
+      
+      setFavoriteMovies(prev => {
+        const exists = prev.find(m => m.tmdbId === movie.tmdbId);
+        if (exists) {
+          return prev.filter(m => m.tmdbId !== movie.tmdbId);
+        } else {
+          return [...prev, {
+            tmdbId: movie.tmdbId,
+            title: movie.title,
+            posterUrl: movie.posterUrl,
+            director: movie.director || 'Director desconocido',
+            genre: movie.genre,
+            rating: movie.rating,
+            plot: movie.plot,
+            type: 'movie'
+          }];
+        }
+      });
+    } catch (error) {
+      console.error('Error toggling movie favorite:', error);
+    }
   };
 
-  const toggleSeriesFavorite = (series) => {
-    setFavoriteSeries(prev => {
-      const exists = prev.find(s => s.tmdbId === series.tmdbId);
-      if (exists) {
-        return prev.filter(s => s.tmdbId !== series.tmdbId);
-      } else {
-        // Asegurar que se guarden todos los datos necesarios
-        return [...prev, {
-          tmdbId: series.tmdbId,
-          title: series.title,
-          posterUrl: series.posterUrl,
-          creator: series.creator || 'Creador desconocido',
-          genre: series.genre,
-          rating: series.rating,
-          plot: series.plot
-        }];
-      }
-    });
+  const toggleSeriesFavoriteLocal = async (series) => {
+    try {
+      await toggleSeriesFavorite(series.tmdbId);
+      
+      setFavoriteSeries(prev => {
+        const exists = prev.find(s => s.tmdbId === series.tmdbId);
+        if (exists) {
+          return prev.filter(s => s.tmdbId !== series.tmdbId);
+        } else {
+          return [...prev, {
+            tmdbId: series.tmdbId,
+            title: series.title,
+            posterUrl: series.posterUrl,
+            creator: series.creator || 'Creador desconocido',
+            genre: series.genre,
+            rating: series.rating,
+            plot: series.plot,
+            type: 'series'
+          }];
+        }
+      });
+    } catch (error) {
+      console.error('Error toggling series favorite:', error);
+    }
   };
 
   const toggleMovieWatched = (movie) => {
@@ -54,7 +91,6 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(m => m.tmdbId !== movie.tmdbId);
       } else {
-        // Asegurar que se guarden todos los datos necesarios
         return [...prev, {
           tmdbId: movie.tmdbId,
           title: movie.title,
@@ -74,7 +110,6 @@ export function MediaProvider({ children }) {
       if (exists) {
         return prev.filter(s => s.tmdbId !== series.tmdbId);
       } else {
-        // Asegurar que se guarden todos los datos necesarios
         return [...prev, {
           tmdbId: series.tmdbId,
           title: series.title,
@@ -100,8 +135,9 @@ export function MediaProvider({ children }) {
         favoriteSeries,
         watchedMovies,
         watchedSeries,
-        toggleMovieFavorite,
-        toggleSeriesFavorite,
+        loading,
+        toggleMovieFavorite: toggleMovieFavoriteLocal,
+        toggleSeriesFavorite: toggleSeriesFavoriteLocal,
         toggleMovieWatched,
         toggleSeriesWatched,
         isMovieFavorite,

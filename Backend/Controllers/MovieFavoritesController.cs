@@ -1,12 +1,16 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Miro.Data;
-using Miro.Models;
 using Microsoft.EntityFrameworkCore;
+using Miro.Data;
+using Miro.Dto;
+using Miro.Models;
+using System.Security.Claims;
 
 namespace Miro.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/movie-favorites")]
     public class MovieFavoritesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -17,78 +21,141 @@ namespace Miro.Controllers
         }
 
         /// <summary>
-        /// Obtiene todas las películas favoritas de un usuario.
+        /// Obtiene todos los favoritos (películas y series) del usuario actual.
         /// </summary>
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserFavoriteMovies(int userId)
+        [HttpGet]
+        public async Task<IActionResult> GetMyFavorites()
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
             var favorites = await _context.Favorites
-                .Include(f => f.Movie)
-                .Where(f => f.UserId == userId && f.MovieId != null)
+                .Where(f => f.UserId == userId && (f.TmdbMovieId.HasValue || f.TmdbSeriesId.HasValue))
                 .ToListAsync();
 
-            return Ok(favorites);
+            var result = favorites.Select(f => new FavoriteDto
+            {
+                Id = f.Id,
+                TmdbMovieId = f.TmdbMovieId,
+                TmdbSeriesId = f.TmdbSeriesId,
+                Title = f.Movie?.Title ?? f.Series?.Title ?? "Desconocido",
+                PosterUrl = f.Movie?.PosterUrl ?? f.Series?.PosterUrl,
+                Director = f.Movie?.Director,
+                Creator = f.Series?.Creator,
+                Genre = f.Movie?.Genre ?? f.Series?.Genre,
+                Rating = f.Movie?.Rating ?? f.Series?.Rating,
+                Plot = f.Movie?.Plot ?? f.Series?.Plot,
+                Type = f.TmdbMovieId.HasValue ? "movie" : "series"
+            }).ToList();
+
+            return Ok(result);
         }
 
         /// <summary>
-        /// Verifica si una película es favorita de un usuario.
+        /// Agrega o elimina una película de favoritos.
         /// </summary>
-        [HttpGet("user/{userId}/movie/{movieId}")]
-        public async Task<IActionResult> IsFavorite(int userId, int movieId)
+        [HttpPost("toggle-movie/{tmdbMovieId}")]
+        public async Task<IActionResult> ToggleMovieFavorite(int tmdbMovieId)
         {
-            var favorite = await _context.Favorites
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.MovieId == movieId);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
 
-            return Ok(new { isFavorite = favorite != null });
-        }
-
-        /// <summary>
-        /// Añade una película a favoritos.
-        /// </summary>
-        [HttpPost]
-        public async Task<IActionResult> AddFavorite([FromBody] AddMovieFavoriteRequest request)
-        {
-            if (request.UserId <= 0 || request.MovieId <= 0)
-                return BadRequest("UserId y MovieId son obligatorios.");
+            int userId = int.Parse(userIdClaim.Value);
 
             var existing = await _context.Favorites
-                .FirstOrDefaultAsync(f => f.UserId == request.UserId && f.MovieId == request.MovieId);
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.TmdbMovieId == tmdbMovieId);
 
             if (existing != null)
-                return BadRequest("Esta película ya está en favoritos.");
-
-            var favorite = new Favorite
             {
-                UserId = request.UserId,
-                MovieId = request.MovieId
-            };
-
-            _context.Favorites.Add(favorite);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(IsFavorite), new { userId = request.UserId, movieId = request.MovieId }, favorite);
+                _context.Favorites.Remove(existing);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Película eliminada de favoritos", isFavorite = false });
+            }
+            else
+            {
+                var favorite = new Favorite
+                {
+                    UserId = userId,
+                    TmdbMovieId = tmdbMovieId
+                };
+                _context.Favorites.Add(favorite);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Película añadida a favoritos", isFavorite = true });
+            }
         }
 
         /// <summary>
-        /// Elimina una película de favoritos.
+        /// Agrega o elimina una serie de favoritos.
         /// </summary>
-        [HttpDelete("user/{userId}/movie/{movieId}")]
-        public async Task<IActionResult> RemoveFavorite(int userId, int movieId)
+        [HttpPost("toggle-series/{tmdbSeriesId}")]
+        public async Task<IActionResult> ToggleSeriesFavorite(int tmdbSeriesId)
         {
-            var favorite = await _context.Favorites
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.MovieId == movieId);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
 
-            if (favorite == null)
-                return NotFound();
+            int userId = int.Parse(userIdClaim.Value);
 
-            _context.Favorites.Remove(favorite);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var existing = await _context.Favorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.TmdbSeriesId == tmdbSeriesId);
+
+            if (existing != null)
+            {
+                _context.Favorites.Remove(existing);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Serie eliminada de favoritos", isFavorite = false });
+            }
+            else
+            {
+                var favorite = new Favorite
+                {
+                    UserId = userId,
+                    TmdbSeriesId = tmdbSeriesId
+                };
+                _context.Favorites.Add(favorite);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Serie añadida a favoritos", isFavorite = true });
+            }
         }
-    }
 
-    public class AddMovieFavoriteRequest
-    {
-        public int UserId { get; set; }
-        public int MovieId { get; set; }
+        /// <summary>
+        /// Verifica si una película es favorita del usuario.
+        /// </summary>
+        [HttpGet("is-favorite-movie/{tmdbMovieId}")]
+        public async Task<IActionResult> IsMovieFavorite(int tmdbMovieId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var isFavorite = await _context.Favorites
+                .AnyAsync(f => f.UserId == userId && f.TmdbMovieId == tmdbMovieId);
+
+            return Ok(new { isFavorite });
+        }
+
+        /// <summary>
+        /// Verifica si una serie es favorita del usuario.
+        /// </summary>
+        [HttpGet("is-favorite-series/{tmdbSeriesId}")]
+        public async Task<IActionResult> IsSeriesFavorite(int tmdbSeriesId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var isFavorite = await _context.Favorites
+                .AnyAsync(f => f.UserId == userId && f.TmdbSeriesId == tmdbSeriesId);
+
+            return Ok(new { isFavorite });
+        }
     }
 }

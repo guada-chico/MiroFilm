@@ -132,12 +132,10 @@ export default function Series() {
     // Obtener detalles completos antes de agregar a favoritos
     try {
       const details = await getSeriesDetails(series.tmdbId);
-      toggleSeriesFavorite(details || series);
+      await toggleSeriesFavorite(details || series);
     } catch (error) {
-      console.error('Error getting series details:', error);
-      toggleSeriesFavorite(series);
+      console.error('Error toggling favorite:', error);
     }
-    // TODO: Llamar a API para guardar/eliminar de favoritos
   };
 
   const handleToggleWatched = async (e, series) => {

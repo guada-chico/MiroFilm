@@ -135,12 +135,10 @@ export default function Peliculas() {
     // Obtener detalles completos antes de agregar a favoritos
     try {
       const details = await getMovieDetails(movie.tmdbId);
-      toggleMovieFavorite(details || movie);
+      await toggleMovieFavorite(details || movie);
     } catch (error) {
-      console.error('Error getting movie details:', error);
-      toggleMovieFavorite(movie);
+      console.error('Error toggling favorite:', error);
     }
-    // TODO: Llamar a API para guardar/eliminar de favoritos
   };
 
   const handleToggleWatched = async (e, movie) => {

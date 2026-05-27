@@ -1,18 +1,41 @@
 import api from './api-config';
 
 /**
- * Alterna el estado de favorito de un libro (añadir/quitar).
- * @returns {boolean} true si se añadió, false si se eliminó
+ * Obtiene todos los favoritos del usuario actual.
  */
-export const toggleFavorite = async (bookId) => {
-  const response = await api.post(`/favorites/toggle/${bookId}`);
+export const getMyFavorites = async () => {
+  const response = await api.get('/movie-favorites');
+  return response.data;
+};
+
+/**
+ * Agrega o elimina una película de favoritos.
+ */
+export const toggleMovieFavorite = async (tmdbMovieId) => {
+  const response = await api.post(`/movie-favorites/toggle-movie/${tmdbMovieId}`);
+  return response.data;
+};
+
+/**
+ * Agrega o elimina una serie de favoritos.
+ */
+export const toggleSeriesFavorite = async (tmdbSeriesId) => {
+  const response = await api.post(`/movie-favorites/toggle-series/${tmdbSeriesId}`);
+  return response.data;
+};
+
+/**
+ * Verifica si una película es favorita.
+ */
+export const isMovieFavorite = async (tmdbMovieId) => {
+  const response = await api.get(`/movie-favorites/is-favorite-movie/${tmdbMovieId}`);
   return response.data.isFavorite;
 };
 
 /**
- * Obtiene todos los libros favoritos del usuario actual.
+ * Verifica si una serie es favorita.
  */
-export const getMyFavorites = async () => {
-  const response = await api.get('/favorites');
-  return response.data;
+export const isSeriesFavorite = async (tmdbSeriesId) => {
+  const response = await api.get(`/movie-favorites/is-favorite-series/${tmdbSeriesId}`);
+  return response.data.isFavorite;
 };
