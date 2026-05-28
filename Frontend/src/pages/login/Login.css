@@ -21,7 +21,6 @@
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
 }
 
 .logo-container {
@@ -32,7 +31,7 @@
 }
 
 .logo-img {
-  max-height: 80px;
+  max-height: 200px;
   max-width: 100%;
   object-fit: contain;
 }
@@ -66,12 +65,12 @@
 
 .input-box input:focus {
   outline: none;
-  border-color: #603b33;
+  border-color: #ff6b35;
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
 .main-btn {
-  background: #603b33;
+  background: #ff6b35;
   color: white;
   padding: 14px;
   border: none;
@@ -84,7 +83,7 @@
 }
 
 .main-btn:hover {
-  background: #cb9489;
+  background: #ff9c78;
 }
 
 .main-btn:active {
@@ -104,7 +103,7 @@
 .login-switch button {
   background: none;
   border: none;
-  color: #603b33;
+  color: #ff6b35;
   font-weight: 700;
   cursor: pointer;
   margin-left: 5px;

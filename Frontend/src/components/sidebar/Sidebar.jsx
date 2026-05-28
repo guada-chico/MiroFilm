@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Home, Film, Tv, Heart, Users, Settings, HelpCircle, LogOut } from "lucide-react";
-import logoMiro from "../../assets/logo_miro_sf.png";
+import logoMiroFilm from "../../assets/logo-mirofilm-sf.png";
 import { useTranslation } from "../../hooks/useTranslation";
 import "./Sidebar.css";
 
@@ -26,8 +26,8 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-brand">
         <img 
-          src={logoMiro} 
-          alt="Miro" 
+          src={logoMiroFilm} 
+          alt="MiroFilm" 
           onClick={() => navigate('/inicio')} 
           style={{ cursor: 'pointer' }} 
         />

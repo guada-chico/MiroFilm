@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import { Mail, Lock, User } from 'lucide-react';
 import { login, register } from '../../services/auth-service'; 
 import './Login.css';
-import logoMiro from '../../assets/logo-miro-libro-sf.png';
+import logoMiroFilm from '../../assets/logo-mirofilm-sf.png';
 
 export default function Login({ setToken }) {
   const [name, setName] = useState('');
@@ -110,7 +110,7 @@ export default function Login({ setToken }) {
     <div className="login-page">
       <div className="login-card">
         <div className="login-header">
-          <img src={logoMiro} alt="Miro Logo" className="logo-img" />
+          <img src={logoMiroFilm} alt="MiroFilm Logo" className="logo-img" />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

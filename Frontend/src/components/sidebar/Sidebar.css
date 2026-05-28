@@ -3,7 +3,7 @@
   min-width: 260px;
   background: #ffffff;
   height: 100vh;
-  padding: 40px 20px;
+  padding: 20px 20px;
   border-radius: 0 40px 40px 0;
   display: flex;
   flex-direction: column;
@@ -22,12 +22,11 @@
   display: flex;
   justify-content: center; /* Centra el logo horizontalmente */
   align-items: center;
-  margin-bottom: 10px;
   padding: 0; /* Eliminamos padding lateral para un centrado real */
 }
 
 .sidebar-brand img { 
-  width: 170px; /* Tamaño controlado para que no se vea gigante como en la captura */
+  width: 140px; /* Tamaño controlado para que no se vea gigante como en la captura */
   height: auto; 
   cursor: pointer;
   transition: transform 0.2s ease;
