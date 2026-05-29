@@ -5,7 +5,20 @@ import api from './api-config';
  */
 export async function getProfile() {
   const response = await api.get('/users/profile');
-  return response.data;
+  const data = response.data;
+  
+  // Si avatarUrl es una ruta relativa, construir la URL completa
+  if (data.avatarUrl && !data.avatarUrl.startsWith('http')) {
+    const baseUrl = api.defaults.baseURL.replace('/api', '');
+    data.avatarUrl = baseUrl + data.avatarUrl;
+  }
+  
+  // Agregar timestamp para evitar caché
+  if (data.avatarUrl) {
+    data.avatarUrl = `${data.avatarUrl}?t=${Date.now()}`;
+  }
+  
+  return data;
 }
 
 /**
@@ -42,7 +55,21 @@ export async function updateAvatar(file) {
       'Content-Type': 'multipart/form-data'
     }
   });
-  return response.data;
+  
+  const data = response.data;
+  
+  // Si avatarUrl es una ruta relativa, construir la URL completa
+  if (data.avatarUrl && !data.avatarUrl.startsWith('http')) {
+    const baseUrl = api.defaults.baseURL.replace('/api', '');
+    data.avatarUrl = baseUrl + data.avatarUrl;
+  }
+  
+  // Agregar timestamp para evitar caché
+  if (data.avatarUrl) {
+    data.avatarUrl = `${data.avatarUrl}?t=${Date.now()}`;
+  }
+  
+  return data;
 }
 
 /**

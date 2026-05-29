@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { Mail, Lock, User } from 'lucide-react';
-import { login, register } from '../../services/auth-service'; 
+import { login, register } from '../../services/auth-service';
+import { useUser } from '../../context/UserContext';
 import './Login.css';
 import logoMiroFilm from '../../assets/logo-mirofilm-sf.png';
 
@@ -14,6 +15,7 @@ export default function Login({ setToken }) {
   const [isRegister, setIsRegister] = useState(false);
   
   const navigate = useNavigate();
+  const { loadUserProfile } = useUser();
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -58,6 +60,9 @@ export default function Login({ setToken }) {
       } else {
         // Llamar al servicio de login
         await login(email, password);
+        
+        // Cargar el perfil del usuario después de login
+        await loadUserProfile();
         
         Swal.fire({
           title: '¡Bienvenido!',

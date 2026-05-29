@@ -123,10 +123,12 @@ export default function Perfil() {
     reader.onload = () => setAvatarUrl(reader.result);
     reader.readAsDataURL(file);
     try {
-      await updateAvatar(file);
+      const response = await updateAvatar(file);
       setAvatarMsg({ type: 'ok', text: t.photoUpdated });
-      // Actualizar el contexto de usuario con la nueva foto
-      updateUser({ avatarUrl: reader.result });
+      // Actualizar el contexto de usuario con la URL del servidor
+      updateUser({ avatarUrl: response.avatarUrl });
+      // Actualizar el estado local con la URL del servidor (sin data URL)
+      setAvatarUrl(response.avatarUrl);
     } catch {
       setAvatarMsg({ type: 'error', text: t.photoError });
     } finally {
@@ -198,12 +200,18 @@ export default function Perfil() {
   };
 
   const handleLogout = () => {
+    updateUser({ name: 'Usuario', email: '', avatarUrl: null });
     logout();
     navigate('/login');
   };
 
   // Generar avatar por defecto con las iniciales
   const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nombre || 'U')}&background=ff6b35&color=fff&size=150`;
+  
+  // Agregar timestamp para evitar caché del navegador en avatares del servidor
+  const displayAvatarUrl = avatarUrl && !avatarUrl.startsWith('data:') 
+    ? (avatarUrl.includes('?') ? `${avatarUrl}&t=${Date.now()}` : `${avatarUrl}?t=${Date.now()}`)
+    : avatarUrl;
 
   if (loading) {
     return (
@@ -228,7 +236,7 @@ export default function Perfil() {
       <div className="perfil-content">
         <aside className="perfil-sidebar-info">
           <div className="avatar-wrapper">
-            <img src={avatarUrl || defaultAvatar} alt="Avatar" className="perfil-avatar" onError={(e) => { e.target.src = defaultAvatar; }} />
+            <img src={displayAvatarUrl || defaultAvatar} alt="Avatar" className="perfil-avatar" onError={(e) => { e.target.src = defaultAvatar; }} />
             <button className="change-photo-btn" onClick={() => fileInputRef.current?.click()} title="Cambiar foto">
               <Camera size={18} />
             </button>

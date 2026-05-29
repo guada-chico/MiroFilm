@@ -73,5 +73,65 @@ namespace Miro.Services
 
             return await _context.SaveChangesAsync() > 0;
         }
+
+        public async Task<IEnumerable<Friendship>> GetPendingRequestsAsync(int userId)
+        {
+            // Obtiene solicitudes pendientes recibidas por el usuario
+            return await _context.Friendships
+                .Where(f => f.UserReceiveId == userId && f.Status == "Pending")
+                .Include(f => f.UserRequest)
+                .Include(f => f.UserReceive)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Friendship>> GetSentRequestsAsync(int userId)
+        {
+            // Obtiene solicitudes pendientes enviadas por el usuario
+            return await _context.Friendships
+                .Where(f => f.UserRequestId == userId && f.Status == "Pending")
+                .Include(f => f.UserRequest)
+                .Include(f => f.UserReceive)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> SearchUsersAsync(string query)
+        {
+            // Busca usuarios por nombre o email (case-insensitive)
+            if (string.IsNullOrWhiteSpace(query))
+                return new List<User>();
+
+            var lowerQuery = query.ToLower().Trim();
+            
+            var results = await _context.Users
+                .Where(u => EF.Functions.Like(u.Name, $"%{query}%") || 
+                           EF.Functions.Like(u.Email, $"%{query}%"))
+                .ToListAsync();
+            
+            return results;
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
+        public async Task<bool> CancelRequestAsync(int friendshipId, int userId)
+        {
+            var friendship = await _context.Friendships.FindAsync(friendshipId);
+
+            if (friendship == null || friendship.UserRequestId != userId || friendship.Status != "Pending")
+                return false;
+
+            _context.Friendships.Remove(friendship);
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Friendship?> GetFriendshipStatusAsync(int userId1, int userId2)
+        {
+            return await _context.Friendships
+                .FirstOrDefaultAsync(f =>
+                    (f.UserRequestId == userId1 && f.UserReceiveId == userId2) ||
+                    (f.UserRequestId == userId2 && f.UserReceiveId == userId1));
+        }
     }
 }

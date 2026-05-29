@@ -20,10 +20,12 @@ export const register = async (name, email, password) => {
 };
 
 /**
- * Cierra sesión eliminando el token.
+ * Cierra sesión eliminando el token y limpiando datos.
  */
 export const logout = () => {
   localStorage.removeItem('token');
+  // Limpiar otros datos de sesión si es necesario
+  localStorage.removeItem('user');
 };
 
 /**
@@ -32,3 +34,4 @@ export const logout = () => {
 export const isAuthenticated = () => {
   return !!localStorage.getItem('token');
 };
+

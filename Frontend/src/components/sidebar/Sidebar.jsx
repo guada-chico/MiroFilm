@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Film, Tv, Heart, Users, Settings, HelpCircle, LogOut } from "lucide-react";
+import { Home, Film, Tv, Heart, Users, Settings, HelpCircle } from "lucide-react";
 import logoMiroFilm from "../../assets/logo-mirofilm-sf.png";
 import { useTranslation } from "../../hooks/useTranslation";
 import "./Sidebar.css";

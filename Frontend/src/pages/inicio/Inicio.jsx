@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { getPrhNewReleases } from '../../services/external-books-service';
 import { getMyRecommendations, getPopularMovies } from '../../services/recommendations-service';
 import { getMySeriesRecommendations, getPopularSeries } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
@@ -26,7 +25,7 @@ export default function Inicio() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
 
-    // Recomendaciones PRH, películas y series al montar
+  // Recomendaciones PRH, películas y series al montar
   useEffect(() => {
     const loadMovies = async () => {
       try {
@@ -103,17 +102,6 @@ export default function Inicio() {
         setLoadingSeries(false);
       }
     };
-
-    getPrhNewReleases(5)
-      .then((data) => {
-        setRecommendations(data ?? []);
-        setLoadingReco(false);
-      })
-      .catch((err) => {
-        console.error('Error cargando recomendaciones PRH:', err);
-        setRecommendations([]);
-        setLoadingReco(false);
-      });
 
     loadMovies();
     loadSeries();
@@ -222,9 +210,6 @@ export default function Inicio() {
         <button className="nav-btn" onClick={() => navigate('/amigos')}>Amigos</button>
       </div>
 
-      {/* SECCIÓN HERO Y BUSCADOR */}
-      {/* Buscador removido */}
-
       {/* SECCIÓN: PELÍCULAS RECOMENDADAS */}
       <section className="movies-section">
         <div className="section-head">
@@ -294,11 +279,11 @@ export default function Inicio() {
             ))}
           </div>
         ) : (
-          <p style={{ color: '#aaa', fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>No se encontraron películas recomendadas. Agrega películas a favoritos para obtener recomendaciones personalizadas.</p>
+          <p style={{ color: '#aaa', fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>No se encontraron películas recomendadas. Agrega películas a favoritos para obtener recommendations personalizadas.</p>
         )}
       </section>
 
-      {/* SECCIÓN: SERIES RECOMENDADAS */}
+      {/* SECCIÓN: SERIES RECOMENDADAS - AHORA COMPARTE LA CLASE movies-grid */}
       <section className="series-section">
         <div className="section-head">
           <h3>Series Recomendadas</h3>
@@ -317,7 +302,7 @@ export default function Inicio() {
             <p style={{ color: '#aaa', fontSize: '0.9rem' }}>{t.loading}</p>
           </div>
         ) : seriesRecommendations.length > 0 ? (
-          <div className="series-grid">
+          <div className="movies-grid">
             {seriesRecommendations.slice(0, 5).map((show, i) => (
               <div
                 key={show.id || show.tmdbId || i}
@@ -371,46 +356,7 @@ export default function Inicio() {
         )}
       </section>
 
-      {/* SECCIÓN: LIBROS RECOMENDADOS */}
-      <section className="books-section">
-        <div className="section-head">
-          <h3>{t.recommendedInSpanish}</h3>
-          <span
-            className="orange-link"
-            onClick={() => navigate('/peliculas')}
-            style={{ cursor: 'pointer' }}
-          >
-            {t.viewAll} &gt;
-          </span>
-        </div>
 
-        {loadingReco ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', gap: '0.5rem' }}>
-            <Loader size={20} style={{ animation: 'spin 1s linear infinite' }} />
-            <p style={{ color: '#aaa', fontSize: '0.9rem' }}>{t.loading}</p>
-          </div>
-        ) : recommendations.length > 0 ? (
-          <div className="books-grid">
-            {recommendations.slice(0, 5).map((book, i) => (
-              <div
-                key={book.id || book.isbn || i}
-                className="book-card"
-                title={`${book.title} — ${book.author}`}
-              >
-                {book.coverUrl || book.imageUrl ? (
-                  <img src={book.coverUrl || book.imageUrl} alt={book.title} />
-                ) : (
-                  <div style={{ width: '100%', aspectRatio: '2/3', padding: '0.5rem', fontSize: '0.75rem', textAlign: 'center', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5', borderRadius: '20px' }}>
-                    {book.title}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ color: '#aaa', fontSize: '0.9rem', textAlign: 'center', padding: '2rem' }}>No se encontraron libros recomendados</p>
-        )}
-      </section>
 
       {/* Modal de detalle de película */}
       {selectedMovie && (

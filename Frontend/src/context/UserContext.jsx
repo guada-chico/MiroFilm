@@ -11,9 +11,19 @@ export function UserProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Cargar perfil al montar
+  // Cargar perfil al montar y cuando el token cambia
   useEffect(() => {
     loadUserProfile();
+  }, []);
+
+  // Escuchar cambios en el token
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadUserProfile();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const loadUserProfile = async () => {
@@ -21,6 +31,11 @@ export function UserProvider({ children }) {
       // Solo cargar perfil si hay token
       const token = localStorage.getItem('token');
       if (!token) {
+        setUser({
+          name: 'Usuario',
+          email: '',
+          avatarUrl: null
+        });
         setLoading(false);
         return;
       }
@@ -33,6 +48,12 @@ export function UserProvider({ children }) {
       });
     } catch (error) {
       console.error('Error loading user profile:', error);
+      // Si hay error, limpiar el usuario
+      setUser({
+        name: 'Usuario',
+        email: '',
+        avatarUrl: null
+      });
     } finally {
       setLoading(false);
     }
@@ -42,8 +63,16 @@ export function UserProvider({ children }) {
     setUser(prev => ({ ...prev, ...updates }));
   };
 
+  const clearUser = () => {
+    setUser({
+      name: 'Usuario',
+      email: '',
+      avatarUrl: null
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ user, loading, updateUser, loadUserProfile }}>
+    <UserContext.Provider value={{ user, loading, updateUser, loadUserProfile, clearUser }}>
       {children}
     </UserContext.Provider>
   );

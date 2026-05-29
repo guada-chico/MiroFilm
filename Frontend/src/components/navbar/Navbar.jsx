@@ -7,7 +7,7 @@ import './Navbar.css';
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user, clearUser } = useUser();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -33,12 +33,18 @@ export default function Navbar() {
   const notifications = [];
 
   const handleLogout = () => {
+    clearUser();
     logout();
     navigate('/login');
   };
 
   // Avatar por defecto con iniciales
-  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=ff6b35&color=fff&size=40`; 
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=ff6b35&color=fff&size=40`;
+  
+  // Agregar timestamp para evitar caché del navegador
+  const avatarUrl = user.avatarUrl 
+    ? (user.avatarUrl.includes('?') ? `${user.avatarUrl}&t=${Date.now()}` : `${user.avatarUrl}?t=${Date.now()}`)
+    : defaultAvatar;
 
   return (
     <header className="navbar-top">
@@ -80,7 +86,7 @@ export default function Navbar() {
         >
           <div className="user-avatar-container">
             <img 
-              src={user.avatarUrl || defaultAvatar} 
+              src={avatarUrl} 
               alt="Avatar" 
               className="user-avatar-img"
               onError={(e) => { e.target.src = defaultAvatar; }}

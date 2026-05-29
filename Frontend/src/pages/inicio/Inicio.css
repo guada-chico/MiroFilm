@@ -116,30 +116,22 @@
   margin-top: 50px; 
 }
 
-/* --- SECCIÓN DE PELÍCULAS RECOMENDADAS --- */
-.movies-section {
-  margin-top: 50px;
-  margin-bottom: 50px;
-}
-
-.movies-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
-}
-
-/* --- SECCIÓN DE SERIES RECOMENDADAS --- */
+/* --- SECCIÓN DE PELÍCULAS Y SERIES RECOMENDADAS (CSS UNIFICADO) --- */
+.movies-section,
 .series-section {
   margin-top: 50px;
   margin-bottom: 50px;
 }
 
+/* Ambas cuadrículas ahora tienen exactamente el mismo comportamiento de 5 columnas */
+.movies-grid,
 .series-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 20px;
 }
 
+/* --- TARJETAS COMPARTIDAS (Pelis y Series usan las mismas clases wrapper) --- */
 .series-card-wrapper {
   display: flex;
   flex-direction: column;
@@ -213,6 +205,7 @@
   cursor: pointer; 
 }
 
+/* --- SECCIÓN DE LIBROS --- */
 .books-grid { 
   display: grid; 
   grid-template-columns: repeat(4, 1fr); 
@@ -310,7 +303,7 @@
 }
 
 .progress-fill {
-  background: #ff6b35; /* Naranja Miro */
+  background: #ff6b35; 
   height: 100%;
   border-radius: 10px;
 }
@@ -346,8 +339,7 @@
   }
 }
 
-/* --- MODAL DE PELÍCULA --- */
-
+/* --- MODAL DE DETALLE (PELIS Y SERIES) --- */
 .modal-overlay {
   position: fixed;
   top: 0;
