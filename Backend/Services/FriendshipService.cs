@@ -17,37 +17,58 @@ namespace Miro.Services
         }
 
         public async Task<bool> SendRequestAsync(int senderId, int receiverId)
-        {
-            if (senderId == receiverId) return false;
+{
+    if (senderId == receiverId) return false;
 
+    try
+    {
+        // 1. Buscamos CUALQUIER relación previa en ambos sentidos
+        var existingFriendships = await _context.Friendships
+            .Where(f => (f.UserRequestId == senderId && f.UserReceiveId == receiverId) ||
+                        (f.UserRequestId == receiverId && f.UserReceiveId == senderId))
+            .ToListAsync();
+
+        // 2. Si existen, las eliminamos por completo del Contexto para limpiar la base de datos
+        if (existingFriendships.Any())
+        {
+            _context.Friendships.RemoveRange(existingFriendships);
+            await _context.SaveChangesAsync(); // Forzamos el borrado inmediato en la BD
+        }
+
+        // 3. Creamos la nueva solicitud limpia desde cero
+        var newFriendship = new Friendship 
+        { 
+            UserRequestId = senderId,
+            UserReceiveId = receiverId,
+            Status = "Pending"
+        };
+
+        _context.Friendships.Add(newFriendship);
+        
+        // Guardamos la nueva solicitud
+        var saveResult = await _context.SaveChangesAsync() > 0;
+
+        // 4. Enviamos la notificación de manera totalmente aislada
+        if (saveResult)
+        {
             try
             {
-                // Eliminar CUALQUIER solicitud pendiente que YA hayas enviado
-                await _context.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM Friendships WHERE UserRequestId = {senderId} AND UserReceiveId = {receiverId}");
-
-                // Crear la nueva
-                _context.Friendships.Add(new Friendship 
-                { 
-                    UserRequestId = senderId,
-                    UserReceiveId = receiverId,
-                    Status = "Pending"
-                });
-
-                try
-                {
-                    await _notifService.CreateNoteAsync(receiverId, "¡Tienes una nueva solicitud de amistad pendiente!");
-                }
-                catch { }
-
-                return await _context.SaveChangesAsync() > 0;
+                await _notifService.CreateNoteAsync(receiverId, "¡Tienes una nueva solicitud de amistad pendiente!");
             }
-            catch (Exception ex)
+            catch (Exception notifEx)
             {
-                Console.WriteLine($"Error en SendRequestAsync: {ex.Message}");
-                return false;
+                Console.WriteLine($"[Notificación] No se pudo enviar la alerta: {notifEx.Message}");
             }
         }
+
+        return saveResult;
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error crítico en SendRequestAsync: {ex.Message}");
+        return false;
+    }
+}
 
         public async Task<IEnumerable<Friendship>> GetUserFriendsAsync(int userId)
         {

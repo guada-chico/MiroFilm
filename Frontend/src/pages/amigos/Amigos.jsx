@@ -47,6 +47,15 @@ export default function Amigos() {
   // Modal de confirmación para eliminar amigo
   const [confirmDeleteModal, setConfirmDeleteModal] = useState(null);
 
+  // Modal de éxito al enviar solicitud
+  const [successModal, setSuccessModal] = useState(null);
+
+  // Modal de éxito al eliminar amigo
+  const [deleteSuccessModal, setDeleteSuccessModal] = useState(false);
+
+  // Modal de éxito al cancelar solicitud
+  const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
+
   // Cargar datos iniciales
   useEffect(() => {
     loadAllData();
@@ -103,7 +112,9 @@ export default function Amigos() {
       console.log('Enviando solicitud a usuario:', receiverId);
       const result = await sendFriendRequest(receiverId);
       console.log('Respuesta del servidor:', result);
-      alert(result.message || t.amigos?.requestSent || 'Solicitud enviada');
+      
+      // Mostrar modal de éxito
+      setSuccessModal(true);
       
       // Pequeño delay para asegurar que el servidor procesó la solicitud
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -126,6 +137,9 @@ export default function Amigos() {
         setSearchQuery('');
         setSearchResults([]);
       }
+      
+      // Cerrar modal después de 2 segundos
+      setTimeout(() => setSuccessModal(null), 2000);
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.response?.data || t.amigos?.requestError || 'Error al enviar solicitud';
       console.error('Error completo:', err);
@@ -150,8 +164,11 @@ export default function Amigos() {
   const handleCancelRequest = async (friendshipId) => {
     try {
       await cancelRequest(friendshipId);
-      alert('Solicitud cancelada');
+      setCancelSuccessModal(true);
       await loadAllData();
+      
+      // Cerrar modal después de 2 segundos
+      setTimeout(() => setCancelSuccessModal(false), 2000);
     } catch (err) {
       alert('Error al cancelar solicitud');
     }
@@ -169,9 +186,12 @@ export default function Amigos() {
 
     try {
       await removeFriend(confirmDeleteModal.friendshipId);
-      alert('Amigo eliminado correctamente');
       setConfirmDeleteModal(null);
+      setDeleteSuccessModal(true);
       await loadAllData();
+      
+      // Cerrar modal de éxito después de 2 segundos
+      setTimeout(() => setDeleteSuccessModal(false), 2000);
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Error al eliminar amigo';
       console.error('Error detalles:', err);
@@ -609,6 +629,54 @@ export default function Amigos() {
                 {confirmDeleteModal.isDeleting ? 'Eliminando...' : 'Eliminar'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SOLICITUD ENVIADA EXITOSAMENTE */}
+      {successModal && (
+        <div className="modal-overlay">
+          <div className="modal-content success-modal">
+            <div className="success-icon">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" stroke="#4caf50" strokeWidth="2" fill="#f0f7f0"/>
+                <path d="M20 30L27 37L40 24" stroke="#4caf50" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+            </div>
+            <h2>¡Solicitud Enviada!</h2>
+            <p>La solicitud de amistad ha sido enviada exitosamente.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: AMIGO ELIMINADO EXITOSAMENTE */}
+      {deleteSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content success-modal delete-success-modal">
+            <div className="success-icon delete-icon">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" stroke="#ff6b35" strokeWidth="2" fill="#fff5f2"/>
+                <path d="M25 25L35 35M35 25L25 35" stroke="#ff6b35" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h2>Amigo Eliminado</h2>
+            <p>La amistad ha sido eliminada correctamente.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SOLICITUD CANCELADA EXITOSAMENTE */}
+      {cancelSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content success-modal cancel-success-modal">
+            <div className="success-icon cancel-icon">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" stroke="#999" strokeWidth="2" fill="#f5f5f5"/>
+                <path d="M25 25L35 35M35 25L25 35" stroke="#999" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h2>Solicitud Cancelada</h2>
+            <p>La solicitud de amistad ha sido cancelada.</p>
           </div>
         </div>
       )}
