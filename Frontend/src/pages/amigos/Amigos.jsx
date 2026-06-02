@@ -9,7 +9,8 @@ import {
   searchUsers,
   respondToRequest,
   cancelRequest,
-  getFriendshipStatus
+  getFriendshipStatus,
+  removeFriend
 } from '../../services/friendship-service';
 import { getFriendsActivity, getFriendFavorites, getFriendWatching } from '../../services/friend-activity-service';
 import { useSettings } from '../../context/SettingsContext';
@@ -43,6 +44,9 @@ export default function Amigos() {
   const [friendshipStatus, setFriendshipStatus] = useState(null);
   const [loadingFriendProfile, setLoadingFriendProfile] = useState(false);
 
+  // Modal de confirmación para eliminar amigo
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(null);
+
   // Cargar datos iniciales
   useEffect(() => {
     loadAllData();
@@ -51,12 +55,17 @@ export default function Amigos() {
   const loadAllData = async () => {
     setLoading(true);
     try {
+      console.log('Cargando datos de amigos...');
       const [friendsData, pendingData, sentData, activityData] = await Promise.all([
         getMyFriends(),
         getPendingRequests(),
         getSentRequests(),
         getFriendsActivity()
       ]);
+      
+      console.log('Amigos:', friendsData);
+      console.log('Solicitudes pendientes:', pendingData);
+      console.log('Solicitudes enviadas:', sentData);
       
       setAmigos(friendsData);
       setPendingRequests(pendingData);
@@ -91,13 +100,37 @@ export default function Amigos() {
 
   const handleSendRequest = async (receiverId) => {
     try {
-      await sendFriendRequest(receiverId);
-      alert(t.amigos?.requestSent || 'Solicitud enviada');
+      console.log('Enviando solicitud a usuario:', receiverId);
+      const result = await sendFriendRequest(receiverId);
+      console.log('Respuesta del servidor:', result);
+      alert(result.message || t.amigos?.requestSent || 'Solicitud enviada');
+      
+      // Pequeño delay para asegurar que el servidor procesó la solicitud
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('Recargando datos...');
+      // Recargar todos los datos incluyendo búsqueda
       await loadAllData();
-      setSearchQuery('');
-      setSearchResults([]);
+      console.log('Datos recargados');
+      
+      // Si estamos en tab de búsqueda, recargar resultados
+      if (activeTab === 'search' && searchQuery.trim()) {
+        try {
+          console.log('Recargando resultados de búsqueda');
+          const results = await searchUsers(searchQuery);
+          setSearchResults(results.filter(u => u.id !== user.id));
+        } catch (err) {
+          console.error('Error recargando búsqueda:', err);
+        }
+      } else {
+        setSearchQuery('');
+        setSearchResults([]);
+      }
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.response?.data || t.amigos?.requestError || 'Error al enviar solicitud';
+      console.error('Error completo:', err);
+      console.error('Status:', err.response?.status);
+      console.error('Data:', err.response?.data);
       alert(errorMessage);
     }
   };
@@ -108,7 +141,9 @@ export default function Amigos() {
       alert(status === 'Accepted' ? 'Solicitud aceptada' : 'Solicitud rechazada');
       await loadAllData();
     } catch (err) {
-      alert('Error al responder solicitud');
+      const errorMessage = err.response?.data?.message || err.message || 'Error al responder solicitud';
+      console.error('Error detalles:', err);
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -119,6 +154,30 @@ export default function Amigos() {
       await loadAllData();
     } catch (err) {
       alert('Error al cancelar solicitud');
+    }
+  };
+
+  const handleRemoveFriend = async (friendshipId) => {
+    console.log('Intentando eliminar amigo con friendshipId:', friendshipId);
+    setConfirmDeleteModal({ friendshipId, isDeleting: false });
+  };
+
+  const confirmDeleteFriend = async () => {
+    if (!confirmDeleteModal) return;
+
+    setConfirmDeleteModal({ ...confirmDeleteModal, isDeleting: true });
+
+    try {
+      await removeFriend(confirmDeleteModal.friendshipId);
+      alert('Amigo eliminado correctamente');
+      setConfirmDeleteModal(null);
+      await loadAllData();
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Error al eliminar amigo';
+      console.error('Error detalles:', err);
+      console.error('URL intentada:', err.config?.url);
+      alert(`Error: ${errorMessage}`);
+      setConfirmDeleteModal(null);
     }
   };
 
@@ -245,6 +304,13 @@ export default function Amigos() {
                       onClick={() => openFriendProfile(amigo)}
                     >
                       Ver Perfil
+                    </button>
+                    <button 
+                      className="action-btn delete"
+                      onClick={() => handleRemoveFriend(amigo.id)}
+                      title="Eliminar amigo"
+                    >
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
@@ -508,6 +574,41 @@ export default function Amigos() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: CONFIRMAR ELIMINACIÓN DE AMIGO */}
+      {confirmDeleteModal && (
+        <div className="modal-overlay" onClick={() => !confirmDeleteModal.isDeleting && setConfirmDeleteModal(null)}>
+          <div className="modal-content confirm-delete-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-delete-header">
+              <div className="confirm-delete-icon">
+                <Trash2 size={32} color="#d32f2f" />
+              </div>
+              <h2>Eliminar Amigo</h2>
+            </div>
+
+            <p className="confirm-delete-message">
+              ¿Estás seguro de que deseas eliminar este amigo? Esta acción no se puede deshacer.
+            </p>
+
+            <div className="confirm-delete-actions">
+              <button 
+                className="btn-cancel-delete"
+                onClick={() => setConfirmDeleteModal(null)}
+                disabled={confirmDeleteModal.isDeleting}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-confirm-delete"
+                onClick={confirmDeleteFriend}
+                disabled={confirmDeleteModal.isDeleting}
+              >
+                {confirmDeleteModal.isDeleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -18,32 +18,35 @@ namespace Miro.Services
 
         public async Task<bool> SendRequestAsync(int senderId, int receiverId)
         {
-            // 1. Validación: No puedes ser tu propio amigo
             if (senderId == receiverId) return false;
 
-            // 2. Comprobar si ya existe una relación previa (en cualquier estado)
-            var existing = await _context.Friendships.AnyAsync(f =>
-                (f.UserRequestId == senderId && f.UserReceiveId == receiverId) ||
-                (f.UserRequestId == receiverId && f.UserReceiveId == senderId));
-
-            if (existing) return false;
-
-            // 3. Crear la nueva solicitud con estado "Pending"
-            var friendship = new Friendship
+            try
             {
-                UserRequestId = senderId,
-                UserReceiveId = receiverId,
-                Status = "Pending" // Forzamos el estado inicial
-            };
+                // Eliminar CUALQUIER solicitud pendiente que YA hayas enviado
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"DELETE FROM Friendships WHERE UserRequestId = {senderId} AND UserReceiveId = {receiverId}");
 
-            _context.Friendships.Add(friendship);
+                // Crear la nueva
+                _context.Friendships.Add(new Friendship 
+                { 
+                    UserRequestId = senderId,
+                    UserReceiveId = receiverId,
+                    Status = "Pending"
+                });
 
-            // 4. Crear la notificación para el receptor
-            // Usamos el servicio de notificaciones inyectado
-            await _notifService.CreateNoteAsync(receiverId, "¡Tienes una nueva solicitud de amistad pendiente!");
+                try
+                {
+                    await _notifService.CreateNoteAsync(receiverId, "¡Tienes una nueva solicitud de amistad pendiente!");
+                }
+                catch { }
 
-            // 5. Guardar todos los cambios (la amistad y la notificación) en una sola transacción
-            return await _context.SaveChangesAsync() > 0;
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en SendRequestAsync: {ex.Message}");
+                return false;
+            }
         }
 
         public async Task<IEnumerable<Friendship>> GetUserFriendsAsync(int userId)
@@ -68,7 +71,15 @@ namespace Miro.Services
             // Si se acepta, podrías enviar una notificación de vuelta al que envió la solicitud
             if (status == "Accepted")
             {
-                await _notifService.CreateNoteAsync(f.UserRequestId, "¡Tu solicitud de amistad ha sido aceptada!");
+                try
+                {
+                    await _notifService.CreateNoteAsync(f.UserRequestId, "¡Tu solicitud de amistad ha sido aceptada!");
+                }
+                catch (Exception ex)
+                {
+                    // Log del error pero no falla el proceso de aceptación
+                    Console.WriteLine($"Error al crear notificación: {ex.Message}");
+                }
             }
 
             return await _context.SaveChangesAsync() > 0;
@@ -77,21 +88,37 @@ namespace Miro.Services
         public async Task<IEnumerable<Friendship>> GetPendingRequestsAsync(int userId)
         {
             // Obtiene solicitudes pendientes recibidas por el usuario
-            return await _context.Friendships
-                .Where(f => f.UserReceiveId == userId && f.Status == "Pending")
-                .Include(f => f.UserRequest)
-                .Include(f => f.UserReceive)
-                .ToListAsync();
+            try
+            {
+                return await _context.Friendships
+                    .Where(f => f.UserReceiveId == userId && f.Status == "Pending")
+                    .Include(f => f.UserRequest)
+                    .Include(f => f.UserReceive)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en GetPendingRequestsAsync: {ex.Message}");
+                return new List<Friendship>();
+            }
         }
 
         public async Task<IEnumerable<Friendship>> GetSentRequestsAsync(int userId)
         {
             // Obtiene solicitudes pendientes enviadas por el usuario
-            return await _context.Friendships
-                .Where(f => f.UserRequestId == userId && f.Status == "Pending")
-                .Include(f => f.UserRequest)
-                .Include(f => f.UserReceive)
-                .ToListAsync();
+            try
+            {
+                return await _context.Friendships
+                    .Where(f => f.UserRequestId == userId && f.Status == "Pending")
+                    .Include(f => f.UserRequest)
+                    .Include(f => f.UserReceive)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en GetSentRequestsAsync: {ex.Message}");
+                return new List<Friendship>();
+            }
         }
 
         public async Task<IEnumerable<User>> SearchUsersAsync(string query)
@@ -132,6 +159,30 @@ namespace Miro.Services
                 .FirstOrDefaultAsync(f =>
                     (f.UserRequestId == userId1 && f.UserReceiveId == userId2) ||
                     (f.UserRequestId == userId2 && f.UserReceiveId == userId1));
+        }
+
+        public async Task<bool> RemoveFriendAsync(int friendshipId, int userId)
+        {
+            try
+            {
+                var friendship = await _context.Friendships.FindAsync(friendshipId);
+
+                // Validar que la amistad existe y que uno de los dos usuarios es el que hace la solicitud
+                if (friendship == null || 
+                    (friendship.UserRequestId != userId && friendship.UserReceiveId != userId))
+                    return false;
+
+                // Usar una consulta SQL directa para asegurar la eliminación
+                var result = await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"DELETE FROM Friendships WHERE Id = {friendshipId}");
+
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error eliminando amigo: {ex.Message}");
+                return false;
+            }
         }
     }
 }

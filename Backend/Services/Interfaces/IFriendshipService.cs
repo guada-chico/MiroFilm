@@ -30,5 +30,8 @@ namespace Miro.Services.Interfaces
 
         // 9. Obtener estado de amistad entre dos usuarios
         Task<Friendship?> GetFriendshipStatusAsync(int userId1, int userId2);
+
+        // 10. Eliminar un amigo aceptado
+        Task<bool> RemoveFriendAsync(int friendshipId, int userId);
     }
 }

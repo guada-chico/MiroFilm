@@ -21,22 +21,23 @@ namespace Miro.Controllers
         [HttpPost("request/{receiverId}")]
         public async Task<IActionResult> SendRequest(int receiverId)
         {
-            // Obtenemos el ID del usuario que envía (desde el Token)
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null) return Unauthorized();
 
             int senderId = int.Parse(userIdClaim.Value);
 
-            // Validar que no sea el mismo usuario
             if (senderId == receiverId)
                 return BadRequest(new { message = "No puedes agregarte a ti mismo como amigo." });
 
-            // Llamamos al servicio corregido
             var success = await _friendshipService.SendRequestAsync(senderId, receiverId);
 
             if (!success)
-                return BadRequest(new { message = "Ya existe una solicitud de amistad con este usuario. Verifica tus solicitudes pendientes." });
+            {
+                Console.WriteLine($"SendRequestAsync devolvió false para senderId={senderId}, receiverId={receiverId}");
+                return BadRequest(new { message = "Ya existe una solicitud de amistad pendiente enviada por ti a este usuario." });
+            }
 
+            Console.WriteLine($"✓ Solicitud creada exitosamente: {senderId} → {receiverId}");
             return Ok(new { message = "Solicitud de amistad enviada con éxito." });
         }
 
@@ -260,6 +261,23 @@ namespace Miro.Controllers
                 return Ok(new { status = "none" });
 
             return Ok(new { status = friendship.Status, friendshipId = friendship.Id });
+        }
+
+        /// Elimina un amigo aceptado.
+        [HttpDelete("remove-friend/{friendshipId}")]
+        public async Task<IActionResult> RemoveFriend(int friendshipId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            var success = await _friendshipService.RemoveFriendAsync(friendshipId, userId);
+
+            if (!success)
+                return BadRequest("No se pudo eliminar el amigo. Verifica que sea una amistad aceptada.");
+
+            return Ok(new { message = "Amigo eliminado correctamente." });
         }
     }
 }

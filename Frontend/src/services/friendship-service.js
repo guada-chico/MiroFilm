@@ -78,3 +78,11 @@ export const getFriendshipStatus = async (otherUserId) => {
   return response.data;
 };
 
+/**
+ * Elimina un amigo aceptado.
+ */
+export const removeFriend = async (friendshipId) => {
+  const response = await api.delete(`/friendship/remove-friend/${friendshipId}`);
+  return response.data;
+};
+
