@@ -62,7 +62,7 @@ export default function Amigos() {
   // Cargar datos iniciales
   useEffect(() => {
     loadAllData();
-  }, []);
+  }, [user.id]); // Recargarse cuando cambia el usuario
 
   // Recargar datos cuando el usuario cambia de pestaña o vuelve a la página
   useEffect(() => {
@@ -339,7 +339,13 @@ export default function Amigos() {
             <p style={{ textAlign: 'center', color: '#aaa' }}>Cargando amigos...</p>
           ) : amigos.length > 0 ? (
             <div className="amigos-grid">
-              {amigos.map((amigo) => (
+              {amigos
+                .filter(amigo => {
+                  // Filtro de seguridad: no mostrar al usuario a sí mismo
+                  const friendId = amigo.userRequest?.id === user.id ? amigo.userReceive?.id : amigo.userRequest?.id;
+                  return friendId !== user.id;
+                })
+                .map((amigo) => (
                 <div key={amigo.id} className="amigo-card">
                   <div className="amigo-header">
                     <div className="avatar-status-wrapper">
