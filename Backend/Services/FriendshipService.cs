@@ -22,6 +22,10 @@ namespace Miro.Services
 
     try
     {
+        // Obtener el nombre del usuario que envía la solicitud
+        var senderUser = await _context.Users.FindAsync(senderId);
+        var senderName = senderUser?.Name ?? "Un usuario";
+
         // 1. Buscamos CUALQUIER relación previa en ambos sentidos
         var existingFriendships = await _context.Friendships
             .Where(f => (f.UserRequestId == senderId && f.UserReceiveId == receiverId) ||
@@ -53,7 +57,7 @@ namespace Miro.Services
         {
             try
             {
-                await _notifService.CreateNoteAsync(receiverId, "¡Tienes una nueva solicitud de amistad pendiente!");
+                await _notifService.CreateNoteAsync(receiverId, $"{senderName} te ha enviado una solicitud de amistad.");
             }
             catch (Exception notifEx)
             {
@@ -89,12 +93,16 @@ namespace Miro.Services
 
             f.Status = status;
 
-            // Si se acepta, podrías enviar una notificación de vuelta al que envió la solicitud
+            // Si se acepta, enviar una notificación al que envió la solicitud
             if (status == "Accepted")
             {
                 try
                 {
-                    await _notifService.CreateNoteAsync(f.UserRequestId, "¡Tu solicitud de amistad ha sido aceptada!");
+                    // Obtener el nombre del usuario que acepta
+                    var acceptingUser = await _context.Users.FindAsync(f.UserReceiveId);
+                    var acceptingUserName = acceptingUser?.Name ?? "Un usuario";
+
+                    await _notifService.CreateNoteAsync(f.UserRequestId, $"{acceptingUserName} ha aceptado tu solicitud de amistad.");
                 }
                 catch (Exception ex)
                 {

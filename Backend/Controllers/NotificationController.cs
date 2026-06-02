@@ -33,5 +33,12 @@ namespace Miro.Controllers
             var success = await _notifService.MarkAsReadAsync(id);
             return success ? Ok() : NotFound();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteNotification(int id)
+        {
+            var success = await _notifService.DeleteNotificationAsync(id);
+            return success ? Ok() : NotFound();
+        }
     }
 }

@@ -56,9 +56,32 @@ export default function Amigos() {
   // Modal de éxito al cancelar solicitud
   const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
 
+  // Modal de éxito al aceptar solicitud
+  const [acceptSuccessModal, setAcceptSuccessModal] = useState(false);
+
   // Cargar datos iniciales
   useEffect(() => {
     loadAllData();
+  }, []);
+
+  // Recargar datos cuando el usuario cambia de pestaña o vuelve a la página
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('Página de amigos enfocada, recargando datos...');
+      loadAllData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    // Recargar datos cada 15 segundos para mantener sincronizado
+    const interval = setInterval(() => {
+      loadAllData();
+    }, 15000);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(interval);
+    };
   }, []);
 
   const loadAllData = async () => {
@@ -152,7 +175,12 @@ export default function Amigos() {
   const handleRespondRequest = async (friendshipId, status) => {
     try {
       await respondToRequest(friendshipId, status);
-      alert(status === 'Accepted' ? 'Solicitud aceptada' : 'Solicitud rechazada');
+      
+      if (status === 'Accepted') {
+        setAcceptSuccessModal(true);
+        setTimeout(() => setAcceptSuccessModal(false), 2000);
+      }
+      
       await loadAllData();
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Error al responder solicitud';
@@ -205,10 +233,13 @@ export default function Amigos() {
     setSelectedFriend(friend);
     setLoadingFriendProfile(true);
     try {
+      // Obtener el ID del amigo (no del objeto friendship)
+      const friendId = getFriendId(friend);
+      
       const [favorites, watching, status] = await Promise.all([
-        getFriendFavorites(friend.id || friend.userReceiveId || friend.userRequestId),
-        getFriendWatching(friend.id || friend.userReceiveId || friend.userRequestId),
-        getFriendshipStatus(friend.id || friend.userReceiveId || friend.userRequestId)
+        getFriendFavorites(friendId),
+        getFriendWatching(friendId),
+        getFriendshipStatus(friendId)
       ]);
       
       setFriendFavorites(favorites);
@@ -222,21 +253,30 @@ export default function Amigos() {
   };
 
   const getFriendName = (friendship) => {
-    if (friendship.userRequest?.name) return friendship.userRequest.name;
-    if (friendship.userReceive?.name) return friendship.userReceive.name;
-    return 'Usuario desconocido';
+    // Si userRequest es el usuario actual, devolver userReceive
+    if (friendship.userRequest?.id === user.id) {
+      return friendship.userReceive?.name || 'Usuario desconocido';
+    }
+    // Si no, devolver userRequest
+    return friendship.userRequest?.name || 'Usuario desconocido';
   };
 
   const getFriendEmail = (friendship) => {
-    if (friendship.userRequest?.email) return friendship.userRequest.email;
-    if (friendship.userReceive?.email) return friendship.userReceive.email;
-    return '';
+    // Si userRequest es el usuario actual, devolver userReceive
+    if (friendship.userRequest?.id === user.id) {
+      return friendship.userReceive?.email || '';
+    }
+    // Si no, devolver userRequest
+    return friendship.userRequest?.email || '';
   };
 
   const getFriendId = (friendship) => {
-    if (friendship.userRequest?.id) return friendship.userRequest.id;
-    if (friendship.userReceive?.id) return friendship.userReceive.id;
-    return friendship.id;
+    // Si userRequest es el usuario actual, devolver userReceive
+    if (friendship.userRequest?.id === user.id) {
+      return friendship.userReceive?.id || friendship.userReceiveId;
+    }
+    // Si no, devolver userRequest
+    return friendship.userRequest?.id || friendship.userRequestId;
   };
 
   const getAvatarUrl = (user) => {
@@ -677,6 +717,22 @@ export default function Amigos() {
             </div>
             <h2>Solicitud Cancelada</h2>
             <p>La solicitud de amistad ha sido cancelada.</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: SOLICITUD ACEPTADA EXITOSAMENTE */}
+      {acceptSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content success-modal">
+            <div className="success-icon">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="30" cy="30" r="28" stroke="#4caf50" strokeWidth="2" fill="#f0f7f0"/>
+                <path d="M20 30L27 37L40 24" stroke="#4caf50" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+            </div>
+            <h2>¡Solicitud Aceptada!</h2>
+            <p>Ahora son amigos. ¡Que disfrutes!</p>
           </div>
         </div>
       )}

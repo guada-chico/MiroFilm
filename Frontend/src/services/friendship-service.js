@@ -14,9 +14,9 @@ export const sendFriendRequest = async (receiverId) => {
  * @param {string} status - 'Accepted' o 'Rejected'
  */
 export const respondToRequest = async (friendshipId, status) => {
-  const response = await api.put(`/friendship/respond/${friendshipId}`, null, {
-    params: { status },
-  });
+  const url = `/friendship/respond/${friendshipId}?status=${status}`;
+  console.log('URL de respuesta:', url);
+  const response = await api.put(url);
   return response.data;
 };
 

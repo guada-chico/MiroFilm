@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, User, Settings, LogOut } from 'lucide-react';
+import { Bell, ChevronDown, User, Settings, LogOut, X } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import { logout } from '../../services/auth-service';
+import { getNotifications, markAsRead, deleteNotification } from '../../services/notifications-service';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -10,9 +11,56 @@ export default function Navbar() {
   const { user, clearUser } = useUser();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
 
   const userMenuRef = useRef(null);
   const notiMenuRef = useRef(null);
+
+  // Cargar notificaciones del usuario
+  const loadNotifications = async () => {
+    try {
+      setLoadingNotifs(true);
+      const data = await getNotifications();
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error cargando notificaciones:', error);
+      setNotifications([]);
+    } finally {
+      setLoadingNotifs(false);
+    }
+  };
+
+  // Eliminar una notificación
+  const handleDeleteNotification = async (e, notificationId) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(notificationId);
+      // Recargar notificaciones después de eliminar
+      await loadNotifications();
+    } catch (error) {
+      console.error('Error eliminando notificación:', error);
+    }
+  };
+
+  // Cargar notificaciones al montar el componente
+  useEffect(() => {
+    loadNotifications();
+    
+    // Recargar cada 30 segundos
+    const interval = setInterval(loadNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Recargar notificaciones cuando el usuario cambia de pestaña
+  useEffect(() => {
+    const handleFocus = () => {
+      loadNotifications();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -29,8 +77,6 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserMenu, showNotifications]);
-
-  const notifications = [];
 
   const handleLogout = () => {
     clearUser();
@@ -66,8 +112,30 @@ export default function Navbar() {
             <div className="notifications-dropdown">
               <div className="dropdown-header">Notificaciones</div>
               <div className="dropdown-content">
-                {notifications.length > 0 ? (
-                  notifications.map((n, i) => <div key={i} className="noti-item">{n}</div>)
+                {loadingNotifs ? (
+                  <p className="no-data">Cargando...</p>
+                ) : notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <div 
+                      key={n.id} 
+                      className="noti-item"
+                      onClick={() => {
+                        navigate('/amigos');
+                        setShowNotifications(false);
+                      }}
+                    >
+                      <div className="noti-item-content">
+                        {n.message}
+                      </div>
+                      <button
+                        className="noti-delete-btn"
+                        onClick={(e) => handleDeleteNotification(e, n.id)}
+                        title="Eliminar notificación"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))
                 ) : (
                   <p className="no-data">No hay notificaciones</p>
                 )}

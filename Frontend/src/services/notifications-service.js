@@ -15,3 +15,11 @@ export const markAsRead = async (id) => {
   const response = await api.put(`/notification/${id}/read`);
   return response.data;
 };
+
+/**
+ * Elimina una notificación.
+ */
+export const deleteNotification = async (id) => {
+  const response = await api.delete(`/notification/${id}`);
+  return response.data;
+};

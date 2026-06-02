@@ -63,8 +63,36 @@
 }
 
 .dropdown-content {
-  padding: 15px;
+  max-height: 300px;
+  overflow-y: auto;
   text-align: center;
+  padding: 0;
+}
+
+/* Scrollbar styling */
+.dropdown-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+:root[data-theme="dark"] .dropdown-content::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+:root[data-theme="dark"] .dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
 }
 
 /* Ajusta el tamaño de todos los iconos dentro del menú desplegable */
@@ -92,10 +120,78 @@
   color: #ff6b35; /* Color naranja al pasar el ratón */
 }
 
+.noti-item {
+  padding: 12px 15px;
+  text-align: left;
+  font-size: 0.85rem;
+  color: #555;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  line-height: 1.4;
+  word-wrap: break-word;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.noti-item-content {
+  flex: 1;
+}
+
+.noti-delete-btn {
+  background: none;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.noti-delete-btn:hover {
+  background-color: #ffebee;
+  color: #ff6b35;
+}
+
+.noti-item:last-child {
+  border-bottom: none;
+}
+
+.noti-item:hover {
+  background-color: #f9f9f9;
+  color: #ff6b35;
+}
+
+:root[data-theme="dark"] .noti-item {
+  color: #b0b0b0;
+  border-bottom: 1px solid #444;
+}
+
+:root[data-theme="dark"] .noti-item:hover {
+  background-color: #333;
+  color: #ff6b35;
+}
+
+:root[data-theme="dark"] .noti-delete-btn:hover {
+  background-color: #3d2222;
+  color: #ff6b35;
+}
+
 .no-data {
   color: #999;
   font-size: 0.85rem;
   margin: 0;
+  padding: 15px;
+}
+
+:root[data-theme="dark"] .no-data {
+  color: #888;
 }
 
 .notification-dot {

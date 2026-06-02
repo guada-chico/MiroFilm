@@ -30,5 +30,14 @@ namespace Miro.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> DeleteNotificationAsync(int notificationId)
+        {
+            var note = await _context.Notifications.FindAsync(notificationId);
+            if (note == null) return false;
+            _context.Notifications.Remove(note);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

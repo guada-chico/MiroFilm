@@ -7,5 +7,6 @@ namespace Miro.Services.Interfaces
         Task CreateNoteAsync(int userId, string message);
         Task<IEnumerable<Notification>> GetMyNotesAsync(int userId);
         Task<bool> MarkAsReadAsync(int notificationId);
+        Task<bool> DeleteNotificationAsync(int notificationId);
     }
 }
