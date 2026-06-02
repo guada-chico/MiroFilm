@@ -4,7 +4,7 @@ import api from './api-config';
  * Envía una solicitud de amistad a otro usuario.
  */
 export const sendFriendRequest = async (receiverId) => {
-  const response = await api.post(`/friendship/request/${receiverId}`);
+  const response = await api.post(`/friendship/request/${receiverId}`, {});
   return response.data;
 };
 
@@ -14,9 +14,10 @@ export const sendFriendRequest = async (receiverId) => {
  * @param {string} status - 'Accepted' o 'Rejected'
  */
 export const respondToRequest = async (friendshipId, status) => {
-  const url = `/friendship/respond/${friendshipId}?status=${status}`;
-  console.log('URL de respuesta:', url);
-  const response = await api.put(url);
+  // En .NET el [FromQuery] requiere que los parámetros viajen en el tercer argumento de Axios usando "params"
+  const response = await api.put(`/friendship/respond/${friendshipId}`, {}, {
+    params: { status }
+  });
   return response.data;
 };
 
@@ -85,4 +86,3 @@ export const removeFriend = async (friendshipId) => {
   const response = await api.delete(`/friendship/remove-friend/${friendshipId}`);
   return response.data;
 };
-
