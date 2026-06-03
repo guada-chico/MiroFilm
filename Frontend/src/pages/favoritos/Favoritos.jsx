@@ -1,33 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, ArrowLeft, Film, Tv, X, Trash2 } from 'lucide-react';
-import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
-import { getT } from '../../i18n';
 import './Favoritos.css';
 
 export default function Favoritos() {
   const navigate = useNavigate();
-  const { settings } = useSettings();
-  const t = getT(settings.language);
-  const { favoriteMovies, favoriteSeries, watchedMovies, watchedSeries, toggleMovieWatched, toggleSeriesWatched, toggleMovieFavorite, toggleSeriesFavorite } = useMedia();
-
-  const [stats, setStats] = useState({
-    moviesWatchedThisYear: 0,
-    seriesWatchedThisYear: 0
-  });
+  const { favoriteMovies, favoriteSeries, watchedMovies, watchedSeries, toggleMovieFavorite, toggleSeriesFavorite } = useMedia();
 
   const [selectedItem, setSelectedItem] = useState(null);
-  const [showWatchedSeriesModal, setShowWatchedSeriesModal] = useState(false);
-  const [showWatchedMoviesModal, setShowWatchedMoviesModal] = useState(false);
 
-  useEffect(() => {
-    // Actualizar estadísticas basadas en películas/series vistas
-    setStats({
-      moviesWatchedThisYear: watchedMovies.length,
-      seriesWatchedThisYear: watchedSeries.length
-    });
-  }, [watchedMovies, watchedSeries]);
+  // Filtrar favoritos que no están vistas
+  const unwatchedFavoriteMovies = favoriteMovies.filter(
+    movie => !watchedMovies.find(watched => watched.tmdbId === movie.tmdbId)
+  );
+
+  const unwatchedFavoriteSeries = favoriteSeries.filter(
+    series => !watchedSeries.find(watched => watched.tmdbId === series.tmdbId)
+  );
 
   const renderMovieSection = (title, movies, IconComponent) => {
     if (movies.length === 0) return null;
@@ -119,7 +109,7 @@ export default function Favoritos() {
     );
   };
 
-  const totalFavorites = favoriteMovies.length + favoriteSeries.length + watchedMovies.length + watchedSeries.length;
+  const totalFavorites = unwatchedFavoriteMovies.length + unwatchedFavoriteSeries.length;
 
   return (
     <div className="favoritos-container">
@@ -130,39 +120,16 @@ export default function Favoritos() {
           </button>
           <h1>Mis Favoritos</h1>
         </div>
-        <p>Tus películas y series favoritas, guardadas y vistas</p>
+        <p>Tus películas y series favoritas</p>
       </header>
-
-      {/* ESTADÍSTICAS */}
-      <div className="stats-grid">
-        <div className="stat-card" onClick={() => setShowWatchedMoviesModal(true)} style={{ cursor: 'pointer' }}>
-          <div className="stat-icon-circle">
-            <Film color="#ff6b35" size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>Películas 2026</h3>
-            <p className="big-number">{stats.moviesWatchedThisYear}</p>
-          </div>
-        </div>
-
-        <div className="stat-card" onClick={() => setShowWatchedSeriesModal(true)} style={{ cursor: 'pointer' }}>
-          <div className="stat-icon-circle">
-            <Tv color="#ff6b35" size={24} />
-          </div>
-          <div className="stat-info">
-            <h3>Series 2026</h3>
-            <p className="big-number">{stats.seriesWatchedThisYear}</p>
-          </div>
-        </div>
-      </div>
 
       {/* PELÍCULAS Y SERIES FAVORITAS EN 2 COLUMNAS */}
       <div className="favoritos-two-columns">
         <div className="column">
-          {renderMovieSection('Películas Favoritas', favoriteMovies, Film)}
+          {renderMovieSection('Películas Favoritas', unwatchedFavoriteMovies, Film)}
         </div>
         <div className="column">
-          {renderSeriesSection('Series Favoritas', favoriteSeries, Tv)}
+          {renderSeriesSection('Series Favoritas', unwatchedFavoriteSeries, Tv)}
         </div>
       </div>
 
@@ -213,110 +180,6 @@ export default function Favoritos() {
                   <p className="modal-text">{selectedItem.plot || 'Sin sinopsis disponible'}</p>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE PELÍCULAS VISTAS */}
-      {showWatchedMoviesModal && (
-        <div className="modal-overlay" onClick={() => setShowWatchedMoviesModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setShowWatchedMoviesModal(false)}>
-              <X size={24} />
-            </button>
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem', padding: '20px 40px 0 40px', flexShrink: 0 }}>Películas Vistas en 2026</h2>
-            <div className="modal-scrollable-content">
-              {watchedMovies.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#aaa' }}>No has visto películas aún</p>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-                  {watchedMovies.map((movie) => (
-                    <div 
-                      key={movie.tmdbId}
-                      className="modal-card"
-                      style={{ position: 'relative' }}
-                    >
-                      <button
-                        className="modal-card-delete-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleMovieWatched(movie);
-                        }}
-                        title="Eliminar de vistas"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <div onClick={() => {
-                        setSelectedItem({ ...movie, type: 'movie' });
-                        setShowWatchedMoviesModal(false);
-                      }}>
-                        <img
-                          src={movie.posterUrl || 'https://via.placeholder.com/120x180?text=Sin+portada'}
-                          alt={movie.title}
-                        />
-                        <h4>{movie.title}</h4>
-                        <p>{movie.director || 'Director desconocido'}</p>
-                        {movie.rating && (
-                          <p className="rating">⭐ {movie.rating.toFixed(1)}/10</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE SERIES VISTAS */}
-      {showWatchedSeriesModal && (
-        <div className="modal-overlay" onClick={() => setShowWatchedSeriesModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setShowWatchedSeriesModal(false)}>
-              <X size={24} />
-            </button>
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem', padding: '20px 40px 0 40px', flexShrink: 0 }}>Series Vistas en 2026</h2>
-            <div className="modal-scrollable-content">
-              {watchedSeries.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#aaa' }}>No has visto series aún</p>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem' }}>
-                  {watchedSeries.map((series) => (
-                    <div 
-                      key={series.tmdbId}
-                      className="modal-card"
-                      style={{ position: 'relative' }}
-                    >
-                      <button
-                        className="modal-card-delete-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSeriesWatched(series);
-                        }}
-                        title="Eliminar de vistas"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                      <div onClick={() => {
-                        setSelectedItem({ ...series, type: 'series' });
-                        setShowWatchedSeriesModal(false);
-                      }}>
-                        <img
-                          src={series.posterUrl || 'https://via.placeholder.com/120x180?text=Sin+portada'}
-                          alt={series.title}
-                        />
-                        <h4>{series.title}</h4>
-                        <p>{series.creator || 'Creador desconocido'}</p>
-                        {series.rating && (
-                          <p className="rating">⭐ {series.rating.toFixed(1)}/10</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
         </div>
