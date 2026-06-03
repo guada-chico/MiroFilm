@@ -8,6 +8,7 @@ import Inicio from './pages/inicio/Inicio';
 import Login from './pages/login/Login';
 import Peliculas from './pages/peliculas/Peliculas';
 import Favoritos from './pages/favoritos/Favoritos';
+import MisListas from './pages/mis-listas/MisListas';
 import Perfil from './pages/perfil/Perfil';
 import Ajustes from './pages/ajustes/Ajustes';
 import Ayuda from './pages/ayuda/Ayuda';
@@ -37,6 +38,7 @@ function AppContent() {
             <Route path="/peliculas" element={<Peliculas />} />
             <Route path="/mis-libros" element={<Favoritos />} />
             <Route path="/favoritos" element={<Favoritos />} />
+            <Route path="/mis-listas" element={<MisListas />} />
             <Route path="/amigos" element={<Amigos/>} />
             <Route path="/series" element={<Series />} />
 

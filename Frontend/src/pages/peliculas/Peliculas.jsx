@@ -7,7 +7,6 @@ import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
 import './Peliculas.css';
 
-// Géneros de películas de TMDB
 const MOVIE_GENRES = [
   { id: 28, name: 'Acción' },
   { id: 12, name: 'Aventura' },
@@ -44,7 +43,6 @@ export default function Peliculas() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
 
-  // Cargar películas populares, por búsqueda o por género
   useEffect(() => {
     let isMounted = true;
     
@@ -54,21 +52,17 @@ export default function Peliculas() {
         
         let data;
         if (isSearching && searchTerm) {
-          // Si estamos buscando, usar el endpoint de búsqueda
           console.log('Buscando películas:', searchTerm);
           data = await searchMovies(searchTerm);
         } else if (selectedGenre) {
-          // Si hay un género seleccionado, cargar películas por género
           console.log('Cargando películas por género:', selectedGenre);
           data = await getMoviesByGenre(selectedGenre, currentPage);
         } else {
-          // Si no, cargar películas populares
           console.log('Cargando películas populares, página:', currentPage);
           data = await getPopularMovies(currentPage);
         }
         
         if (isMounted) {
-          console.log('Películas recibidas:', data?.length || 0, data);
           setMovies(Array.isArray(data) ? data : []);
         }
       } catch (error) {
@@ -105,10 +99,8 @@ export default function Peliculas() {
 
   const handleGenreFilter = (genreId) => {
     if (selectedGenre === genreId) {
-      // Si hace clic en el mismo género, deseleccionar
       setSelectedGenre(null);
     } else {
-      // Seleccionar nuevo género
       setSelectedGenre(genreId);
     }
     setCurrentPage(1);
@@ -117,7 +109,6 @@ export default function Peliculas() {
   };
 
   const handleMovieClick = async (movie) => {
-    // Obtener detalles completos de la película
     setLoadingDetails(true);
     try {
       const details = await getMovieDetails(movie.tmdbId);
@@ -132,7 +123,6 @@ export default function Peliculas() {
 
   const handleToggleFavorite = async (e, movie) => {
     e.stopPropagation();
-    // Obtener detalles completos antes de agregar a favoritos
     try {
       const details = await getMovieDetails(movie.tmdbId);
       await toggleMovieFavorite(details || movie);
@@ -143,7 +133,6 @@ export default function Peliculas() {
 
   const handleToggleWatched = async (e, movie) => {
     e.stopPropagation();
-    // Obtener detalles completos antes de marcar como visto
     try {
       const details = await getMovieDetails(movie.tmdbId);
       toggleMovieWatched(details || movie);
@@ -151,7 +140,6 @@ export default function Peliculas() {
       console.error('Error getting movie details:', error);
       toggleMovieWatched(movie);
     }
-    // TODO: Llamar a API para marcar como visto/no visto
   };
 
   const handleAddToWatchlist = async (movie) => {
@@ -175,7 +163,6 @@ export default function Peliculas() {
         <p>Películas populares de todo el mundo</p>
       </header>
 
-      {/* Buscador */}
       <div className="search-container">
         <Search size={20} className="search-icon" />
         <input
@@ -187,7 +174,6 @@ export default function Peliculas() {
         />
       </div>
 
-      {/* Filtros por género */}
       <div className="genre-filters">
         {MOVIE_GENRES.map((genre) => (
           <button
@@ -206,24 +192,24 @@ export default function Peliculas() {
         <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>No hay películas disponibles</p>
       ) : (
         <>
-          <div className="reco-grid">
+          <div className="series-grid">
             {movies.map((movie, i) => (
-              <div key={movie.tmdbId || movie.id || i} className="reco-card" onClick={() => handleMovieClick(movie)}>
-                <div className="reco-img-wrapper">
+              <div key={movie.tmdbId || movie.id || i} className="series-card-wrapper" onClick={() => handleMovieClick(movie)}>
+                <div className="series-img-wrapper">
                   <img
                     src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
                     alt={movie.title}
                   />
-                  <div className="reco-hover-actions">
+                  <div className="series-hover-actions">
                     <button 
-                      className="reco-icon-btn" 
+                      className="series-icon-btn" 
                       onClick={(e) => handleToggleFavorite(e, movie)}
                       title="Agregar a favoritos"
                     >
                       <Heart size={18} fill={isMovieFavorite(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
                     </button>
                     <button 
-                      className="reco-icon-btn" 
+                      className="series-icon-btn" 
                       onClick={(e) => handleToggleWatched(e, movie)}
                       title="Marcar como visto"
                     >
@@ -231,7 +217,7 @@ export default function Peliculas() {
                     </button>
                   </div>
                 </div>
-                <div className="reco-info">
+                <div className="series-info">
                   <h4>{movie.title}</h4>
                   <p>{movie.director || 'Director desconocido'}</p>
                   {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
@@ -241,30 +227,7 @@ export default function Peliculas() {
             ))}
           </div>
 
-          {/* Paginación - solo mostrar si no estamos buscando ni filtrando por género */}
-          {!isSearching && !selectedGenre && movies.length > 0 && (
-            <div className="pagination-container">
-              <button 
-                className="pagination-btn" 
-                onClick={handlePrevPage} 
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft size={20} />
-              </button>
-              <span className="pagination-info">
-                Página {currentPage}
-              </span>
-              <button 
-                className="pagination-btn" 
-                onClick={handleNextPage}
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          )}
-
-          {/* Paginación - mostrar si hay filtro de género */}
-          {selectedGenre && movies.length > 0 && (
+          {(!isSearching || selectedGenre) && movies.length > 0 && (
             <div className="pagination-container">
               <button 
                 className="pagination-btn" 
@@ -287,7 +250,6 @@ export default function Peliculas() {
         </>
       )}
 
-      {/* Modal de detalle */}
       {selectedMovie && (
         <div className="modal-overlay" onClick={() => setSelectedMovie(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -333,7 +295,7 @@ export default function Peliculas() {
                     </div>
                   </div>
                   <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie)}>
-                    Añadir a mi lista
+                    Añadir a favoritos
                   </button>
                 </div>
               </div>

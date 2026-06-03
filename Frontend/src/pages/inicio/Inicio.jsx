@@ -22,6 +22,7 @@ export default function Inicio() {
   const [loadingSeries, setLoadingSeries] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
+  const { watchedMovies, watchedSeries } = useMedia();
 
   // Recomendaciones PRH, películas y series al montar
   useEffect(() => {
@@ -105,108 +106,143 @@ export default function Inicio() {
     loadSeries();
   }, []);
 
-  // Recargar recomendaciones cuando el usuario vuelve a la página de inicio
+  // Recargar recomendaciones cuando cambien favoritos o películas/series vistas
   useEffect(() => {
-    const handleFocus = () => {
-      console.log('Página de Inicio enfocada, recargando recomendaciones...');
-      const loadMovies = async () => {
-        setLoadingMovies(true);
-        try {
-          const data = await getMyRecommendations();
-          console.log('Nuevas recomendaciones recibidas:', data?.length || 0);
-          
-          // Asegurar que es un array
-          let moviesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
-          
-          // Si no hay recomendaciones, cargar películas populares
-          if (moviesArray.length === 0) {
-            console.log('No hay recomendaciones, cargando películas populares...');
-            try {
-              const popularData = await getPopularMovies(1);
-              moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-              console.log('Películas populares cargadas:', moviesArray.length);
-            } catch (popErr) {
-              console.error('Error cargando películas populares:', popErr);
-            }
-          }
-          
-          console.log('Películas a mostrar:', moviesArray.length);
-          setMovieRecommendations(moviesArray);
-        } catch (err) {
-          console.error('Error cargando películas recomendadas:', err);
-          // Intentar cargar películas populares como fallback
+    const loadMovies = async () => {
+      setLoadingMovies(true);
+      try {
+        const data = await getMyRecommendations();
+        console.log('Nuevas recomendaciones recibidas:', data?.length || 0);
+        
+        // Asegurar que es un array
+        let moviesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
+        
+        // Si no hay recomendaciones, cargar películas populares
+        if (moviesArray.length === 0) {
+          console.log('No hay recomendaciones, cargando películas populares...');
           try {
             const popularData = await getPopularMovies(1);
-            const moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-            setMovieRecommendations(moviesArray);
+            moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('Películas populares cargadas:', moviesArray.length);
           } catch (popErr) {
-            console.error('Error cargando películas populares como fallback:', popErr);
-            setMovieRecommendations([]);
+            console.error('Error cargando películas populares:', popErr);
           }
-        } finally {
-          setLoadingMovies(false);
         }
-      };
-
-      const loadSeries = async () => {
-        setLoadingSeries(true);
+        
+        console.log('Películas a mostrar:', moviesArray.length);
+        setMovieRecommendations(moviesArray);
+      } catch (err) {
+        console.error('Error cargando películas recomendadas:', err);
+        // Intentar cargar películas populares como fallback
         try {
-          const data = await getMySeriesRecommendations();
-          console.log('Nuevas recomendaciones de series recibidas:', data);
-          
-          // Asegurar que es un array
-          let seriesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
-          
-          // Si no hay recomendaciones, cargar series populares
-          if (seriesArray.length === 0) {
-            console.log('No hay recomendaciones, cargando series populares...');
-            try {
-              const popularData = await getPopularSeries(1);
-              console.log('Series populares recibidas:', popularData);
-              seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-              console.log('Series populares cargadas:', seriesArray.length);
-            } catch (popErr) {
-              console.error('Error cargando series populares:', popErr);
-            }
-          }
-          
-          console.log('Series a mostrar:', seriesArray.length);
-          setSeriesRecommendations(seriesArray);
-        } catch (err) {
-          console.error('Error cargando series recomendadas:', err);
-          // Intentar cargar series populares como fallback
-          try {
-            const popularData = await getPopularSeries(1);
-            const seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-            setSeriesRecommendations(seriesArray);
-          } catch (popErr) {
-            console.error('Error cargando series populares como fallback:', popErr);
-            setSeriesRecommendations([]);
-          }
-        } finally {
-          setLoadingSeries(false);
+          const popularData = await getPopularMovies(1);
+          const moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          setMovieRecommendations(moviesArray);
+        } catch (popErr) {
+          console.error('Error cargando películas populares como fallback:', popErr);
+          setMovieRecommendations([]);
         }
-      };
-
-      loadMovies();
-      loadSeries();
+      } finally {
+        setLoadingMovies(false);
+      }
     };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+    const loadSeries = async () => {
+      setLoadingSeries(true);
+      try {
+        const data = await getMySeriesRecommendations();
+        console.log('Nuevas recomendaciones de series recibidas:', data);
+        
+        // Asegurar que es un array
+        let seriesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
+        
+        // Si no hay recomendaciones, cargar series populares
+        if (seriesArray.length === 0) {
+          console.log('No hay recomendaciones, cargando series populares...');
+          try {
+            const popularData = await getPopularSeries(1);
+            console.log('Series populares recibidas:', popularData);
+            seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+            console.log('Series populares cargadas:', seriesArray.length);
+          } catch (popErr) {
+            console.error('Error cargando series populares:', popErr);
+          }
+        }
+        
+        console.log('Series a mostrar:', seriesArray.length);
+        setSeriesRecommendations(seriesArray);
+      } catch (err) {
+        console.error('Error cargando series recomendadas:', err);
+        // Intentar cargar series populares como fallback
+        try {
+          const popularData = await getPopularSeries(1);
+          const seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
+          setSeriesRecommendations(seriesArray);
+        } catch (popErr) {
+          console.error('Error cargando series populares como fallback:', popErr);
+          setSeriesRecommendations([]);
+        }
+      } finally {
+        setLoadingSeries(false);
+      }
+    };
+
+    loadMovies();
+    loadSeries();
+  }, [watchedMovies, watchedSeries]);
 
   return (
     <div className="inicio-content">
       <h1>Bienvenido/a {user.name}</h1>
-      
-      {/* BOTONES DE NAVEGACIÓN */}
-      <div className="nav-buttons">
-        <button className="nav-btn" onClick={() => navigate('/peliculas')}>Películas</button>
-        <button className="nav-btn" onClick={() => navigate('/series')}>Series</button>
-        <button className="nav-btn" onClick={() => navigate('/favoritos')}>Favoritos</button>
-        <button className="nav-btn" onClick={() => navigate('/amigos')}>Amigos</button>
-      </div>
+
+      {/* SECCIÓN: ÚLTIMAS PELÍCULAS Y SERIES VISTAS */}
+      <section className="recent-watched-section">
+        <div className="recent-watched-container">
+          {watchedMovies.length > 0 && (
+            <div className="recent-item">
+              <h4>Última película vista</h4>
+              <div 
+                className="recent-card"
+                onClick={() => setSelectedMovie(watchedMovies[watchedMovies.length - 1])}
+              >
+                <img 
+                  src={watchedMovies[watchedMovies.length - 1].posterUrl || 'https://via.placeholder.com/100x150?text=Sin+portada'}
+                  alt={watchedMovies[watchedMovies.length - 1].title}
+                  className="recent-poster"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/100x150?text=Sin+portada';
+                  }}
+                />
+                <div className="recent-info">
+                  <p className="recent-title">{watchedMovies[watchedMovies.length - 1].title}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {watchedSeries.length > 0 && (
+            <div className="recent-item">
+              <h4>Última serie vista</h4>
+              <div 
+                className="recent-card"
+                onClick={() => setSelectedSeries(watchedSeries[watchedSeries.length - 1])}
+              >
+                <img 
+                  src={watchedSeries[watchedSeries.length - 1].posterUrl || 'https://via.placeholder.com/100x150?text=Sin+portada'}
+                  alt={watchedSeries[watchedSeries.length - 1].title}
+                  className="recent-poster"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/100x150?text=Sin+portada';
+                  }}
+                />
+                <div className="recent-info">
+                  <p className="recent-title">{watchedSeries[watchedSeries.length - 1].title}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* SECCIÓN: PELÍCULAS RECOMENDADAS */}
       <section className="movies-section">

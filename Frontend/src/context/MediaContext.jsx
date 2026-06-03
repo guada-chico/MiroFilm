@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { getMyFavorites, toggleMovieFavorite, toggleSeriesFavorite } from '../services/favorites-service';
+import { getUserWatchingStatus, updateMovieStatus, updateSeriesStatus, deleteWatchingStatus } from '../services/watching-status-service';
 import { useUser } from './UserContext';
 
 const MediaContext = createContext();
@@ -9,6 +10,18 @@ export function MediaProvider({ children }) {
   const [favoriteSeries, setFavoriteSeries] = useState([]);
   const [watchedMovies, setWatchedMovies] = useState([]);
   const [watchedSeries, setWatchedSeries] = useState([]);
+  const [moviesByStatus, setMoviesByStatus] = useState({
+    'Pendiente': [],
+    'Viendo': [],
+    'Visto': [],
+    'Abandonado': []
+  });
+  const [seriesByStatus, setSeriesByStatus] = useState({
+    'Pendiente': [],
+    'Viendo': [],
+    'Visto': [],
+    'Abandonado': []
+  });
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
@@ -29,12 +42,58 @@ export function MediaProvider({ children }) {
         setFavoriteMovies(movies);
         setFavoriteSeries(series);
 
-        // Cargar vistos desde localStorage
-        const watchedMoviesLocal = JSON.parse(localStorage.getItem('watchedMovies') || '[]');
-        const watchedSeriesLocal = JSON.parse(localStorage.getItem('watchedSeries') || '[]');
-        
-        setWatchedMovies(watchedMoviesLocal);
-        setWatchedSeries(watchedSeriesLocal);
+        // Cargar estados de visualización desde la API
+        if (user && user.id) {
+          const watchingStatuses = await getUserWatchingStatus(user.id);
+          console.log('Watching statuses loaded:', watchingStatuses);
+          
+          // Organizar por tipo y estado
+          const moviesByStatusTemp = {
+            'Pendiente': [],
+            'Viendo': [],
+            'Visto': [],
+            'Abandonado': []
+          };
+          
+          const seriesByStatusTemp = {
+            'Pendiente': [],
+            'Viendo': [],
+            'Visto': [],
+            'Abandonado': []
+          };
+          
+          const watchedMoviesTemp = [];
+          const watchedSeriesTemp = [];
+          
+          watchingStatuses.forEach(status => {
+            if (status.movieId) {
+              const movieStatus = {
+                ...status.movie,
+                watchingStatusId: status.id,
+                watchingStatus: status.status
+              };
+              moviesByStatusTemp[status.status]?.push(movieStatus);
+              if (status.status === 'Visto') {
+                watchedMoviesTemp.push(movieStatus);
+              }
+            } else if (status.seriesId) {
+              const seriesStatus = {
+                ...status.series,
+                watchingStatusId: status.id,
+                watchingStatus: status.status
+              };
+              seriesByStatusTemp[status.status]?.push(seriesStatus);
+              if (status.status === 'Visto') {
+                watchedSeriesTemp.push(seriesStatus);
+              }
+            }
+          });
+          
+          setMoviesByStatus(moviesByStatusTemp);
+          setSeriesByStatus(seriesByStatusTemp);
+          setWatchedMovies(watchedMoviesTemp);
+          setWatchedSeries(watchedSeriesTemp);
+        }
       } catch (error) {
         console.error('Error loading media:', error);
       } finally {
@@ -51,6 +110,18 @@ export function MediaProvider({ children }) {
       setFavoriteSeries([]);
       setWatchedMovies([]);
       setWatchedSeries([]);
+      setMoviesByStatus({
+        'Pendiente': [],
+        'Viendo': [],
+        'Visto': [],
+        'Abandonado': []
+      });
+      setSeriesByStatus({
+        'Pendiente': [],
+        'Viendo': [],
+        'Visto': [],
+        'Abandonado': []
+      });
       setLoading(false);
     }
   }, [user?.id]); // Recargarse cuando cambia el ID del usuario
@@ -109,6 +180,104 @@ export function MediaProvider({ children }) {
     }
   };
 
+  const updateMovieWatchingStatus = async (movie, newStatus) => {
+    try {
+      console.log('Updating movie status:', movie.tmdbId, 'to', newStatus);
+      
+      // Si no tenemos un ID de BD, usamos tmdbId como ID temporal
+      const movieId = movie.id || movie.tmdbId;
+      
+      const result = await updateMovieStatus(user.id, movieId, newStatus);
+      
+      // Actualizar el estado local
+      setMoviesByStatus(prev => {
+        const updated = { ...prev };
+        
+        // Remover de todos los estados
+        Object.keys(updated).forEach(status => {
+          updated[status] = updated[status].filter(m => m.tmdbId !== movie.tmdbId && m.id !== movieId);
+        });
+        
+        // Agregar al nuevo estado
+        const movieToAdd = {
+          ...movie,
+          watchingStatusId: result.id,
+          watchingStatus: newStatus
+        };
+        updated[newStatus] = [...updated[newStatus], movieToAdd];
+        
+        return updated;
+      });
+      
+      // Actualizar watchedMovies si el nuevo estado es "Visto"
+      if (newStatus === 'Visto') {
+        setWatchedMovies(prev => {
+          const exists = prev.find(m => m.tmdbId === movie.tmdbId);
+          if (!exists) {
+            return [...prev, movie];
+          }
+          return prev;
+        });
+      } else {
+        setWatchedMovies(prev => prev.filter(m => m.tmdbId !== movie.tmdbId));
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error updating movie status:', error);
+      throw error;
+    }
+  };
+
+  const updateSeriesWatchingStatus = async (series, newStatus) => {
+    try {
+      console.log('Updating series status:', series.tmdbId, 'to', newStatus);
+      
+      // Si no tenemos un ID de BD, usamos tmdbId como ID temporal
+      const seriesId = series.id || series.tmdbId;
+      
+      const result = await updateSeriesStatus(user.id, seriesId, newStatus);
+      
+      // Actualizar el estado local
+      setSeriesByStatus(prev => {
+        const updated = { ...prev };
+        
+        // Remover de todos los estados
+        Object.keys(updated).forEach(status => {
+          updated[status] = updated[status].filter(s => s.tmdbId !== series.tmdbId && s.id !== seriesId);
+        });
+        
+        // Agregar al nuevo estado
+        const seriesToAdd = {
+          ...series,
+          watchingStatusId: result.id,
+          watchingStatus: newStatus
+        };
+        updated[newStatus] = [...updated[newStatus], seriesToAdd];
+        
+        return updated;
+      });
+      
+      // Actualizar watchedSeries si el nuevo estado es "Visto"
+      if (newStatus === 'Visto') {
+        setWatchedSeries(prev => {
+          const exists = prev.find(s => s.tmdbId === series.tmdbId);
+          if (!exists) {
+            return [...prev, series];
+          }
+          return prev;
+        });
+      } else {
+        setWatchedSeries(prev => prev.filter(s => s.tmdbId !== series.tmdbId));
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error updating series status:', error);
+      throw error;
+    }
+  };
+
   const toggleMovieWatched = (movie) => {
     setWatchedMovies(prev => {
       const exists = prev.find(m => m.tmdbId === movie.tmdbId);
@@ -124,7 +293,7 @@ export function MediaProvider({ children }) {
         }];
       }
       
-      // Guardar en localStorage
+      // Guardar en localStorage (legacy)
       localStorage.setItem('watchedMovies', JSON.stringify(updated));
       return updated;
     });
@@ -145,7 +314,7 @@ export function MediaProvider({ children }) {
         }];
       }
       
-      // Guardar en localStorage
+      // Guardar en localStorage (legacy)
       localStorage.setItem('watchedSeries', JSON.stringify(updated));
       return updated;
     });
@@ -163,11 +332,15 @@ export function MediaProvider({ children }) {
         favoriteSeries,
         watchedMovies,
         watchedSeries,
+        moviesByStatus,
+        seriesByStatus,
         loading,
         toggleMovieFavorite: toggleMovieFavoriteLocal,
         toggleSeriesFavorite: toggleSeriesFavoriteLocal,
         toggleMovieWatched,
         toggleSeriesWatched,
+        updateMovieWatchingStatus,
+        updateSeriesWatchingStatus,
         isMovieFavorite,
         isSeriesFavorite,
         isMovieWatched,

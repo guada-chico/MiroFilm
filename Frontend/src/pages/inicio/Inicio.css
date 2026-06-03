@@ -51,6 +51,118 @@
   border-color: #ff6b35;
 }
 
+/* ESTILOS PARA ÚLTIMAS PELÍCULAS Y SERIES VISTAS */
+.recent-watched-section {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.recent-watched-container {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.recent-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recent-item h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #666;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:root[data-theme="dark"] .recent-item h4 {
+  color: #b0b0b0;
+}
+
+.recent-card {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 15px;
+  padding: 12px;
+  min-width: 280px;
+  max-width: 340px;
+}
+
+:root[data-theme="dark"] .recent-card {
+  background: #2a2a2a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.recent-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+:root[data-theme="dark"] .recent-card:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.recent-poster {
+  width: 70px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.recent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  min-width: 0;
+}
+
+.recent-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+:root[data-theme="dark"] .recent-title {
+  color: #f0f0f0;
+}
+
+.recent-icon-btn {
+  background: rgba(255, 107, 53, 0.1);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  color: #ff6b35;
+  flex-shrink: 0;
+}
+
+.recent-icon-btn:hover {
+  background: rgba(255, 107, 53, 0.2);
+  transform: scale(1.05);
+}
+
 .search-capsule {
   background: #ffffff;
   display: flex;
@@ -549,4 +661,66 @@
 
 :root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb:hover {
   background: #ff5a1f;
+}
+
+.last-watched-section {
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+.last-watched-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.last-watched-tile {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: transform 0.2s;
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
+  height: 100px;
+  align-items: center;
+}
+
+:root[data-theme="dark"] .last-watched-tile {
+  background: #2a2a2a;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.last-watched-tile:hover {
+  transform: translateY(-2px);
+}
+
+.last-watched-tile img {
+  width: 70px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.last-watched-info {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.last-watched-info h3 {
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.last-watched-info .badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #ff6b35;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }

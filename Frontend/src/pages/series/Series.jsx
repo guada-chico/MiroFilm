@@ -340,7 +340,7 @@ export default function Series() {
                     </div>
                   </div>
                   <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries)}>
-                    Añadir a mi lista
+                    Añadir a favoritos
                   </button>
                 </div>
               </div>

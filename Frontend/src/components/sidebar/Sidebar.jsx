@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Film, Tv, Heart, Users, Settings, HelpCircle } from "lucide-react";
+import { Home, Film, Tv, Heart, List, Users, Settings, HelpCircle } from "lucide-react";
 import logoMiroFilm from "../../assets/logo-mirofilm-sf.png";
 import { useTranslation } from "../../hooks/useTranslation";
 import "./Sidebar.css";
@@ -14,6 +14,7 @@ export default function Sidebar() {
     { path: '/peliculas', icon: Film, label: t.sidebar?.movies || 'Películas' },
     { path: '/series', icon: Tv, label: t.sidebar?.series || 'Series' },
     { path: '/mis-libros', icon: Heart, label: t.sidebar?.favorites || 'Favoritos' },
+    { path: '/mis-listas', icon: List, label: t.sidebar?.lists || 'Mis Listas' },
     { path: '/amigos', icon: Users, label: t.sidebar?.friends || 'Amigos' },
   ];
 
