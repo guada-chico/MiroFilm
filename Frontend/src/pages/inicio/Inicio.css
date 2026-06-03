@@ -152,10 +152,11 @@
 
 .series-img-wrapper {
   width: 100%;
-  aspect-ratio: 2/3;
+  aspect-ratio: 1/1.5 !important;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
+  height: auto !important;
 }
 
 .series-img-wrapper img {

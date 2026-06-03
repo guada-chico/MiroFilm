@@ -56,17 +56,16 @@ namespace Miro.Services
                     {
                         await _notifService.CreateNoteAsync(receiverId, $"{senderName} te ha enviado una solicitud de amistad.");
                     }
-                    catch (Exception notifEx)
+                    catch (Exception)
                     {
-                        Console.WriteLine($"[Notificación] No se pudo enviar la alerta: {notifEx.Message}");
+                        // Silenciar errores de notificación para no bloquear la solicitud
                     }
                 }
 
                 return saveResult;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Error crítico en SendRequestAsync: {ex.Message}");
                 return false;
             }
         }
@@ -103,53 +102,36 @@ namespace Miro.Services
 
                         await _notifService.CreateNoteAsync(f.UserRequestId, $"{acceptingUserName} ha aceptado tu solicitud de amistad.");
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        Console.WriteLine($"Error al crear notificación: {ex.Message}");
+                        // Silenciar errores de notificación
                     }
                 }
 
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Error crítico en RespondToRequestAsync: {ex.Message}");
                 return false;
             }
         }
 
         public async Task<IEnumerable<Friendship>> GetPendingRequestsAsync(int userId)
         {
-            try
-            {
-                return await _context.Friendships
-                    .Where(f => f.UserReceiveId == userId && f.Status == "Pending")
-                    .Include(f => f.UserRequest)
-                    .Include(f => f.UserReceive)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en GetPendingRequestsAsync: {ex.Message}");
-                return new List<Friendship>();
-            }
+            return await _context.Friendships
+                .Where(f => f.UserReceiveId == userId && f.Status == "Pending")
+                .Include(f => f.UserRequest)
+                .Include(f => f.UserReceive)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Friendship>> GetSentRequestsAsync(int userId)
         {
-            try
-            {
-                return await _context.Friendships
-                    .Where(f => f.UserRequestId == userId && f.Status == "Pending")
-                    .Include(f => f.UserRequest)
-                    .Include(f => f.UserReceive)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error en GetSentRequestsAsync: {ex.Message}");
-                return new List<Friendship>();
-            }
+            return await _context.Friendships
+                .Where(f => f.UserRequestId == userId && f.Status == "Pending")
+                .Include(f => f.UserRequest)
+                .Include(f => f.UserReceive)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<User>> SearchUsersAsync(string query)
@@ -193,24 +175,16 @@ namespace Miro.Services
 
         public async Task<bool> RemoveFriendAsync(int friendshipId, int userId)
         {
-            try
-            {
-                var friendship = await _context.Friendships.FindAsync(friendshipId);
+            var friendship = await _context.Friendships.FindAsync(friendshipId);
 
-                if (friendship == null || 
-                    (friendship.UserRequestId != userId && friendship.UserReceiveId != userId))
-                    return false;
-
-                var result = await _context.Database.ExecuteSqlInterpolatedAsync(
-                    $"DELETE FROM Friendships WHERE Id = {friendshipId}");
-
-                return result > 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error eliminando amigo: {ex.Message}");
+            if (friendship == null || 
+                (friendship.UserRequestId != userId && friendship.UserReceiveId != userId))
                 return false;
-            }
+
+            var result = await _context.Database.ExecuteSqlInterpolatedAsync(
+                $"DELETE FROM Friendships WHERE Id = {friendshipId}");
+
+            return result > 0;
         }
     }
 }

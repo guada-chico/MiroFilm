@@ -16,8 +16,6 @@ export default function Inicio() {
   const { user } = useUser();
   const { isMovieFavorite, toggleMovieFavorite, isMovieWatched, toggleMovieWatched, isSeriesFavorite, toggleSeriesFavorite, isSeriesWatched, toggleSeriesWatched } = useMedia();
   const t = getT(settings.language).common;
-  const [recommendations, setRecommendations] = useState([]);
-  const [loadingReco, setLoadingReco] = useState(true);
   const [movieRecommendations, setMovieRecommendations] = useState([]);
   const [loadingMovies, setLoadingMovies] = useState(true);
   const [seriesRecommendations, setSeriesRecommendations] = useState([]);

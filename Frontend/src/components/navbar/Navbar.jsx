@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, User, Settings, LogOut, X } from 'lucide-react';
 import { useUser } from '../../context/UserContext';
 import { logout } from '../../services/auth-service';
-import { getNotifications, markAsRead, deleteNotification } from '../../services/notifications-service';
+import { getNotifications, deleteNotification } from '../../services/notifications-service';
 import './Navbar.css';
 
 export default function Navbar() {
