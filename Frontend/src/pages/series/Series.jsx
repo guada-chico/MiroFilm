@@ -201,7 +201,7 @@ export default function Series() {
             {series.map((show, i) => {
               const currentStatus = getSeriesStatus(show.tmdbId);
               return (
-                <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => handleSeriesClick(show)}>
+                <div key={show.tmdbId || show.id || i} className="series-card-wrapper" onClick={() => handleSeriesClick(show)}>
                   <div className="series-img-wrapper">
                     <img
                       src={show.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
