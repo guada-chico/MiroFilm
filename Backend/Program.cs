@@ -26,6 +26,9 @@ builder.Services.AddScoped<IReadingService, ReadingService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<ISeriesService, SeriesService>();
 
+// OpenAI AI service
+builder.Services.AddHttpClient<Miro.Services.Interfaces.IAIService, Miro.Services.OpenAIService>();
+
 // Registro especial para APIS externas que usan HttpClient
 builder.Services.AddHttpClient<IGoogleBookService, GoogleBookService>();
 builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Miro.Services.Interfaces;
 
 namespace Miro.Controllers
 {
@@ -8,43 +9,46 @@ namespace Miro.Controllers
     public class ChatController : ControllerBase
     {
         private readonly ILogger<ChatController> _logger;
+        private readonly IAIService _aiService;
 
-        public ChatController(ILogger<ChatController> logger)
+        public ChatController(ILogger<ChatController> logger, IAIService aiService)
         {
             _logger = logger;
+            _aiService = aiService;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult SendMessage([FromBody] ChatMessage request)
+        public async Task<IActionResult> SendMessage([FromBody] ChatMessage request)
         {
+            if (request == null || string.IsNullOrWhiteSpace(request.Message))
+            {
+                return BadRequest(new { error = "El mensaje no puede estar vacío" });
+            }
+
             try
             {
-                if (request == null || string.IsNullOrWhiteSpace(request.Message))
-                {
-                    return BadRequest(new { error = "El mensaje no puede estar vacío" });
-                }
-
-                var response = GenerateAIResponse(request.Message);
-                return Ok(new { response });
+                var response = await _aiService.GetChatResponseAsync(request.Message, request.ConversationHistory);
+                return Ok(new { response, usedFallback = false });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error en chat");
-                return StatusCode(500, new { error = "Error al procesar el mensaje" });
+                // Registrar el error y devolver una respuesta por defecto amigable para el usuario
+                _logger.LogError(ex, "Error al obtener respuesta de IA, aplicando fallback local");
+                var fallback = GenerateLocalResponse(request.Message);
+                return Ok(new { response = fallback, usedFallback = true });
             }
         }
 
-        private string GenerateAIResponse(string message)
+        private string GenerateLocalResponse(string message)
         {
             if (string.IsNullOrWhiteSpace(message))
                 return "Por favor, escribe un mensaje.";
 
             message = message.ToLower().Trim();
 
-            // Respuestas basadas en palabras clave - más flexibles
             if ((message.Contains("película") || message.Contains("pelicula")) && (message.Contains("favorito") || message.Contains("favorita")))
-                return "Para añadir una película a tus favoritos, haz clic en el icono de corazón en la tarjeta de la película. También puedes hacer clic desde la página de detalles.";
+                return "Para añadir una película a tus favoritos, haz clic en el icono de corazón en la tarjeta de la película. También puedes hacerlo desde la página de detalles.";
 
             if ((message.Contains("serie") || message.Contains("series")) && (message.Contains("vista") || message.Contains("visto") || message.Contains("estado") || message.Contains("marcar")))
                 return "Para marcar una serie como vista, ve a la sección de 'Series', haz clic en la serie y selecciona su estado (Viendo, Completada, Abandonada, etc.).";
@@ -64,9 +68,8 @@ namespace Miro.Controllers
             if (message.Contains("hola") || message.Contains("hey") || message.Contains("buenos") || message.Contains("qué tal"))
                 return "¡Hola! Soy tu asistente de MiroFilm. Pregúntame sobre películas, series o cómo usar la app.";
 
-            // Palabras clave simples
             if (message.Contains("película"))
-                return "¿Qué quieres saber sobre las películas? Puedo ayudarte con favoritosm, recomendaciones, o cómo ver tu historial.";
+                return "¿Qué quieres saber sobre las películas? Puedo ayudarte con favoritos, recomendaciones, o cómo ver tu historial.";
 
             if (message.Contains("serie"))
                 return "¿Qué quieres saber sobre las series? Puedo ayudarte a marcar series como vistas, ver recomendaciones, etc.";
@@ -80,7 +83,6 @@ namespace Miro.Controllers
             if (message.Contains("perfil") || message.Contains("cuenta") || message.Contains("usuario"))
                 return "En tu perfil puedes ver tus películas favoritas, tu actividad y tus amigos.";
 
-            // Respuesta por defecto
             return "Soy tu asistente de MiroFilm. Pregúntame sobre películas, series, favoritos, amigos, recomendaciones, o cómo usar la app.";
         }
     }
