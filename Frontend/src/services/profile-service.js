@@ -50,11 +50,8 @@ export async function updateAvatar(file) {
   const formData = new FormData();
   formData.append('file', file);
   
-  const response = await api.post('/users/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
-  });
+  // Dejar que el navegador/axios establezca el Content-Type con el boundary automáticamente
+  const response = await api.post('/users/avatar', formData);
   
   const data = response.data;
   
