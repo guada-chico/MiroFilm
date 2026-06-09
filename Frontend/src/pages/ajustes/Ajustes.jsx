@@ -80,27 +80,7 @@ export default function Ajustes() {
           </div>
         </section>
 
-        {/* NOTIFICACIONES */}
-        <section className="ajustes-section">
-          <div className="section-header">
-            <Bell size={20} />
-            <h3>{t.notifications}</h3>
-          </div>
-          
-          <div className="ajuste-item">
-            <div className="ajuste-info">
-              <div className="ajuste-icon-bg"><Bell size={18} /></div>
-              <div>
-                <strong>{t.emailNotif}</strong>
-                <p>{t.emailNotifDesc}</p>
-              </div>
-            </div>
-            <label className="switch">
-              <input type="checkbox" checked={emailNotif} onChange={() => setEmailNotif(!emailNotif)} />
-              <span className="slider"></span>
-            </label>
-          </div>
-        </section>
+        {/* NOTIFICACIONES: eliminada por solicitud del usuario */}
 
         {/* PRIVACIDAD Y CUENTA */}
         <section className="ajustes-section">
