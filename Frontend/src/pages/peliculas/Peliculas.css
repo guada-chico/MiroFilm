@@ -523,3 +523,220 @@
 :root[data-theme="dark"] .modal-scrollable::-webkit-scrollbar-thumb:hover {
   background: #ff5a1f;
 }
+
+/* ─── Series/Películas grid compartido ─── */
+
+.series-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+}
+
+.series-card,
+.series-card-wrapper {
+  cursor: pointer;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  border: 2px solid transparent;
+}
+
+.series-card:hover,
+.series-card-wrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(255, 107, 53, 0.15);
+  border-color: #ff6b35;
+}
+
+:root[data-theme="dark"] .series-card,
+:root[data-theme="dark"] .series-card-wrapper {
+  background: #2a2a2a;
+}
+
+.series-img-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 150%; /* 2:3 ratio */
+  overflow: hidden;
+}
+
+.series-img-wrapper img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.series-hover-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.series-card:hover .series-hover-actions,
+.series-card-wrapper:hover .series-hover-actions {
+  opacity: 1;
+}
+
+.series-icon-btn {
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.series-info {
+  padding: 10px 12px 12px;
+}
+
+.series-info h4 {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #1a1a1a;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:root[data-theme="dark"] .series-info h4 {
+  color: #f0f0f0;
+}
+
+.series-info p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Badge de estado ─── */
+
+.status-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ─── Selector inline en hover ─── */
+
+.status-select-inline {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 20px;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ff6b35;
+  cursor: pointer;
+  width: 70px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-family: var(--sans);
+}
+
+.status-select-inline:focus {
+  outline: 2px solid #ff6b35;
+}
+
+/* ─── Selector de estado en el modal ─── */
+
+.modal-status-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+:root[data-theme="dark"] .modal-status-row {
+  background: #333;
+}
+
+:root[data-theme="dark"] .modal-status-row label {
+  color: #b0b0b0;
+}
+
+.modal-status-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-family: var(--sans);
+  background: white;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.modal-status-select:hover,
+.modal-status-select:focus {
+  border-color: #ff6b35;
+  outline: none;
+}
+
+:root[data-theme="dark"] .modal-status-select {
+  background: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444;
+}
+
+.modal-status-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Dark mode fixes */
+:root[data-theme="dark"] .back-btn {
+  background: #2a2a2a;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+:root[data-theme="dark"] .back-btn:hover {
+  background: #333;
+}
+
+:root[data-theme="dark"] .close-modal {
+  background: #333;
+  color: #f0f0f0;
+}
+
+:root[data-theme="dark"] .pagination-btn {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+:root[data-theme="dark"] .pagination-info {
+  color: #b0b0b0;
+}

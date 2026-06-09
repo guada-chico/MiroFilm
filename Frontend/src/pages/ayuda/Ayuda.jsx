@@ -19,24 +19,44 @@ export default function Ayuda() {
 
   const faqs = [
     {
-      pregunta: "¿Cómo añado una película a mis favoritos?",
-      respuesta: "Puedes añadir películas a tus favoritos desde la sección de 'Películas' haciendo clic en el icono de corazón en la tarjeta de la película, o desde la página de detalles seleccionando 'Añadir a favoritos'."
+      pregunta: "¿Cómo añado una película o serie a mis favoritos?",
+      respuesta: "En la sección de Películas o Series, pasa el cursor sobre cualquier tarjeta y haz clic en el icono de corazón. También puedes hacerlo desde el modal de detalles con el botón 'Añadir a favoritos'. Tus favoritos se guardan en tu cuenta y los puedes ver en la sección Favoritos del menú lateral."
     },
     {
-      pregunta: "¿Cómo marco una serie como vista?",
-      respuesta: "En la sección de 'Series', haz clic en la tarjeta de la serie y selecciona el estado de visualización (Viendo, Completada, Abandonada, etc.) para actualizar tu progreso."
+      pregunta: "¿Qué estados puedo asignar a una película o serie?",
+      respuesta: "Puedes asignar cuatro estados: Pendiente (la quieres ver), Viendo (la estás viendo ahora), Visto (ya la terminaste) y Abandonado (la dejaste a medias). Para cambiar el estado, pasa el cursor sobre la tarjeta y usa el selector '+ Lista', o abre el modal de detalles y usa el selector 'Estado en mi lista'."
     },
     {
-      pregunta: "¿Cómo funcionan las recomendaciones de películas y series?",
-      respuesta: "Nuestro sistema analiza tu historial de películas y series vistas, así como tus géneros y directores favoritos, para sugerirte contenido que se adapte a tus preferencias."
+      pregunta: "¿Dónde veo todas mis películas y series organizadas por estado?",
+      respuesta: "En la sección Mis Listas del menú lateral. Verás cuatro columnas (Pendiente, Viendo, Visto, Abandonado) tanto para películas como para series. Puedes cambiar el estado de cualquier elemento directamente desde ahí con el selector naranja."
     },
     {
-      pregunta: "¿Puedo ver el estado de mis películas y series en un lugar?",
-      respuesta: "¡Sí! Desde la página de Inicio puedes ver un resumen de tu actividad reciente. También puedes acceder a tus listas de 'Viendo', 'Completadas' y 'Favoritas' desde el menú lateral."
+      pregunta: "¿Mis listas y favoritos se guardan aunque cierre la aplicación?",
+      respuesta: "Sí. Toda la información se guarda en la base de datos vinculada a tu cuenta. Al iniciar sesión desde cualquier dispositivo o navegador, tus favoritos y estados de visualización estarán disponibles exactamente como los dejaste."
     },
     {
-      pregunta: "¿Cómo puedo compartir mis recomendaciones con amigos?",
-      respuesta: "Puedes añadir amigos desde la sección de 'Amigos' y ver su actividad. Tus películas y series favoritas aparecerán en tu perfil para que tus amigos las vean."
+      pregunta: "¿Cómo busco una película o serie concreta?",
+      respuesta: "En las secciones de Películas y Series encontrarás una barra de búsqueda en la parte superior. Escribe el título y los resultados se actualizan automáticamente. También puedes filtrar por género usando los botones de colores debajo del buscador."
+    },
+    {
+      pregunta: "¿Cómo funciona la sección de Favoritos?",
+      respuesta: "La sección Favoritos muestra en dos columnas tus películas y series favoritas que aún no has marcado como Visto. Es tu lista de contenido pendiente de ver que ya tienes guardado. Puedes eliminar cualquier elemento haciendo clic en el icono de papelera que aparece al pasar el cursor."
+    },
+    {
+      pregunta: "¿Cómo añado amigos y qué puedo ver de ellos?",
+      respuesta: "Ve a la sección Amigos del menú lateral. Puedes buscar usuarios por nombre o email y enviarles solicitud de amistad. Una vez aceptada, podrás ver su actividad reciente: qué películas y series han añadido a sus listas o favoritos."
+    },
+    {
+      pregunta: "¿Cómo cambio el idioma o el tema de la aplicación?",
+      respuesta: "En la sección Ajustes puedes cambiar el idioma de la interfaz y alternar entre el tema claro y oscuro. Los cambios se aplican de inmediato y se guardan en tus preferencias."
+    },
+    {
+      pregunta: "¿Para qué sirve el chatbot de IA?",
+      respuesta: "El asistente de IA está disponible en esta misma página. Puedes hacerle preguntas sobre cómo usar la aplicación, pedir recomendaciones de películas o series, o resolver cualquier duda. Haz clic en 'Abrir Chat' para empezar."
+    },
+    {
+      pregunta: "¿Cómo edito mi perfil?",
+      respuesta: "Accede a tu perfil haciendo clic en tu avatar en la barra superior, o navegando a la sección Perfil. Desde ahí puedes cambiar tu foto, nombre y otros datos de tu cuenta."
     }
   ];
 
@@ -209,10 +229,11 @@ export default function Ayuda() {
                   <h3>¡Hola! Soy tu asistente de IA</h3>
                   <p>Puedo ayudarte con preguntas sobre:</p>
                   <ul>
-                    <li>Cómo añadir películas a favoritos</li>
-                    <li>Cómo marcar series como vistas</li>
-                    <li>Cómo funcionan las recomendaciones</li>
-                    <li>Información sobre funciones de la app</li>
+                    <li>Cómo añadir películas y series a favoritos</li>
+                    <li>Cómo gestionar tus estados: Pendiente, Viendo, Visto, Abandonado</li>
+                    <li>Cómo usar Mis Listas y Favoritos</li>
+                    <li>Cómo añadir amigos y ver su actividad</li>
+                    <li>Cualquier función de la app</li>
                   </ul>
                 </div>
               )}

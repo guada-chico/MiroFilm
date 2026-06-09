@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, ArrowLeft, X, ChevronLeft, ChevronRight, Search, ListPlus } from 'lucide-react';
 import { getPopularSeries, searchSeries, getSeriesDetails, getSeriesByGenre } from '../../services/series-service';
 import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
 import './Series.css';
 
-// Géneros de series de TMDB
 const TV_GENRES = [
   { id: 10759, name: 'Acción & Aventura' },
   { id: 16, name: 'Animación' },
@@ -27,10 +26,19 @@ const TV_GENRES = [
   { id: 37, name: 'Western' }
 ];
 
+const ESTADOS = ['Pendiente', 'Viendo', 'Visto', 'Abandonado'];
+
+const STATUS_COLORS = {
+  'Pendiente': '#f59e0b',
+  'Viendo': '#3b82f6',
+  'Visto': '#10b981',
+  'Abandonado': '#ef4444',
+};
+
 export default function Series() {
   const navigate = useNavigate();
   const { settings } = useSettings();
-  const { isSeriesFavorite, toggleSeriesFavorite, isSeriesWatched, toggleSeriesWatched } = useMedia();
+  const { isSeriesFavorite, toggleSeriesFavorite, getSeriesStatus, updateSeriesWatchingStatus } = useMedia();
   const t = getT(settings.language);
   const [selectedSeries, setSelectedSeries] = useState(null);
   const [series, setSeries] = useState([]);
@@ -40,32 +48,25 @@ export default function Series() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(null);
 
-  // Cargar series populares, por búsqueda o por género
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadSeries = async () => {
       try {
         if (isMounted) setLoading(true);
-        
+
         let data;
         if (isSearching && searchTerm) {
-          // Si estamos buscando, usar el endpoint de búsqueda
-          console.log('Buscando series:', searchTerm);
           data = await searchSeries(searchTerm);
         } else if (selectedGenre) {
-          // Si hay un género seleccionado, cargar series por género
-          console.log('Cargando series por género:', selectedGenre);
           data = await getSeriesByGenre(selectedGenre, currentPage);
         } else {
-          // Si no, cargar series populares
-          console.log('Cargando series populares, página:', currentPage);
           data = await getPopularSeries(currentPage);
         }
-        
+
         if (isMounted) {
-          console.log('Series recibidas:', data?.length || 0, data);
           setSeries(Array.isArray(data) ? data : []);
         }
       } catch (error) {
@@ -75,23 +76,13 @@ export default function Series() {
         if (isMounted) setLoading(false);
       }
     };
-    
+
     loadSeries();
-    
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
-  const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  const handleNextPage = () => setCurrentPage(p => p + 1);
+  const handlePrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -101,20 +92,13 @@ export default function Series() {
   };
 
   const handleGenreFilter = (genreId) => {
-    if (selectedGenre === genreId) {
-      // Si hace clic en el mismo género, deseleccionar
-      setSelectedGenre(null);
-    } else {
-      // Seleccionar nuevo género
-      setSelectedGenre(genreId);
-    }
+    setSelectedGenre(prev => prev === genreId ? null : genreId);
     setCurrentPage(1);
     setSearchTerm('');
     setIsSearching(false);
   };
 
   const handleSeriesClick = async (show) => {
-    // Obtener detalles completos de la serie
     setLoadingDetails(true);
     try {
       const details = await getSeriesDetails(show.tmdbId);
@@ -127,33 +111,45 @@ export default function Series() {
     }
   };
 
-  const handleToggleFavorite = async (e, series) => {
+  const handleToggleFavorite = async (e, show) => {
     e.stopPropagation();
-    // Obtener detalles completos antes de agregar a favoritos
     try {
-      const details = await getSeriesDetails(series.tmdbId);
-      await toggleSeriesFavorite(details || series);
+      const details = await getSeriesDetails(show.tmdbId);
+      await toggleSeriesFavorite(details || show);
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
   };
 
-  const handleToggleWatched = async (e, series) => {
+  const handleStatusChange = async (e, show, newStatus) => {
     e.stopPropagation();
-    // Obtener detalles completos antes de marcar como visto
+    if (!newStatus) return;
+    setUpdatingStatus(show.tmdbId);
     try {
-      const details = await getSeriesDetails(series.tmdbId);
-      toggleSeriesWatched(details || series);
+      const details = await getSeriesDetails(show.tmdbId);
+      await updateSeriesWatchingStatus(details || show, newStatus);
     } catch (error) {
-      console.error('Error getting series details:', error);
-      toggleSeriesWatched(series);
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdatingStatus(null);
     }
-    // TODO: Llamar a API para marcar como visto/no visto
   };
 
-  const handleAddToWatchlist = async (series) => {
+  const handleModalStatusChange = async (newStatus) => {
+    if (!selectedSeries) return;
+    setUpdatingStatus(selectedSeries.tmdbId);
     try {
-      await toggleSeriesFavorite(series);
+      await updateSeriesWatchingStatus(selectedSeries, newStatus || null);
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleAddToWatchlist = async (show) => {
+    try {
+      await toggleSeriesFavorite(show);
       setSelectedSeries(null);
     } catch (error) {
       console.error('Error adding to watchlist:', error);
@@ -172,19 +168,17 @@ export default function Series() {
         <p>{t.series?.subtitle || 'Descubre y sigue tus series favoritas'}</p>
       </header>
 
-      {/* Buscador */}
       <div className="search-container">
         <Search size={20} className="search-icon" />
         <input
           type="text"
-          placeholder="Buscar por título o director"
+          placeholder="Buscar por título o creador"
           value={searchTerm}
           onChange={handleSearchChange}
           className="search-input"
         />
       </div>
 
-      {/* Filtros por género */}
       <div className="genre-filters">
         {TV_GENRES.map((genre) => (
           <button
@@ -204,79 +198,83 @@ export default function Series() {
       ) : (
         <>
           <div className="series-grid">
-            {series.map((show, i) => (
-              <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => handleSeriesClick(show)}>
-                <div className="series-img-wrapper">
-                  <img
-                    src={show.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
-                    alt={show.title}
-                  />
-                  <div className="series-hover-actions">
-                    <button 
-                      className="series-icon-btn" 
-                      onClick={(e) => handleToggleFavorite(e, show)}
-                      title="Agregar a favoritos"
-                    >
-                      <Heart size={18} fill={isSeriesFavorite(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
-                    </button>
-                    <button 
-                      className="series-icon-btn" 
-                      onClick={(e) => handleToggleWatched(e, show)}
-                      title="Marcar como visto"
-                    >
-                      <Eye size={18} fill={isSeriesWatched(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
-                    </button>
+            {series.map((show, i) => {
+              const currentStatus = getSeriesStatus(show.tmdbId);
+              return (
+                <div key={show.tmdbId || show.id || i} className="series-card" onClick={() => handleSeriesClick(show)}>
+                  <div className="series-img-wrapper">
+                    <img
+                      src={show.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                      alt={show.title}
+                    />
+                    {currentStatus && (
+                      <div
+                        className="status-badge"
+                        style={{ background: STATUS_COLORS[currentStatus] }}
+                      >
+                        {currentStatus}
+                      </div>
+                    )}
+                    <div className="series-hover-actions">
+                      <button
+                        className="series-icon-btn"
+                        onClick={(e) => handleToggleFavorite(e, show)}
+                        title="Agregar a favoritos"
+                      >
+                        <Heart size={18} fill={isSeriesFavorite(show.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
+                      </button>
+                      <button
+                        className="series-icon-btn"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Añadir a lista"
+                        style={{ padding: 0 }}
+                      >
+                        <select
+                          className="status-select-inline"
+                          value={currentStatus || ''}
+                          onChange={(e) => handleStatusChange(e, show, e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          disabled={updatingStatus === show.tmdbId}
+                          aria-label="Estado de visualización"
+                        >
+                          <option value="">+ Lista</option>
+                          {ESTADOS.map(est => (
+                            <option key={est} value={est}>{est}</option>
+                          ))}
+                        </select>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="series-info">
+                    <h4>{show.title}</h4>
+                    <p>{show.creator || 'Creador desconocido'}</p>
+                    {show.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{show.genre}</p>}
+                    {show.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {show.rating.toFixed(1)}</p>}
                   </div>
                 </div>
-                <div className="series-info">
-                  <h4>{show.title}</h4>
-                  <p>{show.creator || 'Creador desconocido'}</p>
-                  {show.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{show.genre}</p>}
-                  {show.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {show.rating.toFixed(1)}</p>}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Paginación - solo mostrar si no estamos buscando ni filtrando por género */}
           {!isSearching && !selectedGenre && series.length > 0 && (
             <div className="pagination-container">
-              <button 
-                className="pagination-btn" 
-                onClick={handlePrevPage} 
-                disabled={currentPage === 1}
-              >
+              <button className="pagination-btn" onClick={handlePrevPage} disabled={currentPage === 1}>
                 <ChevronLeft size={20} />
               </button>
-              <span className="pagination-info">
-                Página {currentPage}
-              </span>
-              <button 
-                className="pagination-btn" 
-                onClick={handleNextPage}
-              >
+              <span className="pagination-info">Página {currentPage}</span>
+              <button className="pagination-btn" onClick={handleNextPage}>
                 <ChevronRight size={20} />
               </button>
             </div>
           )}
 
-          {/* Paginación - mostrar si hay filtro de género */}
           {selectedGenre && series.length > 0 && (
             <div className="pagination-container">
-              <button 
-                className="pagination-btn" 
-                onClick={handlePrevPage} 
-                disabled={currentPage === 1}
-              >
+              <button className="pagination-btn" onClick={handlePrevPage} disabled={currentPage === 1}>
                 <ChevronLeft size={20} />
               </button>
-              <span className="pagination-info">
-                Página {currentPage}
-              </span>
-              <button 
-                className="pagination-btn" 
-                onClick={handleNextPage}
-              >
+              <span className="pagination-info">Página {currentPage}</span>
+              <button className="pagination-btn" onClick={handleNextPage}>
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -284,7 +282,6 @@ export default function Series() {
         </>
       )}
 
-      {/* Modal de detalle */}
       {selectedSeries && (
         <div className="modal-overlay" onClick={() => setSelectedSeries(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -339,8 +336,29 @@ export default function Series() {
                       <p className="modal-text">{selectedSeries.plot || 'Sin sinopsis disponible'}</p>
                     </div>
                   </div>
+
+                  {/* Selector de estado en el modal */}
+                  <div className="modal-status-row">
+                    <ListPlus size={18} color="#ff6b35" />
+                    <label htmlFor="modal-series-status-select" style={{ fontSize: '0.85rem', color: '#666' }}>
+                      Estado en mi lista:
+                    </label>
+                    <select
+                      id="modal-series-status-select"
+                      className="modal-status-select"
+                      value={getSeriesStatus(selectedSeries.tmdbId) || ''}
+                      onChange={(e) => handleModalStatusChange(e.target.value || null)}
+                      disabled={updatingStatus === selectedSeries.tmdbId}
+                    >
+                      <option value="">Sin añadir</option>
+                      {ESTADOS.map(est => (
+                        <option key={est} value={est}>{est}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedSeries)}>
-                    Añadir a favoritos
+                    {isSeriesFavorite(selectedSeries.tmdbId) ? '♥ En favoritos' : 'Añadir a favoritos'}
                   </button>
                 </div>
               </div>

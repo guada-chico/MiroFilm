@@ -14,7 +14,13 @@ export default function Inicio() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { user } = useUser();
-  const { isMovieFavorite, toggleMovieFavorite, isMovieWatched, toggleMovieWatched, isSeriesFavorite, toggleSeriesFavorite, isSeriesWatched, toggleSeriesWatched } = useMedia();
+  const {
+    isMovieFavorite, toggleMovieFavorite,
+    isSeriesFavorite, toggleSeriesFavorite,
+    isMovieWatched, isSeriesWatched,
+    updateMovieWatchingStatus, updateSeriesWatchingStatus,
+    moviesByStatus, seriesByStatus,
+  } = useMedia();
   const t = getT(settings.language).common;
   const [movieRecommendations, setMovieRecommendations] = useState([]);
   const [loadingMovies, setLoadingMovies] = useState(true);
@@ -22,7 +28,20 @@ export default function Inicio() {
   const [loadingSeries, setLoadingSeries] = useState(true);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
-  const { watchedMovies, watchedSeries } = useMedia();
+
+  // Las últimas películas/series vistas provienen del contexto
+  const watchedMovies = moviesByStatus['Visto'] || [];
+  const watchedSeries = seriesByStatus['Visto'] || [];
+
+  const toggleMovieWatched = async (movie) => {
+    const newStatus = isMovieWatched(movie.tmdbId) ? null : 'Visto';
+    try { await updateMovieWatchingStatus(movie, newStatus); } catch (e) { console.error(e); }
+  };
+
+  const toggleSeriesWatched = async (show) => {
+    const newStatus = isSeriesWatched(show.tmdbId) ? null : 'Visto';
+    try { await updateSeriesWatchingStatus(show, newStatus); } catch (e) { console.error(e); }
+  };
 
   // Recomendaciones PRH, películas y series al montar
   useEffect(() => {
@@ -105,91 +124,6 @@ export default function Inicio() {
     loadMovies();
     loadSeries();
   }, []);
-
-  // Recargar recomendaciones cuando cambien favoritos o películas/series vistas
-  useEffect(() => {
-    const loadMovies = async () => {
-      setLoadingMovies(true);
-      try {
-        const data = await getMyRecommendations();
-        console.log('Nuevas recomendaciones recibidas:', data?.length || 0);
-        
-        // Asegurar que es un array
-        let moviesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
-        
-        // Si no hay recomendaciones, cargar películas populares
-        if (moviesArray.length === 0) {
-          console.log('No hay recomendaciones, cargando películas populares...');
-          try {
-            const popularData = await getPopularMovies(1);
-            moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-            console.log('Películas populares cargadas:', moviesArray.length);
-          } catch (popErr) {
-            console.error('Error cargando películas populares:', popErr);
-          }
-        }
-        
-        console.log('Películas a mostrar:', moviesArray.length);
-        setMovieRecommendations(moviesArray);
-      } catch (err) {
-        console.error('Error cargando películas recomendadas:', err);
-        // Intentar cargar películas populares como fallback
-        try {
-          const popularData = await getPopularMovies(1);
-          const moviesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-          setMovieRecommendations(moviesArray);
-        } catch (popErr) {
-          console.error('Error cargando películas populares como fallback:', popErr);
-          setMovieRecommendations([]);
-        }
-      } finally {
-        setLoadingMovies(false);
-      }
-    };
-
-    const loadSeries = async () => {
-      setLoadingSeries(true);
-      try {
-        const data = await getMySeriesRecommendations();
-        console.log('Nuevas recomendaciones de series recibidas:', data);
-        
-        // Asegurar que es un array
-        let seriesArray = Array.isArray(data) ? data : (data?.data ? data.data : []);
-        
-        // Si no hay recomendaciones, cargar series populares
-        if (seriesArray.length === 0) {
-          console.log('No hay recomendaciones, cargando series populares...');
-          try {
-            const popularData = await getPopularSeries(1);
-            console.log('Series populares recibidas:', popularData);
-            seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-            console.log('Series populares cargadas:', seriesArray.length);
-          } catch (popErr) {
-            console.error('Error cargando series populares:', popErr);
-          }
-        }
-        
-        console.log('Series a mostrar:', seriesArray.length);
-        setSeriesRecommendations(seriesArray);
-      } catch (err) {
-        console.error('Error cargando series recomendadas:', err);
-        // Intentar cargar series populares como fallback
-        try {
-          const popularData = await getPopularSeries(1);
-          const seriesArray = Array.isArray(popularData) ? popularData : (popularData?.data ? popularData.data : []);
-          setSeriesRecommendations(seriesArray);
-        } catch (popErr) {
-          console.error('Error cargando series populares como fallback:', popErr);
-          setSeriesRecommendations([]);
-        }
-      } finally {
-        setLoadingSeries(false);
-      }
-    };
-
-    loadMovies();
-    loadSeries();
-  }, [watchedMovies, watchedSeries]);
 
   return (
     <div className="inicio-content">

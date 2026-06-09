@@ -582,10 +582,6 @@ namespace Miro.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Miro.Models.Movie", b =>
-                {
-                    b.Navigation("Recommendations");
-                });
 #pragma warning restore 612, 618
         }
     }

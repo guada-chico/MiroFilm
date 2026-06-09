@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Eye, ArrowLeft, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Heart, ArrowLeft, X, ChevronLeft, ChevronRight, Search, ListPlus } from 'lucide-react';
 import { getPopularMovies, searchMovies, getMovieDetails, getMoviesByGenre } from '../../services/recommendations-service';
 import { useSettings } from '../../context/SettingsContext';
 import { useMedia } from '../../context/MediaContext';
@@ -29,10 +29,19 @@ const MOVIE_GENRES = [
   { id: 37, name: 'Western' }
 ];
 
+const ESTADOS = ['Pendiente', 'Viendo', 'Visto', 'Abandonado'];
+
+const STATUS_COLORS = {
+  'Pendiente': '#f59e0b',
+  'Viendo': '#3b82f6',
+  'Visto': '#10b981',
+  'Abandonado': '#ef4444',
+};
+
 export default function Peliculas() {
   const navigate = useNavigate();
   const { settings } = useSettings();
-  const { isMovieFavorite, toggleMovieFavorite, isMovieWatched, toggleMovieWatched } = useMedia();
+  const { isMovieFavorite, toggleMovieFavorite, getMovieStatus, updateMovieWatchingStatus } = useMedia();
   const t = getT(settings.language);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [movies, setMovies] = useState([]);
@@ -42,26 +51,24 @@ export default function Peliculas() {
   const [isSearching, setIsSearching] = useState(false);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(null); // tmdbId del que se está actualizando
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadMovies = async () => {
       try {
         if (isMounted) setLoading(true);
-        
+
         let data;
         if (isSearching && searchTerm) {
-          console.log('Buscando películas:', searchTerm);
           data = await searchMovies(searchTerm);
         } else if (selectedGenre) {
-          console.log('Cargando películas por género:', selectedGenre);
           data = await getMoviesByGenre(selectedGenre, currentPage);
         } else {
-          console.log('Cargando películas populares, página:', currentPage);
           data = await getPopularMovies(currentPage);
         }
-        
+
         if (isMounted) {
           setMovies(Array.isArray(data) ? data : []);
         }
@@ -72,23 +79,13 @@ export default function Peliculas() {
         if (isMounted) setLoading(false);
       }
     };
-    
+
     loadMovies();
-    
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [currentPage, isSearching, searchTerm, selectedGenre]);
 
-  const handleNextPage = () => {
-    setCurrentPage(currentPage + 1);
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  const handleNextPage = () => setCurrentPage(p => p + 1);
+  const handlePrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -98,11 +95,7 @@ export default function Peliculas() {
   };
 
   const handleGenreFilter = (genreId) => {
-    if (selectedGenre === genreId) {
-      setSelectedGenre(null);
-    } else {
-      setSelectedGenre(genreId);
-    }
+    setSelectedGenre(prev => prev === genreId ? null : genreId);
     setCurrentPage(1);
     setSearchTerm('');
     setIsSearching(false);
@@ -131,14 +124,29 @@ export default function Peliculas() {
     }
   };
 
-  const handleToggleWatched = async (e, movie) => {
+  const handleStatusChange = async (e, movie, newStatus) => {
     e.stopPropagation();
+    if (!newStatus) return;
+    setUpdatingStatus(movie.tmdbId);
     try {
       const details = await getMovieDetails(movie.tmdbId);
-      toggleMovieWatched(details || movie);
+      await updateMovieWatchingStatus(details || movie, newStatus);
     } catch (error) {
-      console.error('Error getting movie details:', error);
-      toggleMovieWatched(movie);
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleModalStatusChange = async (newStatus) => {
+    if (!selectedMovie) return;
+    setUpdatingStatus(selectedMovie.tmdbId);
+    try {
+      await updateMovieWatchingStatus(selectedMovie, newStatus || null);
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
@@ -193,56 +201,71 @@ export default function Peliculas() {
       ) : (
         <>
           <div className="series-grid">
-            {movies.map((movie, i) => (
-              <div key={movie.tmdbId || movie.id || i} className="series-card-wrapper" onClick={() => handleMovieClick(movie)}>
-                <div className="series-img-wrapper">
-                  <img
-                    src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
-                    alt={movie.title}
-                  />
-                  <div className="series-hover-actions">
-                    <button 
-                      className="series-icon-btn" 
-                      onClick={(e) => handleToggleFavorite(e, movie)}
-                      title="Agregar a favoritos"
-                    >
-                      <Heart size={18} fill={isMovieFavorite(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
-                    </button>
-                    <button 
-                      className="series-icon-btn" 
-                      onClick={(e) => handleToggleWatched(e, movie)}
-                      title="Marcar como visto"
-                    >
-                      <Eye size={18} fill={isMovieWatched(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
-                    </button>
+            {movies.map((movie, i) => {
+              const currentStatus = getMovieStatus(movie.tmdbId);
+              return (
+                <div key={movie.tmdbId || movie.id || i} className="series-card-wrapper" onClick={() => handleMovieClick(movie)}>
+                  <div className="series-img-wrapper">
+                    <img
+                      src={movie.posterUrl || 'https://via.placeholder.com/150x220?text=Sin+portada'}
+                      alt={movie.title}
+                    />
+                    {currentStatus && (
+                      <div
+                        className="status-badge"
+                        style={{ background: STATUS_COLORS[currentStatus] }}
+                      >
+                        {currentStatus}
+                      </div>
+                    )}
+                    <div className="series-hover-actions">
+                      <button
+                        className="series-icon-btn"
+                        onClick={(e) => handleToggleFavorite(e, movie)}
+                        title="Agregar a favoritos"
+                      >
+                        <Heart size={18} fill={isMovieFavorite(movie.tmdbId) ? '#ff6b35' : 'none'} color="#ff6b35" />
+                      </button>
+                      <button
+                        className="series-icon-btn"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Añadir a lista"
+                        style={{ padding: 0 }}
+                      >
+                        <select
+                          className="status-select-inline"
+                          value={currentStatus || ''}
+                          onChange={(e) => handleStatusChange(e, movie, e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          disabled={updatingStatus === movie.tmdbId}
+                          aria-label="Estado de visualización"
+                        >
+                          <option value="">+ Lista</option>
+                          {ESTADOS.map(est => (
+                            <option key={est} value={est}>{est}</option>
+                          ))}
+                        </select>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="series-info">
+                    <h4>{movie.title}</h4>
+                    <p>{movie.director || 'Director desconocido'}</p>
+                    {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
+                    {movie.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
                   </div>
                 </div>
-                <div className="series-info">
-                  <h4>{movie.title}</h4>
-                  <p>{movie.director || 'Director desconocido'}</p>
-                  {movie.genre && <p style={{ fontSize: '0.7rem', color: '#999' }}>{movie.genre}</p>}
-                  {movie.rating && <p style={{ fontSize: '0.9rem', color: '#ff6b35' }}>⭐ {movie.rating.toFixed(1)}</p>}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {(!isSearching || selectedGenre) && movies.length > 0 && (
             <div className="pagination-container">
-              <button 
-                className="pagination-btn" 
-                onClick={handlePrevPage} 
-                disabled={currentPage === 1}
-              >
+              <button className="pagination-btn" onClick={handlePrevPage} disabled={currentPage === 1}>
                 <ChevronLeft size={20} />
               </button>
-              <span className="pagination-info">
-                Página {currentPage}
-              </span>
-              <button 
-                className="pagination-btn" 
-                onClick={handleNextPage}
-              >
+              <span className="pagination-info">Página {currentPage}</span>
+              <button className="pagination-btn" onClick={handleNextPage}>
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -294,8 +317,29 @@ export default function Peliculas() {
                       <p className="modal-text">{selectedMovie.plot || 'Sin sinopsis disponible'}</p>
                     </div>
                   </div>
+
+                  {/* Selector de estado en el modal */}
+                  <div className="modal-status-row">
+                    <ListPlus size={18} color="#ff6b35" />
+                    <label htmlFor="modal-status-select" style={{ fontSize: '0.85rem', color: '#666' }}>
+                      Estado en mi lista:
+                    </label>
+                    <select
+                      id="modal-status-select"
+                      className="modal-status-select"
+                      value={getMovieStatus(selectedMovie.tmdbId) || ''}
+                      onChange={(e) => handleModalStatusChange(e.target.value || null)}
+                      disabled={updatingStatus === selectedMovie.tmdbId}
+                    >
+                      <option value="">Sin añadir</option>
+                      {ESTADOS.map(est => (
+                        <option key={est} value={est}>{est}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <button className="add-to-library-btn" onClick={() => handleAddToWatchlist(selectedMovie)}>
-                    Añadir a favoritos
+                    {isMovieFavorite(selectedMovie.tmdbId) ? '♥ En favoritos' : 'Añadir a favoritos'}
                   </button>
                 </div>
               </div>

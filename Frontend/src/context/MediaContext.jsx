@@ -1,152 +1,113 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getMyFavorites, toggleMovieFavorite, toggleSeriesFavorite } from '../services/favorites-service';
-import { getUserWatchingStatus, updateMovieStatus, updateSeriesStatus, deleteWatchingStatus } from '../services/watching-status-service';
+import {
+  getMyWatchingStatuses,
+  setMovieStatus,
+  setSeriesStatus,
+  deleteMovieStatus,
+  deleteSeriesStatus,
+} from '../services/watching-status-service';
 import { useUser } from './UserContext';
 
 const MediaContext = createContext();
 
+const ESTADOS = ['Pendiente', 'Viendo', 'Visto', 'Abandonado'];
+
+const emptyByStatus = () =>
+  ESTADOS.reduce((acc, s) => ({ ...acc, [s]: [] }), {});
+
 export function MediaProvider({ children }) {
   const [favoriteMovies, setFavoriteMovies] = useState([]);
   const [favoriteSeries, setFavoriteSeries] = useState([]);
-  const [watchedMovies, setWatchedMovies] = useState([]);
-  const [watchedSeries, setWatchedSeries] = useState([]);
-  const [moviesByStatus, setMoviesByStatus] = useState({
-    'Pendiente': [],
-    'Viendo': [],
-    'Visto': [],
-    'Abandonado': []
-  });
-  const [seriesByStatus, setSeriesByStatus] = useState({
-    'Pendiente': [],
-    'Viendo': [],
-    'Visto': [],
-    'Abandonado': []
-  });
+  const [moviesByStatus, setMoviesByStatus] = useState(emptyByStatus());
+  const [seriesByStatus, setSeriesByStatus] = useState(emptyByStatus());
+  // Map tmdbId → status string para consultas rápidas
+  const [movieStatusMap, setMovieStatusMap] = useState({});
+  const [seriesStatusMap, setSeriesStatusMap] = useState({});
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
-  // Cargar favoritos y vistos desde la API e localStorage al montar el componente
-  // y cuando el usuario cambia
-  useEffect(() => {
-    const loadAllMedia = async () => {
-      try {
-        setLoading(true);
-        
-        // Cargar favoritos desde la API
-        const favorites = await getMyFavorites();
-        console.log('Favorites loaded:', favorites);
-        
-        const movies = favorites.filter(f => f.type === 'movie');
-        const series = favorites.filter(f => f.type === 'series');
-        
-        setFavoriteMovies(movies);
-        setFavoriteSeries(series);
+  const loadAllMedia = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Cargar estados de visualización desde la API
-        if (user && user.id) {
-          const watchingStatuses = await getUserWatchingStatus(user.id);
-          console.log('Watching statuses loaded:', watchingStatuses);
-          
-          // Organizar por tipo y estado
-          const moviesByStatusTemp = {
-            'Pendiente': [],
-            'Viendo': [],
-            'Visto': [],
-            'Abandonado': []
-          };
-          
-          const seriesByStatusTemp = {
-            'Pendiente': [],
-            'Viendo': [],
-            'Visto': [],
-            'Abandonado': []
-          };
-          
-          const watchedMoviesTemp = [];
-          const watchedSeriesTemp = [];
-          
-          watchingStatuses.forEach(status => {
-            if (status.movieId) {
-              const movieStatus = {
-                ...status.movie,
-                watchingStatusId: status.id,
-                watchingStatus: status.status
-              };
-              moviesByStatusTemp[status.status]?.push(movieStatus);
-              if (status.status === 'Visto') {
-                watchedMoviesTemp.push(movieStatus);
-              }
-            } else if (status.seriesId) {
-              const seriesStatus = {
-                ...status.series,
-                watchingStatusId: status.id,
-                watchingStatus: status.status
-              };
-              seriesByStatusTemp[status.status]?.push(seriesStatus);
-              if (status.status === 'Visto') {
-                watchedSeriesTemp.push(seriesStatus);
-              }
-            }
-          });
-          
-          setMoviesByStatus(moviesByStatusTemp);
-          setSeriesByStatus(seriesByStatusTemp);
-          setWatchedMovies(watchedMoviesTemp);
-          setWatchedSeries(watchedSeriesTemp);
+      // Favoritos
+      const favorites = await getMyFavorites();
+      setFavoriteMovies(favorites.filter(f => f.type === 'movie'));
+      setFavoriteSeries(favorites.filter(f => f.type === 'series'));
+
+      // Estados de visualización
+      const statuses = await getMyWatchingStatuses();
+
+      const moviesByStatusTemp = emptyByStatus();
+      const seriesByStatusTemp = emptyByStatus();
+      const movieStatusMapTemp = {};
+      const seriesStatusMapTemp = {};
+
+      statuses.forEach(ws => {
+        // El status viene como string capitalizado: "Pendiente", "Viendo", etc.
+        const statusKey = ws.status;
+        if (!statusKey || !ESTADOS.includes(statusKey)) return; // ignorar estados desconocidos
+
+        if (ws.movieId && ws.movie) {
+          const item = { ...ws.movie, watchingStatusId: ws.id, watchingStatus: statusKey };
+          if (moviesByStatusTemp[statusKey]) moviesByStatusTemp[statusKey].push(item);
+          if (ws.movie.tmdbId) movieStatusMapTemp[ws.movie.tmdbId] = statusKey;
+        } else if (ws.seriesId && ws.series) {
+          const item = { ...ws.series, watchingStatusId: ws.id, watchingStatus: statusKey };
+          if (seriesByStatusTemp[statusKey]) seriesByStatusTemp[statusKey].push(item);
+          if (ws.series.tmdbId) seriesStatusMapTemp[ws.series.tmdbId] = statusKey;
         }
-      } catch (error) {
-        console.error('Error loading media:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
 
-    // Solo cargar si hay un usuario autenticado
-    if (user && user.id) {
-      loadAllMedia();
-    } else {
-      // Si no hay usuario, limpiar todo
-      setFavoriteMovies([]);
-      setFavoriteSeries([]);
-      setWatchedMovies([]);
-      setWatchedSeries([]);
-      setMoviesByStatus({
-        'Pendiente': [],
-        'Viendo': [],
-        'Visto': [],
-        'Abandonado': []
-      });
-      setSeriesByStatus({
-        'Pendiente': [],
-        'Viendo': [],
-        'Visto': [],
-        'Abandonado': []
-      });
+      setMoviesByStatus(moviesByStatusTemp);
+      setSeriesByStatus(seriesByStatusTemp);
+      setMovieStatusMap(movieStatusMapTemp);
+      setSeriesStatusMap(seriesStatusMapTemp);
+    } catch (error) {
+      console.error('Error loading media:', error);
+    } finally {
       setLoading(false);
     }
-  }, [user?.id]); // Recargarse cuando cambia el ID del usuario
+  }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadAllMedia();
+    } else {
+      setFavoriteMovies([]);
+      setFavoriteSeries([]);
+      setMoviesByStatus(emptyByStatus());
+      setSeriesByStatus(emptyByStatus());
+      setMovieStatusMap({});
+      setSeriesStatusMap({});
+      setLoading(false);
+    }
+  }, [user?.id, loadAllMedia]);
+
+  // ─── Favoritos ───────────────────────────────────────────────────────────
 
   const toggleMovieFavoriteLocal = async (movie) => {
     try {
-      console.log('Toggling movie favorite:', movie.tmdbId, movie);
-      await toggleMovieFavorite(movie.tmdbId);
-      
+      await toggleMovieFavorite(movie.tmdbId, {
+        title: movie.title,
+        director: movie.director,
+        plot: movie.plot,
+        posterUrl: movie.posterUrl,
+        genre: movie.genre,
+        rating: movie.rating,
+        duration: movie.duration,
+        releaseDate: movie.releaseDate,
+        language: movie.language,
+      });
       setFavoriteMovies(prev => {
         const exists = prev.find(m => m.tmdbId === movie.tmdbId);
-        if (exists) {
-          return prev.filter(m => m.tmdbId !== movie.tmdbId);
-        } else {
-          return [...prev, {
-            tmdbId: movie.tmdbId,
-            title: movie.title,
-            posterUrl: movie.posterUrl,
-            director: movie.director || 'Director desconocido',
-            genre: movie.genre,
-            rating: movie.rating,
-            plot: movie.plot,
-            type: 'movie'
-          }];
-        }
+        if (exists) return prev.filter(m => m.tmdbId !== movie.tmdbId);
+        return [...prev, {
+          tmdbId: movie.tmdbId, title: movie.title, posterUrl: movie.posterUrl,
+          director: movie.director, genre: movie.genre, rating: movie.rating,
+          plot: movie.plot, type: 'movie'
+        }];
       });
     } catch (error) {
       console.error('Error toggling movie favorite:', error);
@@ -155,196 +116,188 @@ export function MediaProvider({ children }) {
 
   const toggleSeriesFavoriteLocal = async (series) => {
     try {
-      console.log('Toggling series favorite:', series.tmdbId, series);
-      await toggleSeriesFavorite(series.tmdbId);
-      
+      await toggleSeriesFavorite(series.tmdbId, {
+        title: series.title,
+        creator: series.creator,
+        plot: series.plot,
+        posterUrl: series.posterUrl,
+        genre: series.genre,
+        rating: series.rating,
+        numberOfSeasons: series.numberOfSeasons,
+        numberOfEpisodes: series.numberOfEpisodes,
+        firstAirDate: series.firstAirDate,
+        lastAirDate: series.lastAirDate,
+        language: series.language,
+        status: series.status,
+      });
       setFavoriteSeries(prev => {
         const exists = prev.find(s => s.tmdbId === series.tmdbId);
-        if (exists) {
-          return prev.filter(s => s.tmdbId !== series.tmdbId);
-        } else {
-          return [...prev, {
-            tmdbId: series.tmdbId,
-            title: series.title,
-            posterUrl: series.posterUrl,
-            creator: series.creator || 'Creador desconocido',
-            genre: series.genre,
-            rating: series.rating,
-            plot: series.plot,
-            type: 'series'
-          }];
-        }
+        if (exists) return prev.filter(s => s.tmdbId !== series.tmdbId);
+        return [...prev, {
+          tmdbId: series.tmdbId, title: series.title, posterUrl: series.posterUrl,
+          creator: series.creator, genre: series.genre, rating: series.rating,
+          plot: series.plot, type: 'series'
+        }];
       });
     } catch (error) {
       console.error('Error toggling series favorite:', error);
     }
   };
 
+  // ─── Estado de visualización ─────────────────────────────────────────────
+
+  /**
+   * Establece o actualiza el estado de una película.
+   * Si newStatus es null o vacío, elimina el estado.
+   */
   const updateMovieWatchingStatus = async (movie, newStatus) => {
     try {
-      console.log('Updating movie status:', movie.tmdbId, 'to', newStatus);
-      
-      // Si no tenemos un ID de BD, usamos tmdbId como ID temporal
-      const movieId = movie.id || movie.tmdbId;
-      
-      const result = await updateMovieStatus(user.id, movieId, newStatus);
-      
-      // Actualizar el estado local
+      if (!newStatus) {
+        await deleteMovieStatus(movie.tmdbId);
+        _removeMovieFromStatus(movie.tmdbId);
+        return;
+      }
+
+      await setMovieStatus(movie.tmdbId, newStatus, {
+        title: movie.title,
+        director: movie.director,
+        plot: movie.plot,
+        posterUrl: movie.posterUrl,
+        genre: movie.genre,
+        rating: movie.rating,
+        duration: movie.duration,
+        releaseDate: movie.releaseDate,
+        language: movie.language,
+      });
+
+      setMovieStatusMap(prev => ({ ...prev, [movie.tmdbId]: newStatus }));
+
       setMoviesByStatus(prev => {
-        const updated = { ...prev };
-        
-        // Remover de todos los estados
-        Object.keys(updated).forEach(status => {
-          updated[status] = updated[status].filter(m => m.tmdbId !== movie.tmdbId && m.id !== movieId);
+        // Quitar el ítem de todos los buckets existentes
+        const updated = {};
+        ESTADOS.forEach(s => {
+          updated[s] = (prev[s] || []).filter(m => m.tmdbId !== movie.tmdbId);
         });
-        
-        // Agregar al nuevo estado
-        const movieToAdd = {
-          ...movie,
-          watchingStatusId: result.id,
-          watchingStatus: newStatus
-        };
-        updated[newStatus] = [...updated[newStatus], movieToAdd];
-        
+        // Añadir al bucket nuevo
+        updated[newStatus] = [
+          ...updated[newStatus],
+          { ...movie, watchingStatus: newStatus }
+        ];
         return updated;
       });
-      
-      // Actualizar watchedMovies si el nuevo estado es "Visto"
-      if (newStatus === 'Visto') {
-        setWatchedMovies(prev => {
-          const exists = prev.find(m => m.tmdbId === movie.tmdbId);
-          if (!exists) {
-            return [...prev, movie];
-          }
-          return prev;
-        });
-      } else {
-        setWatchedMovies(prev => prev.filter(m => m.tmdbId !== movie.tmdbId));
-      }
-      
-      return result;
     } catch (error) {
       console.error('Error updating movie status:', error);
       throw error;
     }
   };
 
+  /**
+   * Establece o actualiza el estado de una serie.
+   * Si newStatus es null o vacío, elimina el estado.
+   */
   const updateSeriesWatchingStatus = async (series, newStatus) => {
     try {
-      console.log('Updating series status:', series.tmdbId, 'to', newStatus);
-      
-      // Si no tenemos un ID de BD, usamos tmdbId como ID temporal
-      const seriesId = series.id || series.tmdbId;
-      
-      const result = await updateSeriesStatus(user.id, seriesId, newStatus);
-      
-      // Actualizar el estado local
+      if (!newStatus) {
+        await deleteSeriesStatus(series.tmdbId);
+        _removeSeriesFromStatus(series.tmdbId);
+        return;
+      }
+
+      await setSeriesStatus(series.tmdbId, newStatus, {
+        title: series.title,
+        creator: series.creator,
+        plot: series.plot,
+        posterUrl: series.posterUrl,
+        genre: series.genre,
+        rating: series.rating,
+        numberOfSeasons: series.numberOfSeasons,
+        numberOfEpisodes: series.numberOfEpisodes,
+        firstAirDate: series.firstAirDate,
+        lastAirDate: series.lastAirDate,
+        language: series.language,
+        status: series.status,
+      });
+
+      setSeriesStatusMap(prev => ({ ...prev, [series.tmdbId]: newStatus }));
+
       setSeriesByStatus(prev => {
-        const updated = { ...prev };
-        
-        // Remover de todos los estados
-        Object.keys(updated).forEach(status => {
-          updated[status] = updated[status].filter(s => s.tmdbId !== series.tmdbId && s.id !== seriesId);
+        // Quitar el ítem de todos los buckets existentes
+        const updated = {};
+        ESTADOS.forEach(s => {
+          updated[s] = (prev[s] || []).filter(s2 => s2.tmdbId !== series.tmdbId);
         });
-        
-        // Agregar al nuevo estado
-        const seriesToAdd = {
-          ...series,
-          watchingStatusId: result.id,
-          watchingStatus: newStatus
-        };
-        updated[newStatus] = [...updated[newStatus], seriesToAdd];
-        
+        // Añadir al bucket nuevo
+        updated[newStatus] = [
+          ...updated[newStatus],
+          { ...series, watchingStatus: newStatus }
+        ];
         return updated;
       });
-      
-      // Actualizar watchedSeries si el nuevo estado es "Visto"
-      if (newStatus === 'Visto') {
-        setWatchedSeries(prev => {
-          const exists = prev.find(s => s.tmdbId === series.tmdbId);
-          if (!exists) {
-            return [...prev, series];
-          }
-          return prev;
-        });
-      } else {
-        setWatchedSeries(prev => prev.filter(s => s.tmdbId !== series.tmdbId));
-      }
-      
-      return result;
     } catch (error) {
       console.error('Error updating series status:', error);
       throw error;
     }
   };
 
-  const toggleMovieWatched = (movie) => {
-    setWatchedMovies(prev => {
-      const exists = prev.find(m => m.tmdbId === movie.tmdbId);
-      let updated;
-      
-      if (exists) {
-        updated = prev.filter(m => m.tmdbId !== movie.tmdbId);
-      } else {
-        updated = [...prev, {
-          tmdbId: movie.tmdbId,
-          title: movie.title,
-          posterUrl: movie.posterUrl,
-        }];
-      }
-      
-      // Guardar en localStorage (legacy)
-      localStorage.setItem('watchedMovies', JSON.stringify(updated));
+  const _removeMovieFromStatus = (tmdbId) => {
+    setMovieStatusMap(prev => {
+      const updated = { ...prev };
+      delete updated[tmdbId];
+      return updated;
+    });
+    setMoviesByStatus(prev => {
+      const updated = {};
+      ESTADOS.forEach(s => {
+        updated[s] = (prev[s] || []).filter(m => m.tmdbId !== tmdbId);
+      });
       return updated;
     });
   };
 
-  const toggleSeriesWatched = (series) => {
-    setWatchedSeries(prev => {
-      const exists = prev.find(s => s.tmdbId === series.tmdbId);
-      let updated;
-      
-      if (exists) {
-        updated = prev.filter(s => s.tmdbId !== series.tmdbId);
-      } else {
-        updated = [...prev, {
-          tmdbId: series.tmdbId,
-          title: series.title,
-          posterUrl: series.posterUrl,
-        }];
-      }
-      
-      // Guardar en localStorage (legacy)
-      localStorage.setItem('watchedSeries', JSON.stringify(updated));
+  const _removeSeriesFromStatus = (tmdbId) => {
+    setSeriesStatusMap(prev => {
+      const updated = { ...prev };
+      delete updated[tmdbId];
+      return updated;
+    });
+    setSeriesByStatus(prev => {
+      const updated = {};
+      ESTADOS.forEach(s => {
+        updated[s] = (prev[s] || []).filter(s2 => s2.tmdbId !== tmdbId);
+      });
       return updated;
     });
   };
+
+  // ─── Helpers de consulta rápida ───────────────────────────────────────────
 
   const isMovieFavorite = (tmdbId) => favoriteMovies.some(m => m.tmdbId === tmdbId);
   const isSeriesFavorite = (tmdbId) => favoriteSeries.some(s => s.tmdbId === tmdbId);
-  const isMovieWatched = (tmdbId) => watchedMovies.some(m => m.tmdbId === tmdbId);
-  const isSeriesWatched = (tmdbId) => watchedSeries.some(s => s.tmdbId === tmdbId);
+  const getMovieStatus = (tmdbId) => movieStatusMap[tmdbId] || null;
+  const getSeriesStatus = (tmdbId) => seriesStatusMap[tmdbId] || null;
+  // Legacy
+  const isMovieWatched = (tmdbId) => movieStatusMap[tmdbId] === 'Visto';
+  const isSeriesWatched = (tmdbId) => seriesStatusMap[tmdbId] === 'Visto';
 
   return (
     <MediaContext.Provider
       value={{
         favoriteMovies,
         favoriteSeries,
-        watchedMovies,
-        watchedSeries,
         moviesByStatus,
         seriesByStatus,
         loading,
         toggleMovieFavorite: toggleMovieFavoriteLocal,
         toggleSeriesFavorite: toggleSeriesFavoriteLocal,
-        toggleMovieWatched,
-        toggleSeriesWatched,
         updateMovieWatchingStatus,
         updateSeriesWatchingStatus,
         isMovieFavorite,
         isSeriesFavorite,
         isMovieWatched,
         isSeriesWatched,
+        getMovieStatus,
+        getSeriesStatus,
+        reloadMedia: loadAllMedia,
       }}
     >
       {children}

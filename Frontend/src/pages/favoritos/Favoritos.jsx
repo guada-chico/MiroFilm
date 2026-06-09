@@ -6,17 +6,21 @@ import './Favoritos.css';
 
 export default function Favoritos() {
   const navigate = useNavigate();
-  const { favoriteMovies, favoriteSeries, watchedMovies, watchedSeries, toggleMovieFavorite, toggleSeriesFavorite } = useMedia();
+  const { favoriteMovies, favoriteSeries, moviesByStatus, seriesByStatus, toggleMovieFavorite, toggleSeriesFavorite } = useMedia();
 
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Filtrar favoritos que no están vistas
+  // "Visto" viene del bucket correspondiente del estado de visualización
+  const watchedMovieTmdbIds = new Set((moviesByStatus['Visto'] || []).map(m => m.tmdbId));
+  const watchedSeriesTmdbIds = new Set((seriesByStatus['Visto'] || []).map(s => s.tmdbId));
+
+  // Favoritos que aún no están marcados como vistos
   const unwatchedFavoriteMovies = favoriteMovies.filter(
-    movie => !watchedMovies.find(watched => watched.tmdbId === movie.tmdbId)
+    movie => !watchedMovieTmdbIds.has(movie.tmdbId)
   );
 
   const unwatchedFavoriteSeries = favoriteSeries.filter(
-    series => !watchedSeries.find(watched => watched.tmdbId === series.tmdbId)
+    series => !watchedSeriesTmdbIds.has(series.tmdbId)
   );
 
   const renderMovieSection = (title, movies, IconComponent) => {

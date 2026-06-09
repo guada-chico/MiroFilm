@@ -1,159 +1,104 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+import api from './api-config';
 
-// Obtener el estado de una película
-export async function getMovieWatchingStatus(userId, movieId) {
+/**
+ * Obtiene todos los estados de visualización del usuario autenticado.
+ */
+export async function getMyWatchingStatuses() {
+  const response = await api.get('/WatchingStatus/me');
+  return response.data;
+}
+
+/**
+ * Obtiene el estado de una película por su tmdbId para el usuario autenticado.
+ * Devuelve { status: string | null }
+ */
+export async function getMyMovieStatus(tmdbId) {
   try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus/user/${userId}/movie/${movieId}`);
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error('Error fetching movie watching status');
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching movie watching status:', error);
-    throw error;
+    const response = await api.get(`/WatchingStatus/me/movie/tmdb/${tmdbId}`);
+    return response.data.status;
+  } catch {
+    return null;
   }
 }
 
-// Obtener el estado de una serie
-export async function getSeriesWatchingStatus(userId, seriesId) {
+/**
+ * Obtiene el estado de una serie por su tmdbId para el usuario autenticado.
+ * Devuelve { status: string | null }
+ */
+export async function getMySeriesStatus(tmdbId) {
   try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus/user/${userId}/series/${seriesId}`);
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error('Error fetching series watching status');
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching series watching status:', error);
-    throw error;
+    const response = await api.get(`/WatchingStatus/me/series/tmdb/${tmdbId}`);
+    return response.data.status;
+  } catch {
+    return null;
   }
 }
 
-// Obtener todas las películas de un usuario
-export async function getUserMovies(userId, status = null) {
-  try {
-    const url = new URL(`${API_BASE_URL}/WatchingStatus/user/${userId}/movies`);
-    if (status) {
-      url.searchParams.append('status', status);
-    }
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error('Error fetching user movies');
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching user movies:', error);
-    throw error;
-  }
+/**
+ * Establece o actualiza el estado de una película por tmdbId.
+ * movieData debe contener los datos de la película (title, posterUrl, etc.) por si hay que crearla en BD.
+ */
+export async function setMovieStatus(tmdbId, status, movieData) {
+  const response = await api.post(`/WatchingStatus/me/movie/tmdb/${tmdbId}`, {
+    status,
+    movieData,
+  });
+  return response.data;
 }
 
-// Obtener todas las series de un usuario
-export async function getUserSeries(userId, status = null) {
-  try {
-    const url = new URL(`${API_BASE_URL}/WatchingStatus/user/${userId}/series`);
-    if (status) {
-      url.searchParams.append('status', status);
-    }
-    const response = await fetch(url.toString());
-    if (!response.ok) throw new Error('Error fetching user series');
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching user series:', error);
-    throw error;
-  }
+/**
+ * Establece o actualiza el estado de una serie por tmdbId.
+ * seriesData debe contener los datos de la serie por si hay que crearla en BD.
+ */
+export async function setSeriesStatus(tmdbId, status, seriesData) {
+  const response = await api.post(`/WatchingStatus/me/series/tmdb/${tmdbId}`, {
+    status,
+    seriesData,
+  });
+  return response.data;
 }
 
-// Obtener todos los estados de un usuario
+/**
+ * Elimina el estado de una película por tmdbId.
+ */
+export async function deleteMovieStatus(tmdbId) {
+  await api.delete(`/WatchingStatus/me/movie/tmdb/${tmdbId}`);
+}
+
+/**
+ * Elimina el estado de una serie por tmdbId.
+ */
+export async function deleteSeriesStatus(tmdbId) {
+  await api.delete(`/WatchingStatus/me/series/tmdb/${tmdbId}`);
+}
+
+// ─── Endpoints legacy (user/{userId}) para compatibilidad ───────────────────
+
 export async function getUserWatchingStatus(userId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus/user/${userId}`);
-    if (!response.ok) throw new Error('Error fetching user watching status');
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching user watching status:', error);
-    throw error;
-  }
+  const response = await api.get(`/WatchingStatus/user/${userId}`);
+  return response.data;
 }
 
-// Crear o actualizar el estado de visualización
-export async function createOrUpdateWatchingStatus(watchingStatus) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(watchingStatus),
-    });
-    if (!response.ok) throw new Error('Error creating/updating watching status');
-    return await response.json();
-  } catch (error) {
-    console.error('Error creating/updating watching status:', error);
-    throw error;
-  }
-}
-
-// Actualizar progreso
-export async function updateProgress(statusId, currentMinute, status = null) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus/${statusId}/progress`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        currentMinute,
-        status,
-      }),
-    });
-    if (!response.ok) throw new Error('Error updating progress');
-    return await response.json();
-  } catch (error) {
-    console.error('Error updating progress:', error);
-    throw error;
-  }
-}
-
-// Eliminar estado
-export async function deleteWatchingStatus(statusId) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/WatchingStatus/${statusId}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Error deleting watching status');
-  } catch (error) {
-    console.error('Error deleting watching status:', error);
-    throw error;
-  }
-}
-
-// Cambiar estado de película
 export async function updateMovieStatus(userId, movieId, newStatus) {
-  try {
-    const response = await createOrUpdateWatchingStatus({
-      userId,
-      movieId,
-      status: newStatus,
-      currentMinute: 0,
-    });
-    return response;
-  } catch (error) {
-    console.error('Error updating movie status:', error);
-    throw error;
-  }
+  const response = await api.post('/WatchingStatus', {
+    userId,
+    movieId,
+    status: newStatus,
+    currentMinute: 0,
+  });
+  return response.data;
 }
 
-// Cambiar estado de serie
 export async function updateSeriesStatus(userId, seriesId, newStatus) {
-  try {
-    const response = await createOrUpdateWatchingStatus({
-      userId,
-      seriesId,
-      status: newStatus,
-      currentMinute: 0,
-    });
-    return response;
-  } catch (error) {
-    console.error('Error updating series status:', error);
-    throw error;
-  }
+  const response = await api.post('/WatchingStatus', {
+    userId,
+    seriesId,
+    status: newStatus,
+    currentMinute: 0,
+  });
+  return response.data;
+}
+
+export async function deleteWatchingStatus(statusId) {
+  await api.delete(`/WatchingStatus/${statusId}`);
 }
