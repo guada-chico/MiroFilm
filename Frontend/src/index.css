@@ -27,3 +27,35 @@ body {
   color: var(--text-main);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+/* Custom scrollbar for WebKit browsers */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(255,107,53,0.95), rgba(255,133,85,0.95));
+  border-radius: 10px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  filter: brightness(0.95);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,107,53,0.95) transparent;
+}
+
+/* Ensure scrollable containers use the same look */
+.main-view, .chat-messages, .notifications-dropdown, .content-area, .ayuda-grid, .faq-list {
+  scrollbar-width: thin;
+}
