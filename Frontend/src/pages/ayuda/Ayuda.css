@@ -37,7 +37,7 @@
 
 .ayuda-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr;
   gap: 30px;
 }
 
@@ -99,9 +99,7 @@
 
 /* CONTACT CARDS */
 .contact-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: none;
 }
 
 .contact-card {
@@ -195,6 +193,37 @@
   }
   to {
     transform: translateY(0);
+  }
+}
+
+/* Botón flotante de chat */
+.floating-chat-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 1100;
+  background: linear-gradient(135deg,#ff6b35 0%,#ff8555 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.floating-chat-btn span {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  .floating-chat-btn {
+    right: 14px;
+    bottom: 18px;
+    padding: 10px 12px;
   }
 }
 

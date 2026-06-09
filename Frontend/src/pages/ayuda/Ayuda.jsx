@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, HelpCircle, MessageSquare, Mail, ChevronDown, ChevronUp, Send, X } from 'lucide-react';
+import { ArrowLeft, HelpCircle, MessageSquare, ChevronDown, ChevronUp, Send, X } from 'lucide-react';
 import { useSettings } from '../../context/SettingsContext';
 import { getT } from '../../i18n';
 import './Ayuda.css';
@@ -52,7 +52,7 @@ export default function Ayuda() {
     },
     {
       pregunta: "¿Para qué sirve el chatbot de IA?",
-      respuesta: "El asistente de IA está disponible en esta misma página. Puedes hacerle preguntas sobre cómo usar la aplicación, pedir recomendaciones de películas o series, o resolver cualquier duda. Haz clic en 'Abrir Chat' para empezar."
+      respuesta: "El asistente de IA está disponible en esta misma página. Puedes hacerle preguntas sobre cómo usar la aplicación, pedir recomendaciones de películas o series, o resolver cualquier duda. Pulsa el botón 'Ayuda' en la esquina inferior derecha para empezar."
     },
     {
       pregunta: "¿Cómo edito mi perfil?",
@@ -193,23 +193,16 @@ export default function Ayuda() {
           </div>
         </section>
 
-        {/* CANALES DE CONTACTO */}
-        <aside className="contact-sidebar">
-          <div className="contact-card">
-            <MessageSquare size={30} color="#ff6b35" />
-            <h4>Chatbot de IA</h4>
-            <p>Habla con nuestro asistente de IA para obtener ayuda instantánea.</p>
-            <button className="contact-btn" onClick={() => setShowChat(true)}>Abrir Chat</button>
-          </div>
-
-          <div className="contact-card">
-            <Mail size={30} color="#ff6b35" />
-            <h4>Soporte por Email</h4>
-            <p>Envíanos tus dudas y responderemos en menos de 24h.</p>
-            <button className="contact-btn secondary">Enviar Correo</button>
-          </div>
-        </aside>
+        {/* CANALES DE CONTACTO - ahora el chat es un botón flotante */}
       </div>
+
+      {/* BOTÓN FLOTANTE DE CHAT (oculto cuando el modal está abierto) */}
+      {!showChat && (
+        <button className="floating-chat-btn" onClick={() => setShowChat(true)} aria-label="Abrir chat de ayuda">
+          <MessageSquare size={18} color="#fff" />
+          <span>Ayuda</span>
+        </button>
+      )}
 
       {/* MODAL DE CHAT */}
       {showChat && (
