@@ -105,6 +105,13 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Aplicar migraciones pendientes al arrancar la aplicación (crea/actualiza la BD)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // --- 6. PIPELINE DE MIDDLEWARE (El orden importa) ---
 
 if (app.Environment.IsDevelopment())

@@ -41,6 +41,7 @@ export default function Amigos() {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const [friendFavorites, setFriendFavorites] = useState([]);
   const [friendWatching, setFriendWatching] = useState([]);
+  const [friendWatched, setFriendWatched] = useState([]);
   const [friendshipStatus, setFriendshipStatus] = useState(null);
   const [loadingFriendProfile, setLoadingFriendProfile] = useState(false);
 
@@ -236,14 +237,17 @@ export default function Amigos() {
       // Obtener el ID del amigo (no del objeto friendship)
       const friendId = getFriendId(friend);
       
-      const [favorites, watching, status] = await Promise.all([
+      const [favorites, watching, watched, status] = await Promise.all([
         getFriendFavorites(friendId),
         getFriendWatching(friendId),
+        // Nuevo: obtener vistos
+        getFriendWatched(friendId),
         getFriendshipStatus(friendId)
       ]);
       
       setFriendFavorites(favorites);
       setFriendWatching(watching);
+      setFriendWatched(watched);
       setFriendshipStatus(status);
     } catch (err) {
       console.error('Error cargando perfil:', err);
@@ -610,6 +614,23 @@ export default function Amigos() {
                             ></div>
                           </div>
                           <p className="progress-text">{movie.progress}%</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Películas/Series vistas */}
+                {friendWatched.length > 0 && (
+                  <div className="friend-section">
+                    <h3>
+                      <Clock size={18} /> Vistos
+                    </h3>
+                    <div className="friend-content-grid">
+                      {friendWatched.slice(0, 8).map((item) => (
+                        <div key={item.id} className="friend-content-item">
+                          <img src={item.posterUrl} alt={item.title} />
+                          <p className="content-title">{item.title}</p>
                         </div>
                       ))}
                     </div>

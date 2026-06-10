@@ -249,5 +249,65 @@ namespace Miro.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Obtiene las películas y series que un amigo ha marcado como "Visto".
+        /// </summary>
+        [HttpGet("friend-watched/{friendId}")]
+        public async Task<IActionResult> GetFriendWatched(int friendId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            // Verificar que son amigos
+            var areFriends = await _context.Friendships
+                .AnyAsync(f => (f.UserRequestId == userId && f.UserReceiveId == friendId ||
+                               f.UserRequestId == friendId && f.UserReceiveId == userId) &&
+                               f.Status == "Accepted");
+
+            if (!areFriends)
+                return Forbid("No eres amigo de este usuario.");
+
+            var watched = await _context.WatchingStatuses
+                .Where(w => w.UserId == friendId && w.Status == "Visto")
+                .Include(w => w.Movie)
+                .Include(w => w.Series)
+                .ToListAsync();
+
+            var result = new List<object>();
+
+            foreach (var w in watched)
+            {
+                if (w.MovieId.HasValue && w.Movie != null)
+                {
+                    result.Add(new
+                    {
+                        id = w.Id,
+                        tmdbId = w.Movie.TmdbId,
+                        title = w.Movie.Title,
+                        posterUrl = w.Movie.PosterUrl,
+                        type = "movie",
+                        watchedAt = w.UpdatedAt
+                    });
+                }
+                else if (w.SeriesId.HasValue && w.Series != null)
+                {
+                    result.Add(new
+                    {
+                        id = w.Id,
+                        tmdbId = w.Series.TmdbId,
+                        title = w.Series.Title,
+                        posterUrl = w.Series.PosterUrl,
+                        type = "series",
+                        watchedAt = w.UpdatedAt
+                    });
+                }
+            }
+
+            return Ok(result);
+        }
     }
 }

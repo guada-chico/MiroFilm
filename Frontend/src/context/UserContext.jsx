@@ -5,6 +5,7 @@ const UserContext = createContext();
 
 export function UserProvider({ children }) {
   const [user, setUser] = useState({
+    id: null,
     name: 'Usuario',
     email: '',
     avatarUrl: null
@@ -32,6 +33,7 @@ export function UserProvider({ children }) {
       const token = localStorage.getItem('token');
       if (!token) {
         setUser({
+          id: null,
           name: 'Usuario',
           email: '',
           avatarUrl: null
@@ -42,6 +44,7 @@ export function UserProvider({ children }) {
       
       const data = await getProfile();
       setUser({
+        id: data.id || null,
         name: data.name || 'Usuario',
         email: data.email || '',
         avatarUrl: data.avatarUrl || null
@@ -50,6 +53,7 @@ export function UserProvider({ children }) {
       console.error('Error loading user profile:', error);
       // Si hay error, limpiar el usuario
       setUser({
+        id: null,
         name: 'Usuario',
         email: '',
         avatarUrl: null
@@ -65,6 +69,7 @@ export function UserProvider({ children }) {
 
   const clearUser = () => {
     setUser({
+      id: null,
       name: 'Usuario',
       email: '',
       avatarUrl: null

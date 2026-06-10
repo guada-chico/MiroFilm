@@ -23,3 +23,11 @@ export const getFriendWatching = async (friendId) => {
   const response = await api.get(`/friend-activity/friend-watching/${friendId}`);
   return response.data;
 };
+
+/**
+ * Obtiene las películas/series que un amigo marcó como "Visto".
+ */
+export const getFriendWatched = async (friendId) => {
+  const response = await api.get(`/friend-activity/friend-watched/${friendId}`);
+  return response.data;
+};
