@@ -63,25 +63,7 @@ export default function Ajustes() {
               <span className="slider"></span>
             </label>
           </div>
-
-          <div className="ajuste-item">
-            <div className="ajuste-info">
-              <div className="ajuste-icon-bg"><Globe size={18} /></div>
-              <div>
-                <strong>{t.language}</strong>
-                <p>{t.languageDesc}</p>
-              </div>
-            </div>
-            <select 
-              className="ajuste-select"
-              value={settings.language}
-              onChange={handleLanguageChange}
-            >
-              <option value="es">Español</option>
-              <option value="en">English</option>
-              <option value="fr">Français</option>
-            </select>
-          </div>
+            
         </section>
 
         {/* NOTIFICACIONES: eliminada por solicitud del usuario */}

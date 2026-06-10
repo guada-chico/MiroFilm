@@ -15,7 +15,6 @@ export default function Navbar() {
   const t = getT(settings.language);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showLangMenu, setShowLangMenu] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifs, setLoadingNotifs] = useState(false);
 
@@ -76,16 +75,13 @@ export default function Navbar() {
       if (showNotifications && notiMenuRef.current && !notiMenuRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
-      if (showLangMenu && langMenuRef.current && !langMenuRef.current.contains(event.target)) {
-        setShowLangMenu(false);
-      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showUserMenu, showNotifications, showLangMenu]);
+  }, [showUserMenu, showNotifications]);
 
   const handleLogout = () => {
     clearUser();
@@ -149,29 +145,6 @@ export default function Navbar() {
                   <p className="no-data">{t.common?.noNotifications || 'No hay notificaciones'}</p>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="lang-container" ref={langMenuRef}>
-          <div
-            className="lang-toggle"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowLangMenu(!showLangMenu);
-              setShowUserMenu(false);
-              setShowNotifications(false);
-            }}
-            title={t.settings?.language || 'Language'}
-          >
-            <Globe size={18} />
-          </div>
-
-          {showLangMenu && (
-            <div className="lang-dropdown">
-              <div className="lang-option" onClick={(e) => { e.stopPropagation(); updateSettings({ language: 'es' }); setShowLangMenu(false); }}>Español</div>
-              <div className="lang-option" onClick={(e) => { e.stopPropagation(); updateSettings({ language: 'en' }); setShowLangMenu(false); }}>English</div>
-              <div className="lang-option" onClick={(e) => { e.stopPropagation(); updateSettings({ language: 'fr' }); setShowLangMenu(false); }}>Français</div>
             </div>
           )}
         </div>
