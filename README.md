@@ -1,1 +1,3 @@
-# Miro
+# MiroFilm
+
+MiroFilm es una aplicación web full-stack desarrollada como Proyecto Final del Ciclo Formativo de Grado Superior en Desarrollo de Aplicaciones Multiplataforma (DAM). La plataforma permite a los usuarios registrarse, iniciar sesión y gestionar su propio catálogo de películas y series: registrar el estado de visualización de cada contenido (pendiente, viendo, completada o abandonada), añadirlos a favoritos y llevar un seguimiento personalizado. El sistema integra la API pública de TMDB para obtener información actualizada sobre películas y series, e incorpora un módulo de recomendaciones, un sistema de amistad entre usuarios, notificaciones, gestión de perfil con avatar y un chatbot de asistencia integrado en la sección de ayuda. El backend ha sido desarrollado con ASP.NET Core (C#) y Entity Framework Core sobre SQL Server, mientras que el frontend está construido con React y Vite. La autenticación se basa en tokens JWT. 
