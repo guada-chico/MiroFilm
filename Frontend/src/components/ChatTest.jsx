@@ -1,10 +1,5 @@
 import { useState } from 'react';
 
-/**
- * Componente de prueba para debuggear el chatbot
- * Úsalo llamando a: <ChatTest />
- * Pon console.log en la consola del navegador (F12)
- */
 export default function ChatTest() {
   const [message, setMessage] = useState('');
   const [response, setResponse] = useState('');

@@ -1,9 +1,5 @@
 import api from './api-config';
 
-// ─────────────────────────────────────────────
-//  INTERNET ARCHIVE API (películas/series gratis)
-// ─────────────────────────────────────────────
-
 /**
  * Busca películas y series en Internet Archive.
  * @param {string} query - Término de búsqueda
