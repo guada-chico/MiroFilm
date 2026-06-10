@@ -227,6 +227,63 @@ namespace Miro.Controllers
                 return Unauthorized("No autenticado");
             }
         }
+
+        /// <summary>
+        /// Elimina la cuenta del usuario autenticado y datos relacionados
+        /// </summary>
+        [HttpDelete("me")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            try
+            {
+                int userId = GetUserId();
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                    return NotFound("Usuario no encontrado");
+
+                // Eliminar avatar físico si existe
+                if (!string.IsNullOrEmpty(user.AvatarUrl))
+                {
+                    var filePath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+
+                // Eliminar entidades relacionadas para evitar restricciones FK
+                var favs = _context.Set<Favorite>().Where(f => f.UserId == userId);
+                _context.Set<Favorite>().RemoveRange(favs);
+
+                var watching = _context.Set<WatchingStatus>().Where(w => w.UserId == userId);
+                _context.Set<WatchingStatus>().RemoveRange(watching);
+
+                var reading = _context.Set<ReadingStatus>().Where(r => r.UserId == userId);
+                _context.Set<ReadingStatus>().RemoveRange(reading);
+
+                var notes = _context.Set<Notification>().Where(n => n.UserId == userId);
+                _context.Set<Notification>().RemoveRange(notes);
+
+                // Friendships where user is requester or receiver
+                var friends1 = _context.Set<Friendship>().Where(f => f.UserRequestId == userId);
+                var friends2 = _context.Set<Friendship>().Where(f => f.UserReceiveId == userId);
+                _context.Set<Friendship>().RemoveRange(friends1);
+                _context.Set<Friendship>().RemoveRange(friends2);
+
+                // Guardar los cambios antes de eliminar el usuario
+                await _context.SaveChangesAsync();
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Cuenta eliminada" });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized("No autenticado");
+            }
+        }
     }
 
     // DTOs para las solicitudes
