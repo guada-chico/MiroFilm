@@ -12,7 +12,7 @@ import {
   getFriendshipStatus,
   removeFriend
 } from '../../services/friendship-service';
-import { getFriendsActivity, getFriendFavorites, getFriendWatching } from '../../services/friend-activity-service';
+import { getFriendsActivity, getFriendFavorites, getFriendWatching, getFriendWatched } from '../../services/friend-activity-service';
 import { useSettings } from '../../context/SettingsContext';
 import { useUser } from '../../context/UserContext';
 import { getT } from '../../i18n';
@@ -578,89 +578,92 @@ export default function Amigos() {
               <X size={24} />
             </button>
 
-            {loadingFriendProfile ? (
-              <p style={{ textAlign: 'center', color: '#aaa' }}>Cargando perfil...</p>
-            ) : (
-              <div className="friend-profile-content">
-                <div className="friend-profile-header">
-                  <img
-                    src={getFriendAvatarUrl(selectedFriend)}
-                    alt={getFriendName(selectedFriend)}
-                    className="friend-profile-avatar"
-                    onError={(e) => {
-                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getFriendName(selectedFriend) || 'U')}&background=ff6b35&color=fff&size=150`;
-                    }}
-                  />
-                  <div className="friend-profile-info">
-                    <h2>{getFriendName(selectedFriend)}</h2>
-                    <p>{getFriendEmail(selectedFriend)}</p>
-                  </div>
-                </div>
-
-                {/* Películas que está viendo */}
-                {friendWatching.length > 0 && (
-                  <div className="friend-section">
-                    <h3>
-                      <Eye size={18} /> Viendo Ahora
-                    </h3>
-                    <div className="friend-content-grid">
-                      {friendWatching.map((movie) => (
-                        <div key={movie.id} className="friend-content-item">
-                          <img src={movie.posterUrl} alt={movie.title} />
-                          <div className="progress-bar">
-                            <div 
-                              className="progress-fill" 
-                              style={{ width: `${movie.progress}%` }}
-                            ></div>
-                          </div>
-                          <p className="progress-text">{movie.progress}%</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Películas/Series vistas */}
-                {friendWatched.length > 0 && (
-                  <div className="friend-section">
-                    <h3>
-                      <Clock size={18} /> Vistos
-                    </h3>
-                    <div className="friend-content-grid">
-                      {friendWatched.slice(0, 8).map((item) => (
-                        <div key={item.id} className="friend-content-item">
-                          <img src={item.posterUrl} alt={item.title} />
-                          <p className="content-title">{item.title}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Favoritos */}
-                {friendFavorites.length > 0 && (
-                  <div className="friend-section">
-                    <h3>
-                      <Heart size={18} /> Favoritos
-                    </h3>
-                    <div className="friend-content-grid">
-                      {friendFavorites.slice(0, 6).map((fav) => (
-                        <div key={fav.id} className="friend-content-item">
-                          <img src={fav.posterUrl} alt={fav.title} />
-                          <p className="content-title">{fav.title}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {friendWatching.length === 0 && friendFavorites.length === 0 && (
-                  <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-                    Este amigo aún no tiene actividad
-                  </p>
-                )}
+            {/* Cabecera del perfil (fuera del contenedor scrollable) */}
+            <div className="friend-profile-header">
+              <img
+                src={getFriendAvatarUrl(selectedFriend)}
+                alt={getFriendName(selectedFriend)}
+                className="friend-profile-avatar"
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getFriendName(selectedFriend) || 'U')}&background=ff6b35&color=fff&size=150`;
+                }}
+              />
+              <div className="friend-profile-info">
+                <h2>{getFriendName(selectedFriend)}</h2>
+                <p>{getFriendEmail(selectedFriend)}</p>
               </div>
-            )}
+            </div>
+
+            <div className="friend-profile-content">
+              {loadingFriendProfile ? (
+                <p style={{ textAlign: 'center', color: '#aaa' }}>Cargando perfil...</p>
+              ) : (
+                <>
+                  {/* Películas que está viendo */}
+                  {friendWatching.length > 0 && (
+                    <div className="friend-section">
+                      <h3>
+                        <Eye size={18} /> Viendo Ahora
+                      </h3>
+                      <div className="friend-content-grid">
+                        {friendWatching.map((movie) => (
+                          <div key={movie.id} className="friend-content-item">
+                            <img src={movie.posterUrl} alt={movie.title} />
+                            <div className="progress-bar">
+                              <div 
+                                className="progress-fill" 
+                                style={{ width: `${movie.progress}%` }}
+                              ></div>
+                            </div>
+                            <p className="progress-text">{movie.progress}%</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Películas/Series vistas */}
+                  {friendWatched.length > 0 && (
+                    <div className="friend-section">
+                      <h3>
+                        <Clock size={18} /> Vistos
+                      </h3>
+                      <div className="friend-content-grid">
+                        {friendWatched.slice(0, 8).map((item) => (
+                          <div key={item.id} className="friend-content-item">
+                            <img src={item.posterUrl} alt={item.title} />
+                            <p className="content-title">{item.title}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Favoritos */}
+                  {friendFavorites.length > 0 && (
+                    <div className="friend-section">
+                      <h3>
+                        <Heart size={18} /> Favoritos
+                      </h3>
+                      <div className="friend-content-grid">
+                        {friendFavorites.slice(0, 6).map((fav) => (
+                          <div key={fav.id} className="friend-content-item">
+                            <img src={fav.posterUrl} alt={fav.title} />
+                            <p className="content-title">{fav.title}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {friendWatching.length === 0 && friendFavorites.length === 0 && (
+                    <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
+                      Este amigo aún no tiene actividad
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

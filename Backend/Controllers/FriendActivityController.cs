@@ -155,7 +155,7 @@ namespace Miro.Controllers
                                f.Status == "Accepted");
 
             if (!areFriends)
-                return Forbid("No eres amigo de este usuario.");
+                return Forbid();
 
             var favorites = await _context.Favorites
                 .Where(f => f.UserId == friendId && (f.TmdbMovieId.HasValue || f.TmdbSeriesId.HasValue))
@@ -229,7 +229,7 @@ namespace Miro.Controllers
                                f.Status == "Accepted");
 
             if (!areFriends)
-                return Forbid("No eres amigo de este usuario.");
+                return Forbid();
 
             var watching = await _context.WatchingStatuses
                 .Where(w => w.UserId == friendId && w.Status == "Viendo")
@@ -269,7 +269,7 @@ namespace Miro.Controllers
                                f.Status == "Accepted");
 
             if (!areFriends)
-                return Forbid("No eres amigo de este usuario.");
+                return Forbid();
 
             var watched = await _context.WatchingStatuses
                 .Where(w => w.UserId == friendId && w.Status == "Visto")
