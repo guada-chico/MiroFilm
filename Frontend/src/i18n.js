@@ -65,6 +65,8 @@ const translations = {
       deleteBtn: 'Eliminar',
     },
     common: {
+      notifications: 'Notificaciones',
+      noNotifications: 'No hay notificaciones',
       continueReading: 'Continuar leyendo',
       noActiveReading: 'No tienes ninguna lectura activa. ¡Añade un libro a tu biblioteca!',
       recommendedInSpanish: 'Recomendados en español',
@@ -202,6 +204,8 @@ const translations = {
       deleteBtn: 'Delete',
     },
     common: {
+      notifications: 'Notifications',
+      noNotifications: 'No notifications',
       continueReading: 'Continue Reading',
       noActiveReading: 'You have no active reading. Add a book to your library!',
       recommendedInSpanish: 'Recommended in Spanish',
@@ -348,6 +352,8 @@ const translations = {
       deleteBtn: 'Supprimer',
     },
     common: {
+      notifications: 'Notifications',
+      noNotifications: 'Aucune notification',
       continueReading: 'Continuer la Lecture',
       noActiveReading: 'Vous n\'avez pas de lecture active. Ajoutez un livre à votre bibliothèque!',
       recommendedInSpanish: 'Recommandé en Espagnol',

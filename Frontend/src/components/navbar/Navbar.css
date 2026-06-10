@@ -19,6 +19,61 @@
   position: relative; /* Clave para posicionar los dropdowns */
 }
 
+.lang-container {
+  position: relative;
+}
+
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  color: #444;
+}
+
+.lang-toggle:hover {
+  background: #f6f5f3;
+  color: #ff6b35;
+}
+
+.lang-dropdown {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  background: white;
+  min-width: 140px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 6px 0;
+  z-index: 1000;
+  border: 1px solid #eee;
+}
+
+.lang-option {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: #444;
+  cursor: pointer;
+}
+
+.lang-option:hover {
+  background: #f3f0e7;
+  color: #ff6b35;
+}
+
+:root[data-theme="dark"] .lang-dropdown {
+  background: #2a2a2a;
+  border: 1px solid #444;
+}
+
+:root[data-theme="dark"] .lang-option {
+  color: #b0b0b0;
+}
+
 /* --- DROPDOWNS COMUNES --- */
 .notifications-dropdown, .user-dropdown {
   position: absolute;

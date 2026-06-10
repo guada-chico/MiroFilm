@@ -18,11 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // --- 2. REGISTRO DE TUS 8 SERVICIOS (Dependency Injection) ---
 // Registramos cada interfaz con su clase según tu estructura de carpetas
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IReadingService, ReadingService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<ISeriesService, SeriesService>();
 
@@ -30,10 +28,8 @@ builder.Services.AddScoped<ISeriesService, SeriesService>();
 builder.Services.AddHttpClient<Miro.Services.Interfaces.IAIService, Miro.Services.OpenAIService>();
 
 // Registro especial para APIS externas que usan HttpClient
-builder.Services.AddHttpClient<IGoogleBookService, GoogleBookService>();
 builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();
-builder.Services.AddHttpClient<INytBooksService, NytBooksService>();
-builder.Services.AddHttpClient<IPrhBooksService, PrhBooksService>();
+// Google/NYT/PRH book-related HTTP clients removed
 builder.Services.AddHttpClient<ITmdbService, TmdbService>();
 
 // --- 3. CONFIGURACIÓN DE SEGURIDAD (JWT) ---
