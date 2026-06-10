@@ -242,7 +242,6 @@ public async Task<IActionResult> DeleteAccount()
         if (user == null)
             return NotFound("Usuario no encontrado");
 
-        // FASE 1: Limpiar los archivos físicos (Avatar)
         if (!string.IsNullOrEmpty(user.AvatarUrl))
         {
             var filePath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/'));
@@ -252,7 +251,6 @@ public async Task<IActionResult> DeleteAccount()
             }
         }
 
-        // FASE 2: Borrar primero las entidades dependientes (Evita bloqueos de FK)
         var favs = await _context.Favorites.Where(f => f.UserId == userId).ToListAsync();
         if (favs.Any()) _context.Favorites.RemoveRange(favs);
 
@@ -265,14 +263,11 @@ public async Task<IActionResult> DeleteAccount()
         var notes = await _context.Notifications.Where(n => n.UserId == userId).ToListAsync();
         if (notes.Any()) _context.Notifications.RemoveRange(notes);
 
-        // Limpiar amistades cruzadas (donde sea remitente o destinatario)
         var friendships = await _context.Friendships.Where(f => f.UserId == userId || f.FriendId == userId).ToListAsync();
         if (friendships.Any()) _context.Friendships.RemoveRange(friendships);
 
-        // Guardamos los cambios de la Fase 2 para dejar al usuario "libre" de relaciones
         await _context.SaveChangesAsync();
 
-        // FASE 3: Ahora que el usuario no tiene ninguna dependencia, lo borramos de forma segura
         _context.Users.Remove(user);
         await _context.SaveChangesAsync();
 
@@ -284,7 +279,6 @@ public async Task<IActionResult> DeleteAccount()
     }
     catch (Exception ex)
     {
-        // Esto te pintará en la consola de la terminal del backend el error exacto de SQL por si persistiera
         Console.WriteLine($"[ERROR CRÍTICO BORRADO]: {ex.Message}");
         if (ex.InnerException != null) Console.WriteLine($"[INNER EXCEPTION]: {ex.InnerException.Message}");
         
@@ -292,7 +286,6 @@ public async Task<IActionResult> DeleteAccount()
     }
 }
 
-    // DTOs para las solicitudes
     public class UpdateProfileRequest
     {
         public string Name { get; set; } = "";
