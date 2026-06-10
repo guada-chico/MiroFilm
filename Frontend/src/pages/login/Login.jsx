@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { useSettings } from '../../context/SettingsContext';
 import { Mail, Lock, User } from 'lucide-react';
 import { login, register } from '../../services/auth-service';
 import { useUser } from '../../context/UserContext';
@@ -16,6 +17,7 @@ export default function Login({ setToken }) {
   
   const navigate = useNavigate();
   const { loadUserProfile } = useUser();
+  const { settings } = useSettings();
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -33,11 +35,15 @@ export default function Login({ setToken }) {
       if (isRegister) {
         // Validar que las contraseñas coincidan
         if (password !== confirmPassword) {
+          const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+          const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
           Swal.fire({
             title: 'Error',
             text: 'Las contraseñas no coinciden',
             icon: 'error',
-            confirmButtonText: 'Reintentar'
+            confirmButtonText: 'Reintentar',
+            background: swalBg,
+            color: swalColor,
           });
           return;
         }
@@ -45,11 +51,15 @@ export default function Login({ setToken }) {
         // Llamar al servicio de registro
         await register(name, email, password);
         
+        const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+        const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
         Swal.fire({
           title: '¡Registro exitoso!',
           text: 'Ahora puedes iniciar sesión',
           icon: 'success',
-          confirmButtonText: 'OK'
+          confirmButtonText: 'OK',
+          background: swalBg,
+          color: swalColor,
         });
         
         // Cambiar a modo login
@@ -64,12 +74,16 @@ export default function Login({ setToken }) {
         // Cargar el perfil del usuario después de login
         await loadUserProfile();
         
+        const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+        const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
         Swal.fire({
           title: '¡Bienvenido!',
           text: 'Acceso concedido',
           icon: 'success',
           confirmButtonText: 'Entrar',
-          timer: 1500
+          timer: 1500,
+          background: swalBg,
+          color: swalColor,
         }).then(() => {
           navigate('/inicio');
         });
@@ -102,11 +116,15 @@ export default function Login({ setToken }) {
         mensaje = error.response?.data || error.message || mensaje;
       }
 
+      const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+      const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
       Swal.fire({
         title: 'Error',
         text: mensaje,
         icon: 'error',
-        confirmButtonText: 'Reintentar'
+        confirmButtonText: 'Reintentar',
+        background: swalBg,
+        color: swalColor,
       });
     }
   };

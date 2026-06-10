@@ -106,8 +106,10 @@
   gap: 25px;
 }
 
+:root { --card-bg: white; }
+
 .amigo-card {
-  background: white;
+  background: var(--card-bg, white);
   padding: 25px;
   border-radius: 30px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.02);
@@ -240,7 +242,7 @@
 }
 
 .request-item {
-  background: white;
+  background: var(--card-bg, white);
   padding: 20px;
   border-radius: 20px;
   display: flex;
@@ -332,7 +334,7 @@
 }
 
 .search-result-item {
-  background: white;
+  background: var(--card-bg, white);
   padding: 20px;
   border-radius: 20px;
   display: flex;
@@ -374,7 +376,7 @@
 }
 
 .activity-item {
-  background: white;
+  background: var(--card-bg, white);
   padding: 20px;
   border-radius: 20px;
   display: flex;
@@ -799,6 +801,58 @@
     flex-wrap: wrap;
   }
 
+
+/* Utility muted text and layout */
+.muted { color: #aaa; }
+.muted-center { text-align: center; }
+.padded { padding: 2rem; }
+ .status-pending { color: #ff6b35; font-weight: 700; }
+
+/* Dark mode overrides */
+:root[data-theme="dark"] .amigos-container {
+  color: var(--text-main, #f0f0f0);
+}
+:root[data-theme="dark"] { --card-bg: #2a2a2a; }
+:root[data-theme="dark"] .amigos-tabs {
+  border-bottom-color: #333;
+}
+:root[data-theme="dark"] .tab-btn {
+  color: #b0b0b0;
+}
+:root[data-theme="dark"] .tab-btn.active {
+  color: #ff6b35;
+  border-bottom-color: #ff6b35;
+}
+:root[data-theme="dark"] .tab-btn:hover { color: #fff; }
+:root[data-theme="dark"] .search-bar-amigos {
+  background: #2a2a2a;
+  box-shadow: none;
+}
+:root[data-theme="dark"] .search-btn,
+:root[data-theme="dark"] .add-friend-btn { background: #333; }
+:root[data-theme="dark"] .amigo-card,
+:root[data-theme="dark"] .request-item,
+:root[data-theme="dark"] .search-result-item,
+:root[data-theme="dark"] .activity-item,
+:root[data-theme="dark"] .faq-section { background: #2a2a2a; box-shadow:none; border-color:#333 }
+:root[data-theme="dark"] .amigo-main-info p,
+:root[data-theme="dark"] .request-info p,
+:root[data-theme="dark"] .result-info p,
+:root[data-theme="dark"] .activity-description { color: #b0b0b0 }
+:root[data-theme="dark"] .amigo-main-info h4,
+:root[data-theme="dark"] .request-info h4,
+:root[data-theme="dark"] .result-info h4 { color: #f0f0f0 }
+:root[data-theme="dark"] .action-btn.profile { background: #333; color: #ddd }
+:root[data-theme="dark"] .action-btn.chat { background: #2a2a2a; color: #ff6b35 }
+:root[data-theme="dark"] .action-btn.delete { background: #3a1f1f; color: #ffbdbd }
+:root[data-theme="dark"] .modal-content { background: #1f1f1f; box-shadow: 0 20px 60px rgba(0,0,0,0.6) }
+:root[data-theme="dark"] .friend-profile-header { background: #2a2a2a; border-bottom-color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.6) }
+:root[data-theme="dark"] .confirm-delete-icon { background: #3a1f1f }
+:root[data-theme="dark"] .confirm-delete-header h2,
+:root[data-theme="dark"] .confirm-delete-message,
+:root[data-theme="dark"] .success-modal h2,
+:root[data-theme="dark"] .success-modal p { color: #f0f0f0 }
+:root[data-theme="dark"] .muted { color: #b0b0b0 }
   .search-form {
     flex-direction: column;
   }
@@ -822,3 +876,42 @@
     max-height: 90vh;
   }
 }
+
+/* Global dark-mode fallback (applies regardless of media queries) */
+:root[data-theme="dark"] {
+  --card-bg: #2a2a2a;
+}
+
+:root[data-theme="dark"] .amigo-card,
+:root[data-theme="dark"] .request-item,
+:root[data-theme="dark"] .search-result-item,
+:root[data-theme="dark"] .activity-item,
+:root[data-theme="dark"] .faq-section,
+:root[data-theme="dark"] .friend-profile-header,
+:root[data-theme="dark"] .modal-content {
+  background: var(--card-bg) !important;
+  box-shadow: none !important;
+}
+
+:root[data-theme="dark"] .friend-profile-header {
+  border-bottom-color: #333 !important;
+}
+
+:root[data-theme="dark"] .amigo-main-info h4,
+:root[data-theme="dark"] .friend-profile-info h2 {
+  color: #f0f0f0 !important;
+}
+
+:root[data-theme="dark"] .amigo-main-info p,
+:root[data-theme="dark"] .friend-profile-info p,
+:root[data-theme="dark"] .request-info p,
+:root[data-theme="dark"] .result-info p,
+:root[data-theme="dark"] .activity-description {
+  color: #bdbdbd !important;
+}
+
+/* Avatar, status and fav button tweaks for dark */
+:root[data-theme="dark"] .amigo-avatar { border-color: rgba(255,255,255,0.04) !important; }
+:root[data-theme="dark"] .status-dot { border-color: #2a2a2a !important; }
+:root[data-theme="dark"] .fav-btn { background: rgba(255,255,255,0.04) !important; box-shadow: none !important; }
+:root[data-theme="dark"] .fav-btn.active { background: rgba(255,107,53,0.06) !important; }

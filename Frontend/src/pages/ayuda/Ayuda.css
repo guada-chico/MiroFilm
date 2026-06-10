@@ -428,6 +428,32 @@
   cursor: not-allowed;
 }
 
+/* Utility muted text */
+.muted { color: #aaa; }
+
+/* Dark mode overrides */
+:root[data-theme="dark"] .ayuda-container { color: var(--text-main, #f0f0f0); }
+:root[data-theme="dark"] .search-bar-ayuda { background: #2a2a2a; box-shadow: none }
+:root[data-theme="dark"] .faq-section { background: #2a2a2a; box-shadow: none }
+:root[data-theme="dark"] .faq-question { color: #f0f0f0 }
+:root[data-theme="dark"] .faq-item { border-color: #333 }
+:root[data-theme="dark"] .faq-item.active .faq-question { background: rgba(255,107,53,0.06); color: #ff6b35 }
+:root[data-theme="dark"] .faq-answer { background: rgba(255,107,53,0.04); color: #bdbdbd }
+:root[data-theme="dark"] .contact-card { background: #2a2a2a; box-shadow:none }
+:root[data-theme="dark"] .contact-card p { color: #bdbdbd }
+:root[data-theme="dark"] .floating-chat-btn { box-shadow: 0 8px 24px rgba(0,0,0,0.6) }
+:root[data-theme="dark"] .chat-modal { background: #1f1f1f; box-shadow: 0 -5px 30px rgba(0,0,0,0.6) }
+:root[data-theme="dark"] .chat-header { background: linear-gradient(135deg,#ff6b35 0%,#ff8555 100%); color: white }
+:root[data-theme="dark"] .chat-welcome { color: #bdbdbd }
+:root[data-theme="dark"] .chat-welcome h3 { color: #f0f0f0 }
+:root[data-theme="dark"] .message.user .message-content { background: #ff6b35; color: white }
+:root[data-theme="dark"] .message.assistant .message-content { background: #2a2a2a; color: #ddd }
+:root[data-theme="dark"] .message-content.loading span { background: #999 }
+:root[data-theme="dark"] .chat-input-area textarea { background: #2a2a2a; border-color: #333; color: #e0e0e0 }
+:root[data-theme="dark"] .chat-input-area textarea:disabled { background: #222 }
+:root[data-theme="dark"] .send-btn { background: #ff6b35 }
+:root[data-theme="dark"] .muted { color: #bdbdbd }
+
 @media (max-width: 768px) {
   .chat-modal {
     max-width: 100%;
@@ -443,3 +469,8 @@
     max-width: 90%;
   }
 }
+
+/* Ensure floating chat button text is visible in all themes */
+.floating-chat-btn span { color: var(--btn-text, #fff); }
+:root[data-theme="dark"] .floating-chat-btn { background: linear-gradient(135deg,#ff6b35 0%,#ff8555 100%); }
+:root[data-theme="dark"] .floating-chat-btn span { color: #fff !important; }

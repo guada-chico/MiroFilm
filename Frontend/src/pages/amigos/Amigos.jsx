@@ -342,7 +342,7 @@ export default function Amigos() {
       {activeTab === 'friends' && (
         <div className="tab-content">
           {loading ? (
-            <p style={{ textAlign: 'center', color: '#aaa' }}>Cargando amigos...</p>
+              <p className="muted muted-center">Cargando amigos...</p>
           ) : amigos.length > 0 ? (
             <div className="amigos-grid">
               {amigos
@@ -389,9 +389,9 @@ export default function Amigos() {
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-              No tienes amigos aún. ¡Busca usuarios para agregar!
-            </p>
+              <p className="muted muted-center padded">
+                No tienes amigos todavía. Busca por nombre o email y envía una solicitud.
+              </p>
           )}
         </div>
       )}
@@ -437,7 +437,7 @@ export default function Amigos() {
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#aaa' }}>No tienes solicitudes pendientes</p>
+                <p className="muted">No tienes solicitudes pendientes</p>
             )}
           </div>
 
@@ -459,7 +459,7 @@ export default function Amigos() {
                       <div>
                         <h4>{req.userReceive?.name}</h4>
                         <p>{req.userReceive?.email}</p>
-                        <small style={{ color: '#ff6b35' }}>Pendiente</small>
+                          <small className="status-pending">Pendiente</small>
                       </div>
                     </div>
                     <div className="request-actions">
@@ -474,7 +474,7 @@ export default function Amigos() {
                 ))}
               </div>
             ) : (
-              <p style={{ color: '#aaa' }}>No has enviado solicitudes</p>
+                <p className="muted">No has enviado solicitudes</p>
             )}
           </div>
         </div>
@@ -497,7 +497,7 @@ export default function Amigos() {
           </form>
 
           {searchLoading ? (
-            <p style={{ textAlign: 'center', color: '#aaa' }}>Buscando...</p>
+              <p className="muted muted-center">Buscando...</p>
           ) : searchResults.length > 0 ? (
             <div className="search-results">
               {searchResults.map((result) => (
@@ -526,9 +526,7 @@ export default function Amigos() {
               ))}
             </div>
           ) : searchQuery && (
-            <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-              No se encontraron usuarios
-            </p>
+              <p className="muted muted-center padded">No se encontraron usuarios</p>
           )}
         </div>
       )}
@@ -565,9 +563,7 @@ export default function Amigos() {
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-              No hay actividad reciente de tus amigos
-            </p>
+              <p className="muted muted-center padded">No hay actividad reciente de tus amigos</p>
           )}
         </div>
       )}
@@ -598,7 +594,7 @@ export default function Amigos() {
 
             <div className="friend-profile-content">
               {loadingFriendProfile ? (
-                <p style={{ textAlign: 'center', color: '#aaa' }}>Cargando perfil...</p>
+                <p className="muted muted-center">Cargando perfil...</p>
               ) : (
                 <>
                   {/* Películas que está viendo */}
@@ -706,9 +702,7 @@ export default function Amigos() {
                   )}
 
                   {friendWatching.length === 0 && friendFavorites.length === 0 && (
-                    <p style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-                      Este amigo aún no tiene actividad
-                    </p>
+                    <p className="muted muted-center padded">Este amigo aún no tiene actividad</p>
                   )}
                 </>
               )}

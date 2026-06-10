@@ -138,6 +138,9 @@ export default function Perfil() {
 
   // ── Borrar foto ───────────────────────────────────────────────────────
   const handleDeleteAvatar = async () => {
+    const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+    const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
+
     const result = await Swal.fire({
       title: '¿Eliminar foto de perfil?',
       text: 'Esta acción no se puede deshacer',
@@ -147,8 +150,8 @@ export default function Perfil() {
       cancelButtonColor: '#ccc',
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar',
-      background: '#fff',
-      color: '#333',
+      background: swalBg,
+      color: swalColor,
       customClass: {
         popup: 'swal-popup',
         title: 'swal-title',
@@ -171,8 +174,8 @@ export default function Perfil() {
         text: 'Tu foto de perfil ha sido eliminada',
         icon: 'success',
         confirmButtonColor: '#ff6b35',
-        background: '#fff',
-        color: '#333',
+        background: swalBg,
+        color: swalColor,
         customClass: {
           popup: 'swal-popup',
           title: 'swal-title',
@@ -186,8 +189,8 @@ export default function Perfil() {
         text: 'No se pudo eliminar la foto',
         icon: 'error',
         confirmButtonColor: '#ff6b35',
-        background: '#fff',
-        color: '#333',
+        background: swalBg,
+        color: swalColor,
         customClass: {
           popup: 'swal-popup',
           title: 'swal-title',

@@ -104,6 +104,9 @@ export default function Ajustes() {
               </div>
             </div>
             <button className="btn-danger-outline" onClick={async () => {
+              const swalBg = settings.theme === 'dark' ? '#2a2a2a' : '#fff';
+              const swalColor = settings.theme === 'dark' ? '#f0f0f0' : '#333';
+
               const result = await Swal.fire({
                 title: '¿Eliminar cuenta?',
                 text: 'Esta acción no se puede deshacer. Tu cuenta y todos los datos asociados serán eliminados.',
@@ -113,8 +116,8 @@ export default function Ajustes() {
                 cancelButtonColor: '#ccc',
                 confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar',
-                background: '#fff',
-                color: '#333',
+                background: swalBg,
+                color: swalColor,
                 customClass: {
                   popup: 'swal-popup',
                   title: 'swal-title',
@@ -130,8 +133,8 @@ export default function Ajustes() {
                   title: 'Eliminando cuenta...',
                   allowOutsideClick: false,
                   didOpen: () => Swal.showLoading(),
-                  background: '#fff',
-                  color: '#333',
+                  background: swalBg,
+                  color: swalColor,
                   customClass: { popup: 'swal-popup' }
                 });
 
@@ -143,8 +146,8 @@ export default function Ajustes() {
                   text: 'Tu cuenta ha sido eliminada correctamente.',
                   icon: 'success',
                   confirmButtonColor: '#ff6b35',
-                  background: '#fff',
-                  color: '#333',
+                  background: swalBg,
+                  color: swalColor,
                   customClass: {
                     popup: 'swal-popup',
                     title: 'swal-title',
@@ -163,8 +166,8 @@ export default function Ajustes() {
                   text: 'No se pudo eliminar la cuenta. Intenta de nuevo más tarde.',
                   icon: 'error',
                   confirmButtonColor: '#ff6b35',
-                  background: '#fff',
-                  color: '#333',
+                  background: swalBg,
+                  color: swalColor,
                   customClass: { popup: 'swal-popup', title: 'swal-title', confirmButton: 'swal-confirm-btn' }
                 });
               }
