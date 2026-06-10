@@ -14,22 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --- 2. REGISTRO DE TUS 8 SERVICIOS (Dependency Injection) ---
-// Registramos cada interfaz con su clase según tu estructura de carpetas
+// --- 2. REGISTRO DE SERVICIOS (Dependency Injection) ---
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<IReadingService, ReadingService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<ISeriesService, SeriesService>();
+builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 
-// Registro especial para APIS externas que usan HttpClient
-builder.Services.AddHttpClient<IGoogleBookService, GoogleBookService>();
-builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>();
-builder.Services.AddHttpClient<INytBooksService, NytBooksService>();
-builder.Services.AddHttpClient<IPrhBooksService, PrhBooksService>();
+// APIs externas
 builder.Services.AddHttpClient<ITmdbService, TmdbService>();
 
 // --- 3. CONFIGURACIÓN DE SEGURIDAD (JWT) ---
@@ -49,7 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// --- 4. CORS (Para que React no sea bloqueado) ---
+// --- 4. CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
@@ -67,12 +60,11 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 
-// --- 5. CONFIGURACIÓN DE SWAGGER ---
+// --- 5. SWAGGER ---
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Miro API", Version = "v1" });
 
-    // Configuración para poder pegar el Token en Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -94,13 +86,11 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
     c.OperationFilter<FormFileOperationFilter>();
-    // Aquí se puede agregar el operation filter para manejo de IFormFile
 });
 
 var app = builder.Build();
 
-// --- 6. PIPELINE DE MIDDLEWARE (El orden importa) ---
-
+// --- 6. PIPELINE DE MIDDLEWARE ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -108,16 +98,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-// Servir archivos estáticos (para avatares)
 app.UseStaticFiles();
-
-// IMPORTANTE: CORS siempre antes de Auth
 app.UseCors("AllowReact");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

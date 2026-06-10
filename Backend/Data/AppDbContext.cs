@@ -8,11 +8,9 @@ namespace Miro.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users => Set<User>();
-        public DbSet<Book> Books => Set<Book>();
         public DbSet<Movie> Movies => Set<Movie>();
         public DbSet<Series> Series => Set<Series>();
         public DbSet<Favorite> Favorites => Set<Favorite>();
-        public DbSet<ReadingStatus> ReadingStatuses { get; set; }
         public DbSet<WatchingStatus> WatchingStatuses { get; set; }
         public DbSet<Friendship> Friendships { get; set; }
         public DbSet<Notification> Notifications { get; set; }
@@ -34,12 +32,7 @@ namespace Miro.Data
                 .HasForeignKey(f => f.UserReceiveId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Seed Data de Libros
-            modelBuilder.Entity<Book>().HasData(
-                new Book { Id = 1, Title = "El Hobbit", Author = "J.R.R. Tolkien", Category = "Fantasía" },
-                new Book { Id = 2, Title = "Neuromante", Author = "William Gibson", Category = "Ciencia Ficción" },
-                new Book { Id = 3, Title = "Cien años de soledad", Author = "Gabriel García Márquez", Category = "Realismo Mágico" }
-            );
+           
 
             // Seed Data de Películas
             modelBuilder.Entity<Movie>().HasData(

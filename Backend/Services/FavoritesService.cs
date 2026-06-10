@@ -14,30 +14,75 @@ namespace Miro.Services
             _context = context;
         }
 
-        public async Task<bool> ToggleFavoriteAsync(int userId, int bookId)
+        public async Task<List<Favorite>> GetUserFavoritesAsync(int userId)
         {
-            var fav = await _context.Favorites
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.BookId == bookId);
+            return await _context.Favorites
+                .Include(f => f.Movie)
+                .Include(f => f.Series)
+                .Where(f => f.UserId == userId)
+                .ToListAsync();
+        }
 
-            if (fav != null)
+        public async Task<List<Favorite>> GetUserMovieFavoritesAsync(int userId)
+        {
+            return await _context.Favorites
+                .Include(f => f.Movie)
+                .Where(f => f.UserId == userId && f.MovieId != null)
+                .ToListAsync();
+        }
+
+        public async Task<List<Favorite>> GetUserSeriesFavoritesAsync(int userId)
+        {
+            return await _context.Favorites
+                .Include(f => f.Series)
+                .Where(f => f.UserId == userId && f.SeriesId != null)
+                .ToListAsync();
+        }
+
+        public async Task<Favorite?> AddFavoriteAsync(int userId, int? movieId, int? seriesId, int? tmdbMovieId, int? tmdbSeriesId)
+        {
+            // Evitar duplicados
+            var exists = await _context.Favorites.AnyAsync(f =>
+                f.UserId == userId &&
+                f.MovieId == movieId &&
+                f.SeriesId == seriesId);
+
+            if (exists) return null;
+
+            var favorite = new Favorite
             {
-                _context.Favorites.Remove(fav);
-                await _context.SaveChangesAsync();
-                return false;
-            }
+                UserId = userId,
+                MovieId = movieId,
+                SeriesId = seriesId,
+                TmdbMovieId = tmdbMovieId,
+                TmdbSeriesId = tmdbSeriesId
+            };
 
-            _context.Favorites.Add(new Favorite { UserId = userId, BookId = bookId });
+            _context.Favorites.Add(favorite);
+            await _context.SaveChangesAsync();
+            return favorite;
+        }
+
+        public async Task<bool> RemoveFavoriteAsync(int userId, int? movieId, int? seriesId)
+        {
+            var favorite = await _context.Favorites.FirstOrDefaultAsync(f =>
+                f.UserId == userId &&
+                f.MovieId == movieId &&
+                f.SeriesId == seriesId);
+
+            if (favorite == null) return false;
+
+            _context.Favorites.Remove(favorite);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // ASEGÚRATE DE QUE ESTE NOMBRE COINCIDA CON LA INTERFAZ
-        public async Task<IEnumerable<Book>> GetUserFavoritesAsync(int userId)
+        public async Task<bool> IsFavoriteAsync(int userId, int? movieId, int? seriesId)
         {
-            return await _context.Favorites
-                .Where(f => f.UserId == userId)
-                .Select(f => f.Book) // Esto trae el objeto Book relacionado
-                .ToListAsync();
+            return await _context.Favorites.AnyAsync(f =>
+                f.UserId == userId &&
+                f.MovieId == movieId &&
+                f.SeriesId == seriesId);
         }
     }
 }
