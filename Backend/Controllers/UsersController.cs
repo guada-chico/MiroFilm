@@ -232,59 +232,65 @@ namespace Miro.Controllers
         /// Elimina la cuenta del usuario autenticado y datos relacionados
         /// </summary>
         [HttpDelete("me")]
-        public async Task<IActionResult> DeleteAccount()
+public async Task<IActionResult> DeleteAccount()
+{
+    try
+    {
+        int userId = GetUserId();
+        var user = await _context.Users.FindAsync(userId);
+
+        if (user == null)
+            return NotFound("Usuario no encontrado");
+
+        // FASE 1: Limpiar los archivos físicos (Avatar)
+        if (!string.IsNullOrEmpty(user.AvatarUrl))
         {
-            try
+            var filePath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/'));
+            if (System.IO.File.Exists(filePath))
             {
-                int userId = GetUserId();
-                var user = await _context.Users.FindAsync(userId);
-
-                if (user == null)
-                    return NotFound("Usuario no encontrado");
-
-                // Eliminar avatar físico si existe
-                if (!string.IsNullOrEmpty(user.AvatarUrl))
-                {
-                    var filePath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/'));
-                    if (System.IO.File.Exists(filePath))
-                    {
-                        System.IO.File.Delete(filePath);
-                    }
-                }
-
-                // Eliminar entidades relacionadas para evitar restricciones FK
-                var favs = _context.Set<Favorite>().Where(f => f.UserId == userId);
-                _context.Set<Favorite>().RemoveRange(favs);
-
-                var watching = _context.Set<WatchingStatus>().Where(w => w.UserId == userId);
-                _context.Set<WatchingStatus>().RemoveRange(watching);
-
-                var reading = _context.Set<ReadingStatus>().Where(r => r.UserId == userId);
-                _context.Set<ReadingStatus>().RemoveRange(reading);
-
-                var notes = _context.Set<Notification>().Where(n => n.UserId == userId);
-                _context.Set<Notification>().RemoveRange(notes);
-
-                // Friendships where user is requester or receiver
-                var friends1 = _context.Set<Friendship>().Where(f => f.UserRequestId == userId);
-                var friends2 = _context.Set<Friendship>().Where(f => f.UserReceiveId == userId);
-                _context.Set<Friendship>().RemoveRange(friends1);
-                _context.Set<Friendship>().RemoveRange(friends2);
-
-                // Guardar los cambios antes de eliminar el usuario
-                await _context.SaveChangesAsync();
-
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Cuenta eliminada" });
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Unauthorized("No autenticado");
+                System.IO.File.Delete(filePath);
             }
         }
+
+        // FASE 2: Borrar primero las entidades dependientes (Evita bloqueos de FK)
+        var favs = await _context.Favorites.Where(f => f.UserId == userId).ToListAsync();
+        if (favs.Any()) _context.Favorites.RemoveRange(favs);
+
+        var watching = await _context.WatchingStatuses.Where(w => w.UserId == userId).ToListAsync();
+        if (watching.Any()) _context.WatchingStatuses.RemoveRange(watching);
+
+        var reading = await _context.ReadingStatuses.Where(r => r.UserId == userId).ToListAsync();
+        if (reading.Any()) _context.ReadingStatuses.RemoveRange(reading);
+
+        var notes = await _context.Notifications.Where(n => n.UserId == userId).ToListAsync();
+        if (notes.Any()) _context.Notifications.RemoveRange(notes);
+
+        // Limpiar amistades cruzadas (donde sea remitente o destinatario)
+        var friendships = await _context.Friendships.Where(f => f.UserId == userId || f.FriendId == userId).ToListAsync();
+        if (friendships.Any()) _context.Friendships.RemoveRange(friendships);
+
+        // Guardamos los cambios de la Fase 2 para dejar al usuario "libre" de relaciones
+        await _context.SaveChangesAsync();
+
+        // FASE 3: Ahora que el usuario no tiene ninguna dependencia, lo borramos de forma segura
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Cuenta eliminada" });
     }
+    catch (UnauthorizedAccessException)
+    {
+        return Unauthorized("No autenticado");
+    }
+    catch (Exception ex)
+    {
+        // Esto te pintará en la consola de la terminal del backend el error exacto de SQL por si persistiera
+        Console.WriteLine($"[ERROR CRÍTICO BORRADO]: {ex.Message}");
+        if (ex.InnerException != null) Console.WriteLine($"[INNER EXCEPTION]: {ex.InnerException.Message}");
+        
+        return StatusCode(500, $"Error interno al eliminar la cuenta: {ex.Message}");
+    }
+}
 
     // DTOs para las solicitudes
     public class UpdateProfileRequest
