@@ -4,7 +4,6 @@
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public int? BookId { get; set; }  // Nullable para soportar libros
         public int? MovieId { get; set; }  // Para películas
         public int? SeriesId { get; set; }  // Para series
         public int? TmdbMovieId { get; set; }  // ID de TMDB para películas
@@ -12,7 +11,6 @@
 
         // Estas propiedades permiten hacer el .Include(f => f.Book) en el controlador
         public User? User { get; set; }
-        public Book? Book { get; set; }
         public Movie? Movie { get; set; }
         public Series? Series { get; set; }
     }

@@ -490,15 +490,24 @@ namespace Miro.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("CurrentMinute")
                         .HasColumnType("int");
 
-                    b.Property<int>("MovieId")
+                    b.Property<int?>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SeriesId")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -506,6 +515,8 @@ namespace Miro.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MovieId");
+
+                    b.HasIndex("SeriesId");
 
                     b.HasIndex("UserId");
 
@@ -594,9 +605,11 @@ namespace Miro.Migrations
                 {
                     b.HasOne("Miro.Models.Movie", "Movie")
                         .WithMany()
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MovieId");
+
+                    b.HasOne("Miro.Models.Series", "Series")
+                        .WithMany()
+                        .HasForeignKey("SeriesId");
 
                     b.HasOne("Miro.Models.User", "User")
                         .WithMany()
@@ -605,6 +618,8 @@ namespace Miro.Migrations
                         .IsRequired();
 
                     b.Navigation("Movie");
+
+                    b.Navigation("Series");
 
                     b.Navigation("User");
                 });
