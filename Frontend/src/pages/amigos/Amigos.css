@@ -503,6 +503,31 @@
   transition: transform 0.2s;
 }
 
+.fav-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 6;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.fav-btn:hover {
+  transform: scale(1.05);
+}
+
+.fav-btn.active {
+  background: #fff5f2;
+}
+
 .friend-content-item:hover {
   transform: scale(1.05);
 }

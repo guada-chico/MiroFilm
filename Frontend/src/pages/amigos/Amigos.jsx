@@ -15,6 +15,7 @@ import {
 import { getFriendsActivity, getFriendFavorites, getFriendWatching, getFriendWatched } from '../../services/friend-activity-service';
 import { useSettings } from '../../context/SettingsContext';
 import { useUser } from '../../context/UserContext';
+import { useMedia } from '../../context/MediaContext';
 import { getT } from '../../i18n';
 import './Amigos.css';
 
@@ -22,6 +23,7 @@ export default function Amigos() {
   const navigate = useNavigate();
   const { settings } = useSettings();
   const { user } = useUser();
+  const { toggleMovieFavorite, toggleSeriesFavorite, isMovieFavorite, isSeriesFavorite } = useMedia();
   const t = getT(settings.language);
   
   // Estados principales
@@ -607,15 +609,28 @@ export default function Amigos() {
                       </h3>
                       <div className="friend-content-grid">
                         {friendWatching.map((movie) => (
-                          <div key={movie.id} className="friend-content-item">
-                            <img src={movie.posterUrl} alt={movie.title} />
+                        <div key={movie.id} className="friend-content-item">
+                          <button
+                            className={`fav-btn ${isMovieFavorite(movie.tmdbId) ? 'active' : ''}`}
+                            onClick={(e) => { e.stopPropagation(); toggleMovieFavorite(movie); }}
+                            title="Añadir a favoritos"
+                            aria-pressed={isMovieFavorite(movie.tmdbId)}
+                          >
+                            {isMovieFavorite(movie.tmdbId) ? (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b35" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                              </svg>
+                            ) : (
+                              <Heart size={16} />
+                            )}
+                          </button>
+                          <img src={movie.posterUrl} alt={movie.title} />
                             <div className="progress-bar">
                               <div 
                                 className="progress-fill" 
                                 style={{ width: `${movie.progress}%` }}
                               ></div>
                             </div>
-                            <p className="progress-text">{movie.progress}%</p>
                           </div>
                         ))}
                       </div>
@@ -631,6 +646,23 @@ export default function Amigos() {
                       <div className="friend-content-grid">
                         {friendWatched.slice(0, 8).map((item) => (
                           <div key={item.id} className="friend-content-item">
+                            <button
+                              className={`fav-btn ${isMovieFavorite(item.tmdbId) || isSeriesFavorite(item.tmdbId) ? 'active' : ''}`}
+                              onClick={(e) => { e.stopPropagation();
+                                if (item.tmdbId) toggleMovieFavorite(item);
+                                else toggleSeriesFavorite(item);
+                              }}
+                              title="Añadir a favoritos"
+                              aria-pressed={isMovieFavorite(item.tmdbId) || isSeriesFavorite(item.tmdbId)}
+                            >
+                              {(isMovieFavorite(item.tmdbId) || isSeriesFavorite(item.tmdbId)) ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b35" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                              ) : (
+                                <Heart size={16} />
+                              )}
+                            </button>
                             <img src={item.posterUrl} alt={item.title} />
                             <p className="content-title">{item.title}</p>
                           </div>
@@ -648,6 +680,23 @@ export default function Amigos() {
                       <div className="friend-content-grid">
                         {friendFavorites.slice(0, 6).map((fav) => (
                           <div key={fav.id} className="friend-content-item">
+                            <button
+                              className={`fav-btn ${ (fav.tmdbId && (isMovieFavorite(fav.tmdbId) || isSeriesFavorite(fav.tmdbId))) ? 'active' : ''}`}
+                              onClick={(e) => { e.stopPropagation();
+                                if (fav.type === 'series' || fav.tmdbSeriesId) toggleSeriesFavorite(fav);
+                                else toggleMovieFavorite(fav);
+                              }}
+                              title="Añadir a favoritos"
+                              aria-pressed={fav.tmdbId ? (isMovieFavorite(fav.tmdbId) || isSeriesFavorite(fav.tmdbId)) : false}
+                            >
+                              {(fav.tmdbId && (isMovieFavorite(fav.tmdbId) || isSeriesFavorite(fav.tmdbId))) ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b35" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6 3.99 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18.01 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
+                              ) : (
+                                <Heart size={16} />
+                              )}
+                            </button>
                             <img src={fav.posterUrl} alt={fav.title} />
                             <p className="content-title">{fav.title}</p>
                           </div>
